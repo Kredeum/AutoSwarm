@@ -1,0 +1,3 @@
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-deploy-lite/=lib/forge-deploy-lite/
+forge-std/=lib/forge-std/src/

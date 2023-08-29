@@ -2,5 +2,20 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+fs_permissions = [{ access = "read-write", path = "./" }]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+[rpc_endpoints]
+gnosis = "https://rpc.ankr.com/gnosis"
+gnosis2 = "https://rpc.gnosis.io"
+#
+sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
+chiado = "https://rpc.chiadochain.net"
+anvil="http://127.0.0.1:8545"
+
+[etherscan]
+gnosis =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
+#
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+chiado =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
