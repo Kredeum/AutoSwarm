@@ -12,8 +12,8 @@ bytecode_hash = "none"
 
 [rpc_endpoints]
 gnosis = "https://rpc.ankr.com/gnosis"
-gnosis2 = "https://rpc.gnosis.io"
 #
+goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 chiado = "https://rpc.chiadochain.net"
 anvil="http://127.0.0.1:8545"
@@ -21,5 +21,6 @@ anvil="http://127.0.0.1:8545"
 [etherscan]
 gnosis =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
 #
+goerli = { key = "${ETHERSCAN_API_KEY}" }
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
 chiado =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
