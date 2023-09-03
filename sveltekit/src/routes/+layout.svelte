@@ -11,6 +11,10 @@
 	</main>
 
 	<footer>
-		<p>visit <a href="https://app.kredeum.com">Kredeum Nfts Factory</a> to Mint your Nfts</p>
+		<p>
+			visit <a href="https://app.kredeum.com" target="_blank" rel="noopener noreferrer"
+				>Kredeum Nfts Factory</a
+			> to Mint your Nfts !!! :)
+		</p>
 	</footer>
 </div>

@@ -3,16 +3,20 @@
 	import type { NftMetadata } from '$lib/types/types';
 
 	import 'viem/window';
-	import { createPublicClient, createWalletClient, custom } from 'viem';
+	import { createPublicClient, createWalletClient, custom, stringToBytes } from 'viem';
 
 	import { onMount } from 'svelte';
 
-	let walletClient: WalletClient;
 	let client: PublicClient;
+	let walletClient: WalletClient;
 
 	let account: string;
 	let chainId: number;
+	let collection: string;
+	let tokenID: string = '81';
 
+	let nftMetadatasUrl: string =
+		'https://bafkreig3ovdhpxvxffv76zwkfwua5zb3fxtjsh2gphlqebgbbbny2o55dy.ipfs.nftstorage.link/';
 	let nftMetadatas: NftMetadata;
 
 	$: console.log('account switch', account);
@@ -51,9 +55,7 @@
 
 	// NFT
 	const metadataGet = async () => {
-		const response = await fetch(
-			'https://bafkreiftw5gka5jz5bor3qmwym2df6bcdt6obh4j4piowousxfl3tfb4gi.ipfs.nftstorage.link/'
-		);
+		const response = await fetch(nftMetadatasUrl);
 		const jsonData = await response.json();
 		console.log(jsonData);
 
@@ -96,14 +98,83 @@
 	};
 </script>
 
-<p>Connect your Metamask and choose your files</p>
-<button on:click={connectMetamask}>connect</button>
-<button on:click={getAddress}>get address</button>
-<button on:click={getBalance}>get balance</button>
-<button on:click={getBlockNumber}>get block number</button>
+<div class="user-config">
+	{#if !account}
+		<button class="btn-connect" on:click={connectMetamask}>
+			Connect your Metamask and choose your files
+		</button>
+	{/if}
+
+	<!-- <div class="provisory">
+		<button on:click={connectMetamask}>connect</button>
+		<button on:click={getAddress}>get address</button>
+		<button on:click={getBalance}>get balance</button>
+		<button on:click={getBlockNumber}>get block number</button>
+	</div> -->
+
+	{#if account}
+		<p class="field-account">{account}</p>
+		<p class="field-account">Chain ID : {chainId}</p>
+	{/if}
+</div>
 
 <section>
 	{#if account}
-		<h3>{account}</h3>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<!-- <article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article>
+		<article>
+			<div
+				class="nft-img"
+				style="background-image: url({nftMetadatas?.image});"
+				aria-label={nftMetadatas?.description}
+			/>
+			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+		</article> -->
 	{/if}
 </section>
