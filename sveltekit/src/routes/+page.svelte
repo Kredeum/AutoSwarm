@@ -1,11 +1,13 @@
 <script lang="ts">
-	import type { WalletClient, PublicClient, Address } from 'viem';
+	import type { WalletClient, PublicClient } from 'viem';
 	import type { NftMetadata } from '$lib/types/types';
 
 	import 'viem/window';
-	import { createPublicClient, createWalletClient, custom, stringToBytes } from 'viem';
+	import { createPublicClient, createWalletClient, custom } from 'viem';
 
 	import { onMount } from 'svelte';
+
+	import { abi, address } from '$lib/abis/hiConfig.json';
 
 	let client: PublicClient;
 	let walletClient: WalletClient;
@@ -91,6 +93,14 @@
 		return blockNumber;
 	};
 
+	const readContract = async () => {
+		const result = await client.readContract({
+			...{ abi, address: address as `0x${string}` },
+			functionName: 'hi'
+		});
+		console.log('readContract ~ result:', result);
+	};
+
 	const connectMetamask = async () => {
 		if (typeof window.ethereum !== 'undefined') {
 			[account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -105,12 +115,12 @@
 		</button>
 	{/if}
 
-	<!-- <div class="provisory">
-		<button on:click={connectMetamask}>connect</button>
+	<div class="provisory">
 		<button on:click={getAddress}>get address</button>
 		<button on:click={getBalance}>get balance</button>
 		<button on:click={getBlockNumber}>get block number</button>
-	</div> -->
+		<button on:click={readContract}>Read Hi contract</button>
+	</div>
 
 	{#if account}
 		<p class="field-account">{account}</p>
@@ -119,14 +129,14 @@
 </div>
 
 <section>
-	{#if account}
+	{#if account && nftMetadatas}
 		<article>
 			<div
 				class="nft-img"
-				style="background-image: url({nftMetadatas?.image});"
-				aria-label={nftMetadatas?.description}
+				style="background-image: url({nftMetadatas.image});"
+				aria-label={nftMetadatas.description}
 			/>
-			<p>{nftMetadatas?.name} <span># {tokenID}</span></p>
+			<p>{nftMetadatas.name} <span># {tokenID}</span></p>
 		</article>
 		<!-- <article>
 			<div
