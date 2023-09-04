@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity 0.8.19;
+pragma solidity ^0.8.0;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.sol";

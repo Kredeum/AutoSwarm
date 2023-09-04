@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
 import {DeployERC6551Registry} from "script/deploy/DeployERC6551Registry.s.sol";
 import {DeploySimpleERC6551Account} from "script/deploy/DeploySimpleERC6551Account.s.sol";

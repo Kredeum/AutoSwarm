@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MITs
-pragma solidity 0.8.19;
+pragma solidity ^0.8.0;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.sol";
 import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
 import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
-
-interface IBzz {
-    function bzzToken() external returns (address);
-}
 
 contract PostageStampTest is Test, ReadWriteJson {
     PostageStamp postageStamp;
@@ -18,10 +14,14 @@ contract PostageStampTest is Test, ReadWriteJson {
         postageStamp = PostageStamp(readAddress("PostageStamp"));
         bzzToken = IERC20(readAddress("BzzToken"));
 
-        require(
-            (address(postageStamp).code.length > 0) && (address(bzzToken).code.length > 0),
-            "BAD NETWORK: no postageStamp or bzzToken"
-        );
+        uint256 postageStampCodeLength = address(postageStamp).code.length;
+        uint256 bzzTokenCodeLength = address(bzzToken).code.length;
+
+        if (postageStampCodeLength == 0 || bzzTokenCodeLength == 0) {
+            console.log("bzzToken:", address(bzzToken), bzzTokenCodeLength);
+            console.log("postageStamp:", address(postageStamp), postageStampCodeLength);
+            revert("BAD NETWORK or ADDRESSES: no postageStamp or bzzToken");
+        }
     }
 
     function test_buyOK() public pure {
@@ -43,7 +43,7 @@ contract PostageStampTest is Test, ReadWriteJson {
 
         vm.startPrank(buyer);
 
-        require(bzzToken.approve(address(postageStamp), totalAmount), "BZZ token error");
+        bzzToken.approve(address(postageStamp), totalAmount);
 
         postageStamp.createBatch(buyer, buyInitialBalancePerChunk, buyDepth, buyBucketDepth, buyNonce, buyImmutable);
 

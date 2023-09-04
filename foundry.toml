@@ -8,7 +8,7 @@ fs_permissions = [
 ]
 
 [rpc_endpoints]
-gnosis = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
+gnosis = "https://rpc.gnosischain.com"
 gnosis2 = "https://rpc.ankr.com/gnosis"
 
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
