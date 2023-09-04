@@ -1,26 +1,21 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
-
 solc_version = "0.8.19"
-optimizer = true
-optimizer_runs = 200
 
-fs_permissions = [{ access = "read-write", path = "./" }]
-bytecode_hash = "none"
+fs_permissions = [
+  { access = "read-write", path = "./addresses.json" },
+  { access = "read-write", path = "./out" },
+]
 
 [rpc_endpoints]
-gnosis = "https://rpc.ankr.com/gnosis"
-#
-goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
+gnosis = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
+gnosis2 = "https://rpc.ankr.com/gnosis"
+
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
-chiado = "https://rpc.chiadochain.net"
-anvil="http://127.0.0.1:8545"
+sepolia2 = "https://rpc.ankr.com/eth_sepolia"
+
+local = "http://127.0.0.1:8545"
 
 [etherscan]
-gnosis =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
-#
-goerli = { key = "${ETHERSCAN_API_KEY}" }
+gnosis = { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
+
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
-chiado =  { key = "${ETHERSCAN_API_KEY_GNOSIS}" }

@@ -4,19 +4,6 @@
     "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
     "NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82"
   },
-  "5": {
-    "chainName": "goerli",
-    "NFTCollection": "0xf37736c1AcDb14f337f616C4FBcD27C2C2F16cb7",
-    "SimpleERC6551Account": "0x1FF204fEE08081bdbEc6B320bf4Fa2cC16efDea6",
-    "ERC6551Registry": "0xa2833Ea5D62f0eA3f7dd75ff948f03295093b481"
-  },
-  "10200": {
-    "chainName": "chiado",
-    "NFTCollection": "0xdb7f48EDceC2F198B4d8b164856D821279C35F15",
-    "SimpleERC6551Account": "0xAf8Ffd6AcA3297387324a2dB6B9E0F4B832987F1",
-    "ERC6551Registry": "0x6CD3204B3C1CF737489C4BC2760bAAf2886f4dC1",
-    "Hi": "0x50d377994e4C95919843d3b40C81Edf88c37e298"
-  },
   "11155111": {
     "chainName": "sepolia",
     "NFTCollection": "0x7415dBa203B0f206d981E72AA792c7d3Cda255B3",
