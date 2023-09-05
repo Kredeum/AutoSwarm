@@ -24,9 +24,16 @@ contract PostageStampTest is Test, ReadWriteJson {
         }
     }
 
-    function test_buyOK() public pure {
+    function test_postage_OK() public pure {
         assert(true);
     }
+
+    // function test_postage_amount(uint256 ttl, uint8 depth) public pure {
+    //     vm.assume(depth < 128);
+    //     vm.assume(ttl <= type(uint128).max);
+
+    //     assert((ttl << depth) == (ttl * (2 ** depth)));
+    // }
 
     function test_postage_buy() public {
         address buyer = msg.sender;

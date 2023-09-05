@@ -11,6 +11,7 @@ contract AutoSwarmTest is Test, ReadWriteJson {
     AutoSwarm autoSwarm;
     PostageStamp postageStamp;
     IERC20 bzzToken;
+    uint8 minDepth;
 
     function setUp() public {
         postageStamp = PostageStamp(readAddress("PostageStamp"));
@@ -29,25 +30,80 @@ contract AutoSwarmTest is Test, ReadWriteJson {
             console.log("autoSwarm:", address(autoSwarm), autoSwarmCodeLength);
             revert("BAD NETWORK or ADDRESSES: no autoSwarm or bzzToken");
         }
+
+        minDepth = postageStamp.minimumBucketDepth();
     }
 
     function test_autoswarm_OK() public pure {
         assert(true);
     }
 
+    function _buy(uint256 ttl, uint8 depth) internal returns (bytes32) {
+        deal(address(bzzToken), address(autoSwarm), ttl << depth);
+        return autoSwarm.stampsBuy(ttl, depth);
+    }
+
+    function _topUp(bytes32 batchId, uint256 ttl) internal {
+        (, uint8 depth,,) = postageStamp.batches(batchId);
+        deal(address(bzzToken), address(autoSwarm), ttl << depth);
+        autoSwarm.stampsTopUp(batchId, ttl);
+    }
+
     function test_autoswarm_buy() public {
         uint256 ttl = 10 weeks;
-        uint8 depth = 20;
-        uint256 bzzAmount = ttl * (1 << depth);
+        bytes32 batchId = _buy(ttl, 20);
 
-        deal(address(bzzToken), address(autoSwarm), bzzAmount);
-
-        bytes32 batchId = autoSwarm.stampsCreate(ttl, depth);
-        // console.logBytes32(batchId);
-
-        uint256 bzzRemaining = postageStamp.remainingBalance(batchId);
-        console.log("test_autoswarm_buy ~ balance:", bzzRemaining);
-
-        assert(bzzRemaining > 0);
+        assert(postageStamp.remainingBalance(batchId) == ttl);
     }
+
+    function test_autoswarm_remaining() public {
+        uint8 depth = 20;
+        uint256 ttl = 10 weeks;
+
+        uint256 lastPrice = postageStamp.lastPrice();
+
+        vm.prank(readAddress("Oracle"));
+        postageStamp.setPrice(lastPrice);
+
+        bytes32 batchId = _buy(ttl, depth);
+
+        vm.roll(postageStamp.lastUpdatedBlock() + 10);
+        assert(postageStamp.remainingBalance(batchId) < ttl);
+    }
+
+    function test_autoswarm_topup() public {
+        uint8 depth = 20;
+        uint256 ttl = 10 weeks;
+        uint256 ttlPlus = 1 weeks;
+
+        bytes32 batchId = _buy(ttl, depth);
+        _topUp(batchId, ttlPlus);
+
+        assert(postageStamp.remainingBalance(batchId) == (ttl + ttlPlus));
+    }
+
+    function test_autoswarm_increase() public {
+        uint8 depth = 20;
+        uint8 depthPlus = 4;
+        uint256 ttl = 10 weeks;
+
+        bytes32 batchId = _buy(ttl, depth);
+        uint256 remainingBalance = postageStamp.remainingBalance(batchId);
+
+        autoSwarm.stampsIncrease(batchId, depth + depthPlus);
+
+        assert(postageStamp.remainingBalance(batchId) == remainingBalance / (1 << depthPlus));
+    }
+
+    // function test_autoswarm_buy_f(uint256 ttl, uint8 depth) public {
+    //     vm.assume(depth < 128);
+    //     vm.assume(minDepth < depth);
+    //     vm.assume(ttl <= type(uint128).max);
+    //     vm.assume(0 < ttl);
+
+    //     deal(address(bzzToken), address(autoSwarm), ttl << depth);
+    //     autoSwarm.stampsBuy(ttl, depth);
+
+    //     assert(true);
+    // }
 }

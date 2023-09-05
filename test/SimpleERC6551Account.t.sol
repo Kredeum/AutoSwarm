@@ -30,7 +30,7 @@ contract SimpleERC6551AccountTest is Test, ReadWriteJson {
         );
     }
 
-    function test_erc6551_OK() public {
+    function test_erc6551_OK() public pure {
         assert(true);
     }
 

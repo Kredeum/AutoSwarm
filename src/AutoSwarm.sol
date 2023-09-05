@@ -16,16 +16,20 @@ contract AutoSwarm {
         _bzzToken = IERC20(_postageStamp.bzzToken());
     }
 
-    function stampsCreate(uint256 ttl, uint8 depth) public returns (bytes32 batchId) {
-        bytes32 nonce = keccak256(abi.encode(msg.sender, _salt));
+    function stampsBuy(uint256 ttl, uint8 depth) public returns (bytes32 batchId) {
+        bytes32 nonce = keccak256(abi.encode(msg.sender, _salt++));
+        uint8 minDepth = _postageStamp.minimumBucketDepth();
 
-        uint256 bzzAmount = ttl * (1 << depth);
-        _bzzToken.approve(address(_postageStamp), bzzAmount);
-
-        _postageStamp.createBatch(msg.sender, ttl, depth, 16, nonce, true);
+        _bzzToken.approve(address(_postageStamp), ttl << depth);
+        _postageStamp.createBatch(msg.sender, ttl, depth, minDepth, nonce, false);
 
         batchId = keccak256(abi.encode(address(this), nonce));
+    }
 
-        _salt++;
+    function stampsTopUp(bytes32 batchId, uint256 ttl) public {
+        (, uint8 depth,,) = _postageStamp.batches(batchId);
+
+        _bzzToken.approve(address(_postageStamp), ttl << depth);
+        _postageStamp.topUp(batchId, ttl);
     }
 }
