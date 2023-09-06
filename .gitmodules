@@ -10,3 +10,6 @@
 [submodule "lib/storage-incentives"]
 	path = lib/storage-incentives
 	url = https://github.com/ethersphere/storage-incentives
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/Openzeppelin/openzeppelin-contracts
