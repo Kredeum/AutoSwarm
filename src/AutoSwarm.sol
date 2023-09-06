@@ -27,7 +27,8 @@ contract AutoSwarm {
     }
 
     function stampsTopUp(bytes32 batchId, uint256 ttl) public {
-        (, uint8 depth,,) = _postageStamp.batches(batchId);
+        // (, uint8 depth,,) = _postageStamp.batches(batchId); // v0.5
+        (, uint8 depth,,,,) = _postageStamp.batches(batchId);
 
         _bzzToken.approve(address(_postageStamp), ttl << depth);
         _postageStamp.topUp(batchId, ttl);

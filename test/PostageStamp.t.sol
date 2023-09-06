@@ -1,45 +1,28 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.0;
 
-import {Test, console} from "forge-std/Test.sol";
-import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.sol";
-import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
-import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
+import "./SetupSwarm.t.sol";
 
-contract PostageStampTest is Test, ReadWriteJson {
-    PostageStamp postageStamp;
-    IERC20 bzzToken;
-
-    function setUp() public {
-        postageStamp = PostageStamp(readAddress("PostageStamp"));
-        bzzToken = IERC20(readAddress("BzzToken"));
-
-        uint256 postageStampCodeLength = address(postageStamp).code.length;
-        uint256 bzzTokenCodeLength = address(bzzToken).code.length;
-
-        if (postageStampCodeLength == 0 || bzzTokenCodeLength == 0) {
-            console.log("bzzToken:", address(bzzToken), bzzTokenCodeLength);
-            console.log("postageStamp:", address(postageStamp), postageStampCodeLength);
-            revert("BAD NETWORK or ADDRESSES: no postageStamp or bzzToken");
-        }
-    }
-
+contract PostageStampTest is SetupSwarmTest {
     function test_postage_OK() public pure {
         assert(true);
     }
 
-    // function test_postage_amount(uint256 ttl, uint8 depth) public pure {
+    // function test_postage_amount_fuzz(uint256 ttl, uint8 depth) public pure {
     //     vm.assume(depth < 128);
     //     vm.assume(ttl <= type(uint128).max);
 
-    //     assert((ttl << depth) == (ttl * (2 ** depth)));
-    // }
+    function test_postage_amount() public pure {
+        uint256 ttl = 10 weeks;
+        uint8 depth = 20;
+        assert((ttl << depth) == (ttl * (2 ** depth)));
+    }
 
     function test_postage_buy() public {
         address buyer = msg.sender;
         uint256 buyInitialBalancePerChunk = 100000000000;
         uint8 buyDepth = 20;
-        uint8 buyBucketDepth = 16;
+        uint8 buyBucketDepth = minDepth;
         bytes32 buyNonce = keccak256(abi.encode(block.number));
         bool buyImmutable = true;
 

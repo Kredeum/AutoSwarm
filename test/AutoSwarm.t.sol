@@ -1,52 +1,22 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.0;
 
-import {Test, console} from "forge-std/Test.sol";
-import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.sol";
-import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
-import {AutoSwarm} from "src/AutoSwarm.sol";
-import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
+import "./SetupSwarm.t.sol";
 
-contract AutoSwarmTest is Test, ReadWriteJson {
-    AutoSwarm autoSwarm;
-    PostageStamp postageStamp;
-    IERC20 bzzToken;
-    uint8 minDepth;
-
-    function setUp() public {
-        postageStamp = PostageStamp(readAddress("PostageStamp"));
-        bzzToken = IERC20(readAddress("BzzToken"));
-
-        autoSwarm = new AutoSwarm(address(postageStamp));
-        // autoSwarm = AutoSwarm(readAddress("AutoSwarm"));
-
-        uint256 postageStampCodeLength = address(autoSwarm).code.length;
-        uint256 bzzTokenCodeLength = address(bzzToken).code.length;
-        uint256 autoSwarmCodeLength = address(autoSwarm).code.length;
-
-        if (postageStampCodeLength == 0 || bzzTokenCodeLength == 0 || autoSwarmCodeLength == 0) {
-            console.log("postageStamp:", address(postageStamp), postageStampCodeLength);
-            console.log("bzzToken:", address(bzzToken), bzzTokenCodeLength);
-            console.log("autoSwarm:", address(autoSwarm), autoSwarmCodeLength);
-            revert("BAD NETWORK or ADDRESSES: no autoSwarm or bzzToken");
-        }
-
-        minDepth = postageStamp.minimumBucketDepth();
-    }
-
-    function test_autoswarm_OK() public pure {
-        assert(true);
-    }
-
+contract AutoSwarmTest is SetupSwarmTest {
     function _buy(uint256 ttl, uint8 depth) internal returns (bytes32) {
         deal(address(bzzToken), address(autoSwarm), ttl << depth);
         return autoSwarm.stampsBuy(ttl, depth);
     }
 
     function _topUp(bytes32 batchId, uint256 ttl) internal {
-        (, uint8 depth,,) = postageStamp.batches(batchId);
+        (, uint8 depth,,,,) = postageStamp.batches(batchId);
         deal(address(bzzToken), address(autoSwarm), ttl << depth);
         autoSwarm.stampsTopUp(batchId, ttl);
+    }
+
+    function test_autoswarm_OK() public pure {
+        assert(true);
     }
 
     function test_autoswarm_buy() public {
@@ -59,15 +29,15 @@ contract AutoSwarmTest is Test, ReadWriteJson {
     function test_autoswarm_remaining() public {
         uint8 depth = 20;
         uint256 ttl = 10 weeks;
+        console.log("test_autoswarm_remaining ~ ttl:", ttl);
 
         uint256 lastPrice = postageStamp.lastPrice();
-
-        vm.prank(readAddress("Oracle"));
-        postageStamp.setPrice(lastPrice);
+        vm.prank(oracle);
+        postageStamp.setPrice(lastPrice + 1);
 
         bytes32 batchId = _buy(ttl, depth);
 
-        vm.roll(postageStamp.lastUpdatedBlock() + 10);
+        vm.roll(postageStamp.lastUpdatedBlock() + 1);
         assert(postageStamp.remainingBalance(batchId) < ttl);
     }
 
@@ -90,7 +60,7 @@ contract AutoSwarmTest is Test, ReadWriteJson {
         bytes32 batchId = _buy(ttl, depth);
         uint256 remainingBalance = postageStamp.remainingBalance(batchId);
 
-        autoSwarm.stampsIncrease(batchId, depth + depthPlus);
+        postageStamp.increaseDepth(batchId, depth + depthPlus);
 
         assert(postageStamp.remainingBalance(batchId) == remainingBalance / (1 << depthPlus));
     }
