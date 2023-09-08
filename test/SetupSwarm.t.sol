@@ -53,10 +53,10 @@ contract SetUpSwarm is Test, DeployLite {
         console.log(address(bzzToken), "BzzToken");
         minDepth = postageStamp.minimumBucketDepth();
 
-        setUpSwarmBatchId0(address(this));
+        batchId0 = setUpSwarmBatchId(address(this));
     }
 
-    function setUpSwarmBatchId0(address stamper) public {
+    function setUpSwarmBatchId(address stamper) public returns (bytes32) {
         deal(address(bzzToken), stamper, ttl0 << depth0);
 
         vm.prank(stamper);
@@ -65,6 +65,6 @@ contract SetUpSwarm is Test, DeployLite {
         vm.prank(stamper);
         postageStamp.createBatch(stamper, ttl0, depth0, minDepth, nonce, false);
 
-        batchId0 = keccak256(abi.encode(stamper, nonce));
+        return keccak256(abi.encode(stamper, nonce));
     }
 }

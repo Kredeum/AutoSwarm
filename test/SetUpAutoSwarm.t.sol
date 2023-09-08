@@ -21,6 +21,6 @@ contract SetUpAutoSwarm is SetUpSwarm, SetUpERC6551 {
         setUpERC6551();
         setUpSwarm();
         setUpAutoSwarm();
-        setUpSwarmBatchId0(address(autoSwarm));
+        setUpSwarmBatchId(address(autoSwarm));
     }
 }

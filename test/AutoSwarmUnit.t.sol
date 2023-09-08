@@ -42,7 +42,7 @@ contract AutoSwarmUnitTest is SetUpAutoSwarm {
 
         uint256 remainingBalance = postageStamp.remainingBalance(batchId0);
 
-        vm.prank(address(autoSwarm));
+        vm.prank(postageStamp.batchOwner(batchId0));
         postageStamp.increaseDepth(batchId0, depth0 + depthPlus);
 
         assert(postageStamp.remainingBalance(batchId0) == remainingBalance / (1 << depthPlus));

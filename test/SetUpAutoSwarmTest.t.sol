@@ -10,6 +10,6 @@ contract SetUpAutoSwarmTest is SetUpAutoSwarm {
 
     function test_SetUpAutoSwarm_AutoSwarm() public view {
         (,, bytes memory codeToDeploy) = isDeployed("AutoSwarm");
-        require(keccak256(codeToDeploy) == keccak256(address(autoSwarm).code), "AutoSwarm code differs");
+        require(isSameRunCode(codeToDeploy, address(autoSwarm).code), "AutoSwarm code differs");
     }
 }

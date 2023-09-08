@@ -14,13 +14,12 @@ contract SetUpSwarmTest is SetUpSwarm {
 
     function test_SetUpSwarm_PostageStamps() public view {
         (,, bytes memory codeToDeploy) = isDeployed("PostageStamp");
-        require(keccak256(codeToDeploy) == keccak256(address(postageStamp).code), "PostageStamp code differs");
+        require(isSameRunCode(codeToDeploy, address(postageStamp).code), "postageStamp code differs");
     }
 
     function test_SetUpSwarm_BzzToken() public view {
-        console.log("test_SetUpSwarm_BzzToken ~ bzzToken:", address(bzzToken));
         (,, bytes memory codeToDeploy) = isDeployed("TestToken");
-        require(keccak256(codeToDeploy) == keccak256(address(bzzToken).code), "BzzToken code differs");
+        require(isSameRunCode(codeToDeploy, address(bzzToken).code), "BzzToken code differs");
     }
 
     function test_SetUpSwarm() public view {
