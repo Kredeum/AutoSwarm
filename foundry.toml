@@ -1,3 +1,11 @@
+[profile.solc81]
+src = 'lib/storage-incentives'
+test = 'lib/storage-incentives/test'
+script = 'lib/storage-incentives/script'
+lib = ['lib/storage-incentives/lib']
+
+solc_version = '0.8.1'
+
 [profile.default]
 solc_version = "0.8.19"
 
