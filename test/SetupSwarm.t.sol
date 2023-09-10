@@ -2,13 +2,15 @@
 pragma solidity ^0.8.0;
 
 import {Test, console} from "forge-std/Test.sol";
-import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.sol";
-import {DeployLite} from "lib/forge-deploy-lite/script/DeployLite.sol";
+import {ReadWriteJson} from "lib/forge-deploy-lite/script/ReadWriteJson.s.sol";
+import {DeployLite} from "lib/forge-deploy-lite/script/DeployLite.s.sol";
 import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
 import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
-import {TestToken} from "lib/storage-incentives/src/TestToken.sol";
 
-contract SetUpSwarm is Test, DeployLite {
+import {NewContracts} from "src/lib/NewContracts.sol";
+import {DeployAll} from "script/DeployAll.s.sol";
+
+contract SetUpSwarm is Test, DeployAll {
     PostageStamp public postageStamp;
     IERC20 public bzzToken;
     uint8 public minDepth;
@@ -21,22 +23,11 @@ contract SetUpSwarm is Test, DeployLite {
     bytes32 nonce = keccak256("SetUp Swarm");
 
     function setUpSwarm() public {
-        admin = readAddress("Admin");
+        console.log(msg.sender, "SetUpSwarm   msg.sender");
+        console.log(address(this), "SetUpSwarm   this");
 
-        postageStamp = PostageStamp(readAddress("PostageStamp"));
-        if (address(postageStamp).code.length == 0) {
-            admin = makeAddr("Admin");
-
-            // TestToken testToken = new TestToken(); // v0.5.0
-            // testToken.mint(admin, 1e36);
-            TestToken testToken = new TestToken("BZZ TEST", "TBZZ", 1e36, admin);
-            console.log(address(testToken), "TestToken newly deployed");
-
-            vm.prank(admin);
-            postageStamp = new PostageStamp(address(testToken), 16, admin);
-            console.log(address(postageStamp), "PostageStamp newly deployed");
-            console.log(admin, "Admin role defined");
-        }
+        admin = getAddress("Admin");
+        postageStamp = PostageStamp(deploy("PostageStamp"));
 
         oracle = readAddress("Oracle");
         if (oracle == address(0)) {
@@ -46,11 +37,10 @@ contract SetUpSwarm is Test, DeployLite {
 
             vm.prank(admin);
             postageStamp.grantRole(oracleRole, oracle);
-            console.log(oracle, "Oracle role defined");
+            console.log(oracle, "New role     Oracle");
         }
 
         bzzToken = IERC20(postageStamp.bzzToken());
-        console.log(address(bzzToken), "BzzToken");
         minDepth = postageStamp.minimumBucketDepth();
 
         batchId0 = setUpSwarmBatchId(address(this));

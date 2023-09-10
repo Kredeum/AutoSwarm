@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {DeployERC6551Registry} from "script/deploy/DeployERC6551Registry.s.sol";
-import {DeploySimpleERC6551Account} from "script/deploy/DeploySimpleERC6551Account.s.sol";
+import {DeployContracts} from "script/DeployContracts.s.sol";
+import {console} from "forge-std/Test.sol";
 
-contract DeployAll is DeployERC6551Registry, DeploySimpleERC6551Account {
-    function run() public override(DeployERC6551Registry, DeploySimpleERC6551Account) {
+contract DeployAll is DeployContracts {
+    function run() public {
+        deploy("BzzToken", false);
+        deploy("NFTCollection", false);
         deploy("ERC6551Registry");
         deploy("SimpleERC6551Account");
+        deploy("PostageStamp", false);
+        deploy("AutoSwarm");
+
+        writeAddresses();
     }
 }

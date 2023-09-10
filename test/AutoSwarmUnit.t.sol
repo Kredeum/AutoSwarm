@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.0;
 
+import {console} from "forge-std/Test.sol";
 import "./SetUpAutoSwarm.t.sol";
 
 contract AutoSwarmUnitTest is SetUpAutoSwarm {

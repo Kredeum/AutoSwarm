@@ -3,18 +3,14 @@ pragma solidity ^0.8.0;
 
 import {AutoSwarm} from "src/AutoSwarm.sol";
 
-import "./SetUpSwarm.t.sol";
-import "./SetUpERC6551.t.sol";
+import {SetUpSwarm} from "./SetUpSwarm.t.sol";
+import {SetUpERC6551} from "./SetUpERC6551.t.sol";
 
 contract SetUpAutoSwarm is SetUpSwarm, SetUpERC6551 {
     AutoSwarm public autoSwarm;
 
     function setUpAutoSwarm() public {
-        autoSwarm = AutoSwarm(readAddress("AutoSwarm"));
-        if (address(autoSwarm).code.length == 0) {
-            autoSwarm = new AutoSwarm(address(registry),payable(address(implementation)),payable(address(postageStamp)));
-            console.log(address(autoSwarm), "AutoSwarm newly deployed");
-        }
+        autoSwarm = AutoSwarm(deployAutoSwarm());
     }
 
     function setUp() public {

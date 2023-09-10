@@ -12,13 +12,13 @@ contract SetUpSwarmTest is SetUpSwarm {
         assert(true);
     }
 
-    function test_SetUpSwarm_PostageStamps() public view {
-        (,, bytes memory codeToDeploy) = isDeployed("PostageStamp");
+    function test_SetUpSwarm_PostageStamps() public {
+        bytes memory codeToDeploy = getCodeToDeploy("PostageStamp");
         require(isSameRunCode(codeToDeploy, address(postageStamp).code), "postageStamp code differs");
     }
 
-    function test_SetUpSwarm_BzzToken() public view {
-        (,, bytes memory codeToDeploy) = isDeployed("TestToken");
+    function test_SetUpSwarm_BzzToken() public {
+        bytes memory codeToDeploy = getCodeToDeploy("BzzToken");
         require(isSameRunCode(codeToDeploy, address(bzzToken).code), "BzzToken code differs");
     }
 

@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "./SetUpERC6551.t.sol";
+import {SimpleERC6551Account} from "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol";
+import {IERC721Enumerable} from "lib/forge-std/src/interfaces/IERC721.sol";
 
 contract SimpleERC6551AccountTest is SetUpERC6551 {
     function setUp() public {

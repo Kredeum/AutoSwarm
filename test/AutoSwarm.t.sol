@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.0;
 
+import {console} from "forge-std/Test.sol";
 import "./SetUpAutoSwarm.t.sol";
 
 contract AutoSwarmTest is SetUpAutoSwarm {
@@ -22,7 +23,7 @@ contract AutoSwarmTest is SetUpAutoSwarm {
 
         // Display ttl and volume
         (address owner, uint8 depth,,, uint256 normalisedBalance,) = postageStamp.batches(batchId);
-        console.log(owner, "owner");
+        console.log(owner, "Batch        Owner");
         console.log("depth  ", depth);
         console.log("ttl    ", normalisedBalance);
 
