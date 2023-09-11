@@ -30,6 +30,10 @@ contract AutoSwarm {
         return keccak256(abi.encode(address(this), nonce));
     }
 
+    function increaseDepth(bytes32 batchId, uint8 newDepth) external {
+        _postageStamp.increaseDepth(batchId, newDepth);
+    }
+
     function stampsTopUp(bytes32 batchId, uint256 ttl) public {
         // (, uint8 depth,,) = _postageStamp.batches(batchId); // v0.5
         (, uint8 depth,,,,) = _postageStamp.batches(batchId);

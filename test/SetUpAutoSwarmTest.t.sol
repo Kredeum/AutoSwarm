@@ -8,7 +8,7 @@ contract SetUpAutoSwarmTest is SetUpAutoSwarm {
         assert(true);
     }
 
-    function test_SetUpAutoSwarm_AutoSwarm() public {
+    function test_SetUpAutoSwarm_AutoSwarm() public view {
         bytes memory codeToDeploy = getCodeToDeploy("AutoSwarm");
         require(isSameRunCode(codeToDeploy, address(autoSwarm).code), "AutoSwarm code differs");
     }

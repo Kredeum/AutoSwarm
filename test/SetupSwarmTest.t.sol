@@ -12,17 +12,17 @@ contract SetUpSwarmTest is SetUpSwarm {
         assert(true);
     }
 
-    function test_SetUpSwarm_PostageStamps() public {
+    function test_SetUpSwarm_PostageStamps() public view {
         bytes memory codeToDeploy = getCodeToDeploy("PostageStamp");
         require(isSameRunCode(codeToDeploy, address(postageStamp).code), "postageStamp code differs");
     }
 
-    function test_SetUpSwarm_BzzToken() public {
+    function test_SetUpSwarm_BzzToken() public view {
         bytes memory codeToDeploy = getCodeToDeploy("BzzToken");
         require(isSameRunCode(codeToDeploy, address(bzzToken).code), "BzzToken code differs");
     }
 
-    function test_SetUpSwarm() public view {
+    function test_SetUpSwarm_Swarm() public view {
         require(postageStamp.batchOwner(batchId0) == address(this), "Bad batch owner");
 
         require(postageStamp.bzzToken() == address(bzzToken), "BzzToken not linked by PostageStamp");

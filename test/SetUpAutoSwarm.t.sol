@@ -10,7 +10,7 @@ contract SetUpAutoSwarm is SetUpSwarm, SetUpERC6551 {
     AutoSwarm public autoSwarm;
 
     function setUpAutoSwarm() public {
-        autoSwarm = AutoSwarm(deployAutoSwarm());
+        autoSwarm = AutoSwarm(deploy("AutoSwarm"));
     }
 
     function setUp() public {

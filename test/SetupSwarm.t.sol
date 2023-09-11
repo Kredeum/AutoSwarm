@@ -7,7 +7,6 @@ import {DeployLite} from "lib/forge-deploy-lite/script/DeployLite.s.sol";
 import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
 import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
 
-import {NewContracts} from "src/lib/NewContracts.sol";
 import {DeployAll} from "script/DeployAll.s.sol";
 
 contract SetUpSwarm is Test, DeployAll {
@@ -23,21 +22,20 @@ contract SetUpSwarm is Test, DeployAll {
     bytes32 nonce = keccak256("SetUp Swarm");
 
     function setUpSwarm() public {
-        console.log(msg.sender, "SetUpSwarm   msg.sender");
-        console.log(address(this), "SetUpSwarm   this");
+        log3(msg.sender, "MsgSender", "SetUpSwarm");
+        log3(address(this), "This", "SetUpSwarm");
 
         admin = getAddress("Admin");
-        postageStamp = PostageStamp(deploy("PostageStamp"));
+        oracle = getAddress("Oracle");
 
-        oracle = readAddress("Oracle");
-        if (oracle == address(0)) {
-            oracle = makeAddr("Oracle");
+        postageStamp = PostageStamp(deploy("PostageStamp", false));
 
-            bytes32 oracleRole = postageStamp.PRICE_ORACLE_ROLE();
+        bytes32 oracleRole = postageStamp.PRICE_ORACLE_ROLE();
 
+        if (!postageStamp.hasRole(oracleRole, oracle)) {
             vm.prank(admin);
             postageStamp.grantRole(oracleRole, oracle);
-            console.log(oracle, "New role     Oracle");
+            log3(oracle, "Oracle", "Grant role");
         }
 
         bzzToken = IERC20(postageStamp.bzzToken());

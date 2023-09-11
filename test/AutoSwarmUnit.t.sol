@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {console} from "forge-std/Test.sol";
 import "./SetUpAutoSwarm.t.sol";
+import "forge-std/interfaces/IERC721.sol";
 
 contract AutoSwarmUnitTest is SetUpAutoSwarm {
     function _topUp(bytes32 batchId, uint256 ttl) internal {
@@ -38,26 +39,36 @@ contract AutoSwarmUnitTest is SetUpAutoSwarm {
         assert(postageStamp.remainingBalance(batchId0) == (ttl0 + ttlPlus));
     }
 
-    function test_AutoSwarmUnit_increase() public {
+    function test_AutoSwarmUnit_increaseDepth_by_Batch_Owner() public {
         uint8 depthPlus = 4;
 
         uint256 remainingBalance = postageStamp.remainingBalance(batchId0);
 
-        vm.prank(postageStamp.batchOwner(batchId0));
+        (address batchOwner,,,,,) = postageStamp.batches(batchId0);
+        console.log(batchOwner, "Batch owner");
+
+        vm.prank(batchOwner);
         postageStamp.increaseDepth(batchId0, depth0 + depthPlus);
 
         assert(postageStamp.remainingBalance(batchId0) == remainingBalance / (1 << depthPlus));
     }
 
-    // function test_AutoSwarmUnit_buy_f(uint256 ttl, uint8 depth) public {
-    //     vm.assume(depth < 128);
-    //     vm.assume(minDepth < depth);
-    //     vm.assume(ttl <= type(uint128).max);
-    //     vm.assume(0 < ttl);
+    function test_AutoSwarmUnit_increaseDepth_by_NFT_Owner() public {
+        assert(block.chainid == chainId);
+        address nftOwner = IERC721(collection).ownerOf(tokenId);
+        console.log(collection, "NFT collection", tokenId);
+        console.log(nftOwner, "NFT owner");
 
-    //     deal(address(bzzToken), address(autoSwarm), ttl << depth);
-    //     autoSwarm.stampsBuy(ttl, depth);
+        (address batchOwner,,,,,) = postageStamp.batches(batchId0);
+        console.log(batchOwner, "Batch owner");
 
-    //     assert(true);
-    // }
+        uint8 depthPlus = 4;
+
+        uint256 remainingBalance = postageStamp.remainingBalance(batchId0);
+
+        vm.prank(nftOwner);
+        postageStamp.increaseDepth(batchId0, depth0 + depthPlus);
+
+        assert(postageStamp.remainingBalance(batchId0) == remainingBalance / (1 << depthPlus));
+    }
 }
