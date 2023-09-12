@@ -1,0 +1,18 @@
+{
+    "abi": [
+        {
+            "inputs": [],
+            "name": "hi",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        }
+    ],
+    "address": "0x92Ec7Ce1c957049741a6f64837C12662002Aaa6E"
+}
