@@ -116,6 +116,7 @@
 	{/if}
 
 	<div class="provisory">
+		<button><a href="./auto">AutoSwarmAccount</a></button>
 		<button on:click={getAddress}>get address</button>
 		<button on:click={getBalance}>get balance</button>
 		<button on:click={getBlockNumber}>get block number</button>
