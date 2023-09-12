@@ -16,11 +16,6 @@ contract SetUpSwarm is Test, DeployAll {
     address public admin;
     address public oracle;
 
-    uint8 depth0 = 20;
-    uint256 ttl0 = 10 weeks;
-    bytes32 batchId0;
-    bytes32 nonce = keccak256("SetUp Swarm");
-
     function setUpSwarm() public {
         log3(msg.sender, "MsgSender", "SetUpSwarm");
         log3(address(this), "This", "SetUpSwarm");
@@ -41,18 +36,6 @@ contract SetUpSwarm is Test, DeployAll {
         bzzToken = IERC20(postageStamp.bzzToken());
         minDepth = postageStamp.minimumBucketDepth();
 
-        batchId0 = setUpSwarmBatchId(address(this));
-    }
-
-    function setUpSwarmBatchId(address stamper) public returns (bytes32) {
-        deal(address(bzzToken), stamper, ttl0 << depth0);
-
-        vm.prank(stamper);
-        bzzToken.approve(address(postageStamp), ttl0 << depth0);
-
-        vm.prank(stamper);
-        postageStamp.createBatch(stamper, ttl0, depth0, minDepth, nonce, false);
-
-        return keccak256(abi.encode(stamper, nonce));
+        // batchId0 = setUpSwarmBatchId(address(this));
     }
 }

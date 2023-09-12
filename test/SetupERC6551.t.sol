@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ERC6551Registry} from "lib/erc6551/src/ERC6551Registry.sol";
-import {SimpleERC6551Account} from "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol";
+import {AutoSwarmAccount} from "src/AutoSwarmAccount.sol";
 
 import {DeployAll} from "script/DeployAll.s.sol";
 
@@ -15,7 +15,7 @@ contract SetUpERC6551 is Test, DeployAll {
     uint256 tokenId;
 
     ERC6551Registry registry;
-    SimpleERC6551Account implementation;
+    AutoSwarmAccount implementation;
 
     function setUpERC6551() public {
         log3(msg.sender, "MsgSender", "SetUpERC6551");
@@ -29,6 +29,6 @@ contract SetUpERC6551 is Test, DeployAll {
 
         setDeployer(makeAddr("Deployer"));
         registry = ERC6551Registry(deploy("ERC6551Registry"));
-        implementation = SimpleERC6551Account(payable(deploy("SimpleERC6551Account")));
+        implementation = AutoSwarmAccount(payable(deploy("AutoSwarmAccount")));
     }
 }

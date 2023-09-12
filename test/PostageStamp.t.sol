@@ -13,7 +13,9 @@ contract PostageStampTest is SetUpSwarm {
     }
 
     function test_PostageStamp_amount() public view {
-        assert((ttl0 << depth0) == (ttl0 * (2 ** depth0)));
+        uint256 ttl = 10 weeks;
+        uint8 depth = 20;
+        assert((ttl << depth) == (ttl * (2 ** depth)));
     }
 
     function test_PostageStamp_buy() public {

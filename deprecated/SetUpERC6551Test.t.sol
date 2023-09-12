@@ -23,9 +23,9 @@ contract SetUpERC6551Test is SetUpERC6551 {
         require(isSameRunCode(codeToDeploy, address(registry).code), "ERC6551Registry code differs");
     }
 
-    function test_SetUpERC6551_AutoSwarmAccount() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccount");
-        require(isSameRunCode(codeToDeploy, address(implementation).code), "AutoSwarmAccount code differs");
+    function test_SetUpERC6551_SimpleERC6551Account() public view {
+        bytes memory codeToDeploy = getCodeToDeploy("SimpleERC6551Account");
+        require(isSameRunCode(codeToDeploy, address(implementation).code), "SimpleERC6551Account code differs");
     }
 
     function test_SetUpERC6551() public view {

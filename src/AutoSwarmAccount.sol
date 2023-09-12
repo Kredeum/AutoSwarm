@@ -1,92 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/interfaces/IERC1271.sol";
-import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
-
-import "lib/erc6551/src/interfaces/IERC6551Account.sol";
-import "lib/erc6551/src/interfaces/IERC6551Executable.sol";
 import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
+import {SimpleERC6551Account} from "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol";
+import {ERC6551Registry} from "lib/erc6551/src/ERC6551Registry.sol";
+import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
+import {console} from "forge-std/console.sol";
 
-contract AutoSwarmAccount is IERC165, IERC1271, IERC6551Account, IERC6551Executable {
-    uint256 public state;
+contract AutoSwarmAccount is SimpleERC6551Account {
     PostageStamp internal _postageStamp;
+    IERC20 internal _bzzToken;
+    uint8 internal _minDepth;
+    uint256 count;
 
-    receive() external payable {}
+    constructor(address payable postageStamp_) {
+        _postageStamp = PostageStamp(postageStamp_);
+        _minDepth = _postageStamp.minimumBucketDepth();
+        _bzzToken = IERC20(_postageStamp.bzzToken());
+    }
 
     function setPostageStamp(address postageStamp_) public {
         _postageStamp = PostageStamp(postageStamp_);
     }
 
-    function increaseDepth(bytes32 batchId, uint8 newDepth) external {
+    function stampsBuy(uint256 ttl, uint8 depth) public returns (bytes32) {
+        bytes32 nonce = keccak256(abi.encode(count++));
+
+        _bzzToken.approve(address(_postageStamp), ttl << depth);
+        _postageStamp.createBatch(address(this), ttl, depth, _minDepth, nonce, false);
+
+        return keccak256(abi.encode(address(this), nonce));
+    }
+
+    function stampsTopUp(bytes32 batchId, uint256 ttl) public {
+        (, uint8 depth,,,,) = _postageStamp.batches(batchId);
+
+        _bzzToken.approve(address(_postageStamp), ttl << depth);
+        _postageStamp.topUp(batchId, ttl);
+    }
+
+    function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external {
         _postageStamp.increaseDepth(batchId, newDepth);
-    }
-
-    function execute(address to, uint256 value, bytes calldata data, uint256 operation)
-        external
-        payable
-        returns (bytes memory result)
-    {
-        require(_isValidSigner(msg.sender), "Invalid signer");
-        require(operation == 0, "Only call operations are supported");
-
-        ++state;
-
-        bool success;
-        (success, result) = to.call{value: value}(data);
-
-        if (!success) {
-            assembly {
-                revert(add(result, 32), mload(result))
-            }
-        }
-    }
-
-    function isValidSigner(address signer, bytes calldata) external view returns (bytes4) {
-        if (_isValidSigner(signer)) {
-            return IERC6551Account.isValidSigner.selector;
-        }
-
-        return bytes4(0);
-    }
-
-    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue) {
-        bool isValid = SignatureChecker.isValidSignatureNow(owner(), hash, signature);
-
-        if (isValid) {
-            return IERC1271.isValidSignature.selector;
-        }
-
-        return "";
-    }
-
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-        return (
-            interfaceId == type(IERC165).interfaceId || interfaceId == type(IERC6551Account).interfaceId
-                || interfaceId == type(IERC6551Executable).interfaceId
-        );
-    }
-
-    function token() public view returns (uint256, address, uint256) {
-        bytes memory footer = new bytes(0x60);
-
-        assembly {
-            extcodecopy(address(), add(footer, 0x20), 0x4d, 0x60)
-        }
-
-        return abi.decode(footer, (uint256, address, uint256));
-    }
-
-    function owner() public view returns (address) {
-        (uint256 chainId, address tokenContract, uint256 tokenId) = token();
-        if (chainId != block.chainid) return address(0);
-
-        return IERC721(tokenContract).ownerOf(tokenId);
-    }
-
-    function _isValidSigner(address signer) internal view returns (bool) {
-        return signer == owner();
     }
 }

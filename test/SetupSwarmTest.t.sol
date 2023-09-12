@@ -23,8 +23,6 @@ contract SetUpSwarmTest is SetUpSwarm {
     }
 
     function test_SetUpSwarm_Swarm() public view {
-        require(postageStamp.batchOwner(batchId0) == address(this), "Bad batch owner");
-
         require(postageStamp.bzzToken() == address(bzzToken), "BzzToken not linked by PostageStamp");
         require(bzzToken.totalSupply() > 0, "BzzToken totalSupply is zero");
         require(minDepth >= 16, "MinDepth must be more than 16");

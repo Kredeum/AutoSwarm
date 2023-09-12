@@ -9,8 +9,8 @@ import {ERC6551Registry} from "lib/erc6551/src/ERC6551Registry.sol";
 // import {console} from "forge-std/Test.sol";
 
 contract AutoSwarm {
-    ERC6551Registry _registry;
-    SimpleERC6551Account _implementation;
+    ERC6551Registry internal _registry;
+    SimpleERC6551Account internal s_implementation;
     PostageStamp internal _postageStamp;
     IERC20 internal _bzzToken;
 
@@ -30,10 +30,6 @@ contract AutoSwarm {
         return keccak256(abi.encode(address(this), nonce));
     }
 
-    function increaseDepth(bytes32 batchId, uint8 newDepth) external {
-        _postageStamp.increaseDepth(batchId, newDepth);
-    }
-
     function stampsTopUp(bytes32 batchId, uint256 ttl) public {
         // (, uint8 depth,,) = _postageStamp.batches(batchId); // v0.5
         (, uint8 depth,,,,) = _postageStamp.batches(batchId);
@@ -41,4 +37,9 @@ contract AutoSwarm {
         _bzzToken.approve(address(_postageStamp), ttl << depth);
         _postageStamp.topUp(batchId, ttl);
     }
+
+    function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external {
+        _postageStamp.increaseDepth(batchId, newDepth);
+    }
 }
+
