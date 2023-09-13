@@ -5,5 +5,31 @@
   "solidity.packageDefaultDependenciesDirectory": "lib",
   "solidity.solhintRules": {
     "avoid-sha3": "warn"
-  }
+  },
+  "favorites.resources": [
+    {
+      "filePath": "sveltekit/src/routes/auto/+page.svelte",
+      "group": "Default"
+    },
+    {
+      "filePath": "src/AutoSwarmAccount.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "script/DeployAll.s.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "test/AutoSwarmAccount.t.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "lib/forge-deploy-lite/script/DeployLite.s.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "lib/storage-incentives/src/PostageStamp.sol",
+      "group": "Default"
+    }
+  ]
 }
