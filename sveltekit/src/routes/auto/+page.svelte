@@ -66,13 +66,13 @@
 	const topUp = async () => {
 		console.log('topUp');
 
-		let topUpttl: bigint = (24000n / 5n) * (3600n);
+		let topUpttl: bigint = (24000n / 5n) * 3600n;
 		let topUpBzz: bigint = topUpttl * 2n ** 17n;
 
 		const hash1 = await bzzToken.write.approve([json.PostageStamp as Hex, topUpBzz]);
 		await publicClient.waitForTransactionReceipt({ hash: hash1 });
 
-		const hash2 = await postageStamp.write.topUp([json.batchId as Hex, topUpttl]);
+		const hash2 = await postageStamp.write.topUp([json.batchId1 as Hex, topUpttl]);
 		await publicClient.waitForTransactionReceipt({ hash: hash2 });
 	};
 
@@ -123,12 +123,12 @@
 			onBlockNumber: (num: bigint) => (blockNumber = num)
 		});
 
-		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId as Hex]);
+		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId1 as Hex]);
 		bzz = rBal * 2n ** BigInt(depth);
 		bzzAmount = formatUnits(bzz, 16);
 		bzzOwnerAmount = formatUnits(await bzzToken.read.balanceOf([owner as Hex]), 16);
 
-		bal = await postageStamp.read.remainingBalance([json.batchId as Hex]);
+		bal = await postageStamp.read.remainingBalance([json.batchId1 as Hex]);
 		bzz0 = bal * 2n ** BigInt(depth);
 		bzzAmount0 = formatUnits(bzz0, 16);
 
@@ -153,7 +153,7 @@
 		BzzToken <span>{@html explorerLink(json.BzzToken)}</span>
 	</p>
 	<p>
-		BatchId <span>{json.batchId}</span>
+		batchId1 <span>{json.batchId1}</span>
 	</p>
 	<p>
 		Batch <span>[{@html explorerLink(owner)}, {depth}, {immutable}, {rBal}]</span>

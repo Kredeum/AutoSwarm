@@ -1,18 +1,11 @@
 :root {
     --font-body: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
         Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    /* --font-mono: 'Fira Mono', monospace; */
     --color-bg-0: #000;
     --color-bg-nft: #fff;
-    /* --color-bg-1: hsl(209, 36%, 86%);
-    --color-bg-2: hsl(224, 44%, 95%); */
-    /* --color-theme-1: #ff3e00;
-    --color-theme-2: #4075a6; */
     --color-text-1: #fff;
     --color-text-2: #999;
     --color-link: #FE7900;
-    /* --column-width: 42rem;
-    --column-margin-top: 4rem; */
     --general-wrapper-max-width: 1200px;
 
     font-family: var(--font-body);
@@ -78,6 +71,10 @@ a {
     text-decoration: none;
 }
 
+i {
+    /* color: #000; */
+}
+
 /* Header */
 header img {
     width: 6em;
@@ -128,9 +125,17 @@ header h2 {
     padding: 0.5em 1em;
     width: fit-content;
     margin: 1em auto;
+    background-color: transparent;
+    color: var(--color-text-1);
 }
 
-section {
+button.field-account:hover {
+    color: var(--color-link);
+    border-color: var(--color-link);
+    cursor: pointer;
+}
+
+.nfts-grid {
     max-width: 1024px;
     display: flex;
     /* grid-template-columns: repeat(auto-fit, minmax(calc(200px + 1em), 1fr)); */
