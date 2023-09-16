@@ -255,6 +255,13 @@
 			{/if}
 		</div>
 		<div class="nfts-info">
+			<p>NFT Minter : {nftMetadatas?.minter}</p>
+			<p>
+				NFT Metadatas : <a href={nftMetadatasUrl} target="_blank" rel="noopener noreferrer"
+					>{nftMetadatasUrl}</a
+				>
+			</p>
+			<p>batchId : {batchId}</p>
 			<p class="">Remaining TTL : {displayDuration(bal)}</p>
 		</div>
 		<div class="buttons">
