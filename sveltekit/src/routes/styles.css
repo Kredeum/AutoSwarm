@@ -143,6 +143,13 @@ article p {
 /* BOTTOM SECTION */
 .nfts-info {
     padding: 2em 0;
+    word-wrap: break-word;
+    white-space: pre-line;
+}
+
+p.nfts-info {
+    word-wrap: break-word;
+    white-space: pre-line;
 }
 
 .buttons {
@@ -152,6 +159,10 @@ article p {
 }
 
 /* CLASSES */
+.display-ttl {
+    margin: auto;
+}
+
 .btn {
     border: 1px solid var(--color-text-1);
     border-radius: 2em;

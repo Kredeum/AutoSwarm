@@ -262,7 +262,7 @@
 				>
 			</p>
 			<p>batchId : {batchId}</p>
-			<p class="">Remaining TTL : {displayDuration(bal)}</p>
+			<p class="btn display-ttl">Remaining TTL : {displayDuration(bal)}</p>
 		</div>
 		<div class="buttons">
 			<button class="btn btn-topup" on:click={topUp}>
