@@ -14,7 +14,7 @@
 		<p>
 			visit <a href="https://app.kredeum.com" target="_blank" rel="noopener noreferrer"
 				>Kredeum Nfts Factory</a
-			> to Mint your Nfts !!! :)
+			> to Mint your NFTs :)
 		</p>
 	</footer>
 </div>

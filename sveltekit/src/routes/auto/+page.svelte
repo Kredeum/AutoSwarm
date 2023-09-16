@@ -30,6 +30,9 @@
 		'function batches(bytes32) external view returns(address,uint8,bool,uint256)',
 		'function topUp(bytes32, uint256) external'
 	]);
+
+	let batchId: Hex = json.batchId as Hex;
+
 	let publicClient: PublicClient;
 	let walletClient: WalletClient;
 	let bzzToken: GetContractReturnType;
@@ -72,7 +75,7 @@
 		const hash1 = await bzzToken.write.approve([json.PostageStamp as Hex, topUpBzz]);
 		await publicClient.waitForTransactionReceipt({ hash: hash1 });
 
-		const hash2 = await postageStamp.write.topUp([json.batchId1 as Hex, topUpttl]);
+		const hash2 = await postageStamp.write.topUp([batchId, topUpttl]);
 		await publicClient.waitForTransactionReceipt({ hash: hash2 });
 	};
 
@@ -123,12 +126,12 @@
 			onBlockNumber: (num: bigint) => (blockNumber = num)
 		});
 
-		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId1 as Hex]);
+		[owner, depth, immutable, rBal] = await postageStamp.read.batches([batchId]);
 		bzz = rBal * 2n ** BigInt(depth);
 		bzzAmount = formatUnits(bzz, 16);
 		bzzOwnerAmount = formatUnits(await bzzToken.read.balanceOf([owner as Hex]), 16);
 
-		bal = await postageStamp.read.remainingBalance([json.batchId1 as Hex]);
+		bal = await postageStamp.read.remainingBalance([batchId]);
 		bzz0 = bal * 2n ** BigInt(depth);
 		bzzAmount0 = formatUnits(bzz0, 16);
 
@@ -153,7 +156,7 @@
 		BzzToken <span>{@html explorerLink(json.BzzToken)}</span>
 	</p>
 	<p>
-		batchId1 <span>{json.batchId1}</span>
+		batchId <span>{batchId}</span>
 	</p>
 	<p>
 		Batch <span>[{@html explorerLink(owner)}, {depth}, {immutable}, {rBal}]</span>
@@ -165,7 +168,7 @@
 		Batch remaining Balance <span>{bzzAmount0} Bzz | {displayDuration(balh)}</span>
 	</p>
 	<p>
-		Owner <span>{bzzOwnerAmount} Bzz | {@html explorerLink(owner)}</span>
+		Node Owner <span>{bzzOwnerAmount} Bzz | {@html explorerLink(owner)}</span>
 	</p>
 	<p>
 		Wallet <span>{walletAddressAmount} Bzz | {@html explorerLink(walletAddress)}</span>

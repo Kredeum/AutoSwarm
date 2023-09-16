@@ -41,16 +41,16 @@
 	const postageStampAbi = abi as Abi;
 	console.log('postageStampAbi:', postageStampAbi);
 
-	let batchId: Hex = json.batchId as Hex;
+	let batchId: Hex = json.batchId1 as Hex;
 
 	let publicClient: PublicClient;
 	let walletClient: WalletClient;
 
 	let account: Hex;
 	let chainId: number;
+
 	let collection: string;
 	let tokenID: string = '1';
-
 	let nftMetadatasUrl: string =
 		'https://api.gateway.ethswarm.org/bzz/50e464a94da781c5b8f5b3ce46a948810bfce9bc879a19fc46197ee9b88a7046/';
 	let nftMetadatas: NftMetadata;
@@ -74,6 +74,8 @@
 	const oneMonth = oneDay * 30;
 	const oneYear = oneDay * 365;
 	const secondsPerBlock = 5;
+
+	let topping = false;
 
 	$: console.log('account switch', account);
 	$: console.log('chainId switch', chainId);
@@ -142,7 +144,7 @@
 			eventName: 'BatchTopUp',
 			args: { batchId: batchId },
 			onLogs: (logs) => {
-				console.log('event ', logs);
+				console.log('BatchTopUp event : ', logs);
 				updateRemainingBal();
 			}
 		});
@@ -157,16 +159,21 @@
 	const topUp = async () => {
 		console.log('topUp');
 
+		// Add 1h
 		let topUpttl: bigint = (24000n / 5n) * 3600n;
+
+		// Add 10 days
 		// let topUpttl: bigint = (24000n / 5n) * 3600n * 24n * 10n;
 		let topUpBzz: bigint = topUpttl * 2n ** BigInt(depth);
 		console.log('topUp ~ topUpBzz:', topUpBzz);
 
 		const hash1 = await bzzToken.write.approve([json.PostageStamp as Hex, topUpBzz]);
+		topping = true;
 		await publicClient.waitForTransactionReceipt({ hash: hash1 });
 
 		const hash2 = await postageStamp.write.topUp([batchId, topUpttl]);
 		await publicClient.waitForTransactionReceipt({ hash: hash2 });
+		topping = false;
 	};
 
 	const displayDuration = (duration: number = 0) => {
@@ -218,20 +225,6 @@
 		return addresses[0];
 	};
 
-	const getBalance = async () => {
-		const balance = await publicClient.getBalance({
-			address: await getAddress()
-		});
-		console.log('🚀 ~ file: +page.svelte:75 ~ getBalance ~ balance:', balance);
-		return balance;
-	};
-
-	const getBlockNumber = async () => {
-		const blockNumber = await publicClient.getBlockNumber();
-		console.log('🚀 ~ file: +page.svelte:81 ~ getBlockNumber ~ blockNumber:', blockNumber);
-		return blockNumber;
-	};
-
 	const connectMetamask = async () => {
 		if (typeof window.ethereum !== 'undefined') {
 			[account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -239,44 +232,39 @@
 	};
 </script>
 
-<div class="user-config">
-	{#if !account}
+{#if !account}
+	<section class="user-config">
 		<button class="btn-connect" on:click={connectMetamask}>
 			Connect your Metamask and choose your files
 		</button>
-	{/if}
-
-	<!-- <div class="provisory">
-		<button on:click={getAddress}>get address</button>
-		<button on:click={getBalance}>get balance</button>
-		<button on:click={getBlockNumber}>get block number</button>
-		<button on:click={readContract}>Read Hi contract</button>
-	</div> -->
-
-	{#if account}
-		<p class="field-account">{account}</p>
-		<!-- <p class="field-account">Chain ID : {chainId}</p> -->
-	{/if}
-</div>
-
-<section>
-	<div class="nfts-grid">
-		{#if account && nftMetadatas}
-			<article>
-				<div
-					class="nft-img"
-					style="background-image: url({nftMetadatas.image});"
-					aria-label={nftMetadatas.description}
-				/>
-				<p>{nftMetadatas.name} <span># {tokenID}</span></p>
-				<i class="fa-solid fa-user" />
-				<i class="fa-solid fa-spinner fa-spin-pulse" />
-			</article>
-		{/if}
-	</div>
-	<p class="field-account">Remaining TTL : {displayDuration(bal)}</p>
-	<button class="field-account" on:click={topUp}
-		>TopUp <i class="fa-solid fa-spinner fa-spin-pulse" /></button
-	>
-	<a href="./auto">Details ></a>
-</section>
+	</section>
+{:else}
+	<section>
+		<div class="nfts-grid">
+			{#if account && nftMetadatas}
+				<article>
+					<div
+						class="nft-img"
+						style="background-image: url({nftMetadatas.image});"
+						aria-label={nftMetadatas.description}
+					/>
+					<p>{nftMetadatas.name} <span># {tokenID}</span></p>
+					<i class="fa-solid fa-user" />
+					<i class="fa-solid fa-spinner fa-spin-pulse" />
+				</article>
+			{/if}
+		</div>
+		<div class="nfts-info">
+			<p class="">Remaining TTL : {displayDuration(bal)}</p>
+		</div>
+		<div class="buttons">
+			<button class="btn btn-topup" on:click={topUp}>
+				TopUp
+				{#if topping}
+					<i class="fa-solid fa-spinner fa-spin-pulse" />
+				{/if}
+			</button>
+			<a class="btn btn-light" href="./auto">Details ></a>
+		</div>
+	</section>
+{/if}

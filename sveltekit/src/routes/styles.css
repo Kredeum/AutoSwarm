@@ -6,7 +6,8 @@
     --color-text-1: #fff;
     --color-text-2: #999;
     --color-link: #FE7900;
-    --general-wrapper-max-width: 1200px;
+    --general-wrapper-min-width: 35%;
+    --general-wrapper-max-width: 1400px;
 
     font-family: var(--font-body);
     color: var(--color-text-1);
@@ -49,30 +50,25 @@ main,
 footer {
     margin: auto;
     text-align: center;
+    min-width: var(--general-wrapper-min-width);
+    max-width: var(--general-wrapper-max-width);
 }
 
 header {
-    max-width: var(--general-wrapper-max-width);
     padding: 5em 0 4em 0;
 }
 
 main {
-    max-width: var(--general-wrapper-max-width);
     flex-grow: 1;
 }
 
 footer {
-    max-width: var(--general-wrapper-max-width);
-    padding: 4em 0 3em;
+    padding: 3em 0 1em;
 }
 
 a {
     color: var(--color-link);
     text-decoration: none;
-}
-
-i {
-    /* color: #000; */
 }
 
 /* Header */
@@ -97,12 +93,9 @@ header h2 {
 }
 
 /* Main */
+/* CONNECTION */
 .user-config {
-    padding: 0 0 3em 0;
-}
-
-.provisory {
-    padding: 1em 0;
+    padding: 5em 0 3em 0;
 }
 
 .btn-connect {
@@ -119,22 +112,7 @@ header h2 {
     color: var(--color-link);
 }
 
-.field-account {
-    border: 1px solid var(--color-text-1);
-    border-radius: 2em;
-    padding: 0.5em 1em;
-    width: fit-content;
-    margin: 1em auto;
-    background-color: transparent;
-    color: var(--color-text-1);
-}
-
-button.field-account:hover {
-    color: var(--color-link);
-    border-color: var(--color-link);
-    cursor: pointer;
-}
-
+/* NFTS */
 .nfts-grid {
     max-width: 1024px;
     display: flex;
@@ -160,4 +138,38 @@ article {
 
 article p {
     color: #000;
+}
+
+/* BOTTOM SECTION */
+.nfts-info {
+    padding: 2em 0;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* CLASSES */
+.btn {
+    border: 1px solid var(--color-text-1);
+    border-radius: 2em;
+    padding: 0.5em 1em;
+    width: fit-content;
+    /* margin: 1em auto; */
+    background-color: transparent;
+    color: var(--color-text-1);
+    font-size: 1em;
+}
+
+.btn-light {
+    color: var(--color-text-2);
+    border-color: var(--color-text-2);
+}
+
+.btn.btn-topup:hover {
+    color: var(--color-link);
+    border-color: var(--color-link);
+    cursor: pointer;
 }
