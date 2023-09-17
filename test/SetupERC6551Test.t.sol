@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./SetUpERC6551.t.sol";
 import {IERC721Enumerable} from "lib/forge-std/src/interfaces/IERC721.sol";
+import {console} from "forge-std/console.sol";
 
 contract SetUpERC6551Test is SetUpERC6551 {
     function setUp() public {
@@ -23,9 +24,18 @@ contract SetUpERC6551Test is SetUpERC6551 {
         require(isSameRunCode(codeToDeploy, address(registry).code), "ERC6551Registry code differs");
     }
 
-    function test_SetUpERC6551_AutoSwarmAccount() public view {
+    function test_SetUpERC6551_Implementation() public view {
         bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccount");
-        require(isSameRunCode(codeToDeploy, address(implementation).code), "AutoSwarmAccount code differs");
+        console.logBytes(codeToDeploy);
+        console.log("test_SetUpERC6551_Implementation ~ codeToDeploy:", codeToDeploy.length);
+        console.logBytes(address(implementation).code);
+        console.log(
+            "test_SetUpERC6551_Implementation ~ address(implementation).code:", address(implementation).code.length
+        );
+        require(
+            isSameRunCode(codeToDeploy, address(implementation).code),
+            "Implementation code differs from AutoSwarmAccount"
+        );
     }
 
     function test_SetUpERC6551() public view {

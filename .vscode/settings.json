@@ -30,6 +30,10 @@
     {
       "filePath": "lib/storage-incentives/src/PostageStamp.sol",
       "group": "Default"
+    },
+    {
+      "filePath": "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol",
+      "group": "Default"
     }
   ]
 }

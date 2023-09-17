@@ -63,17 +63,55 @@
 		return `<a href="${gnosisExplorer}/${addr}" target="_blank">${addr}</a>`;
 	};
 
+	const refresh = async () => {
+		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId as Hex]);
+		bzz = rBal * 2n ** BigInt(depth);
+		bzzAmount = formatUnits(bzz, 16);
+		bzzOwnerAmount = formatUnits(await bzzToken.read.balanceOf([owner as Address]), 16);
+
+		bal = await postageStamp.read.remainingBalance([json.batchId as Hex]);
+		bzz0 = bal * 2n ** BigInt(depth);
+		bzzAmount0 = formatUnits(bzz0, 16);
+
+		balh = Number(bal) / dv;
+		rBalh = Number(rBal) / dv;
+
+		[walletAddress] = await walletClient.requestAddresses();
+		walletAddressAmount = formatUnits(
+			await bzzToken.read.balanceOf([walletAddress as Address]),
+			16
+		);
+	};
+
 	const topUp = async () => {
 		console.log('topUp');
 
-		let topUpttl: bigint = (24000n / 5n) * (3600n);
+		let topUpttl: bigint = (24000n / 5n) * 3600n;
 		let topUpBzz: bigint = topUpttl * 2n ** 17n;
 
-		const hash1 = await bzzToken.write.approve([json.PostageStamp as Hex, topUpBzz]);
+		// const hash1 = await bzzToken.write.approve([json.PostageStamp as Address, topUpBzz]);
+		const { request: request1 } = await publicClient.simulateContract({
+			account: walletAddress,
+			address: json.BzzToken as Address,
+			abi: bzzTokenStampAbi,
+			functionName: 'approve',
+			args: [json.PostageStamp as Address, topUpBzz]
+		});
+		const hash1 = await walletClient.writeContract(request1);
 		await publicClient.waitForTransactionReceipt({ hash: hash1 });
 
-		const hash2 = await postageStamp.write.topUp([json.batchId as Hex, topUpttl]);
+		// const hash2 = await postageStamp.write.topUp([json.batchId as Address, topUpttl]);
+		const { request: request2 } = await publicClient.simulateContract({
+			account: walletAddress,
+			address: json.PostageStamp as Address,
+			abi: postageStampAbi,
+			functionName: 'topUp',
+			args: [json.batchId as Hex, topUpttl]
+		});
+		const hash2 = await walletClient.writeContract(request2);
 		await publicClient.waitForTransactionReceipt({ hash: hash2 });
+
+    await refresh();
 	};
 
 	const displayDuration = (duration: number = 0) => {
@@ -99,11 +137,17 @@
 			chain,
 			transport: http()
 		});
-		walletClient = createWalletClient({
-			account: '0x981ab0d817710d8fffc5693383c00d985a3bda38',
-			chain,
-			transport: custom(window.ethereum!)
-		});
+		if (window.ethereum) {
+			window.ethereum.on('accountsChanged', (accounts: string[]) => {
+				walletAddress = accounts[0] as Address;
+			});
+			walletClient = createWalletClient({
+				chain,
+				transport: custom(window.ethereum!)
+			});
+		} else {
+			alert('Install web3 extension like Rabby or Metamask');
+		}
 
 		postageStamp = getContract({
 			address: json.PostageStamp as Address,
@@ -123,20 +167,7 @@
 			onBlockNumber: (num: bigint) => (blockNumber = num)
 		});
 
-		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId as Hex]);
-		bzz = rBal * 2n ** BigInt(depth);
-		bzzAmount = formatUnits(bzz, 16);
-		bzzOwnerAmount = formatUnits(await bzzToken.read.balanceOf([owner as Hex]), 16);
-
-		bal = await postageStamp.read.remainingBalance([json.batchId as Hex]);
-		bzz0 = bal * 2n ** BigInt(depth);
-		bzzAmount0 = formatUnits(bzz0, 16);
-
-		balh = Number(bal) / dv;
-		rBalh = Number(rBal) / dv;
-
-		[walletAddress] = await walletClient.requestAddresses();
-		walletAddressAmount = formatUnits(await bzzToken.read.balanceOf([walletAddress as Hex]), 16);
+		await refresh();
 
 		console.log('onMount ended');
 	});

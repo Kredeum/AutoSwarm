@@ -6,10 +6,10 @@ import {NFTCollection} from "src/NFTCollection.sol";
 import {console} from "forge-std/console.sol";
 
 contract DeployNFTCollection is DeployLite {
-    function deployNFTCollection() public returns (address collection) {
+    function deployNFTCollection() public returns (address nftCollection) {
         vm.startBroadcast(deployer);
-        collection = address(new NFTCollection());
-        NFTCollection(collection).mint(deployer);
+        nftCollection = address(new NFTCollection());
+        NFTCollection(nftCollection).mint(deployer);
         vm.stopBroadcast();
     }
 

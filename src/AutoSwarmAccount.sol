@@ -11,20 +11,16 @@ contract AutoSwarmAccount is SimpleERC6551Account {
     PostageStamp internal _postageStamp;
     IERC20 internal _bzzToken;
     uint8 internal _minDepth;
-    uint256 count;
+    uint256 internal _n;
 
-    constructor(address payable postageStamp_) {
+    function initialize(address payable postageStamp_) external {
         _postageStamp = PostageStamp(postageStamp_);
         _minDepth = _postageStamp.minimumBucketDepth();
         _bzzToken = IERC20(_postageStamp.bzzToken());
     }
 
-    function setPostageStamp(address postageStamp_) public {
-        _postageStamp = PostageStamp(postageStamp_);
-    }
-
     function stampsBuy(uint256 ttl, uint8 depth) public returns (bytes32) {
-        bytes32 nonce = keccak256(abi.encode(count++));
+        bytes32 nonce = keccak256(abi.encode(address(this), _n++));
 
         _bzzToken.approve(address(_postageStamp), ttl << depth);
         _postageStamp.createBatch(address(this), ttl, depth, _minDepth, nonce, false);

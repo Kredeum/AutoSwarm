@@ -5,6 +5,8 @@ import {AutoSwarmAccount} from "src/AutoSwarmAccount.sol";
 
 import {SetUpSwarm} from "./SetUpSwarm.t.sol";
 import {SetUpERC6551} from "./SetUpERC6551.t.sol";
+import {IERC721} from "forge-std/interfaces/IERC721.sol";
+import {console} from "forge-std/Test.sol";
 
 contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
     AutoSwarmAccount public autoSwarmAccount;
@@ -13,13 +15,26 @@ contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
     uint8 depth0 = 20;
 
     function setUpAutoSwarmAccount() public {
-        autoSwarmAccount = AutoSwarmAccount(payable(deploy("AutoSwarmAccount")));
+        require(chainId == block.chainid, "Wrong network");
+        autoSwarmAccount =
+            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+
+        address nftOwner = IERC721(collection).ownerOf(tokenId);
+        require(nftOwner != address(0), "No NFT here!");
+
+        if (address(autoSwarmAccount).code.length == 0) {
+            vm.prank(nftOwner);
+            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+        }
+        assert(address(autoSwarmAccount).code.length != 0);
+
+        autoSwarmAccount.initialize(payable(address(postageStamp)));
 
         deal(address(bzzToken), address(autoSwarmAccount), ttl0 << depth0);
         batchId0 = autoSwarmAccount.stampsBuy(ttl0, depth0);
     }
 
-    function setUp() public {
+    function setUp() public virtual {
         setUpERC6551();
         setUpSwarm();
         setUpAutoSwarmAccount();

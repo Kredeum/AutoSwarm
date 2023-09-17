@@ -3,14 +3,32 @@ pragma solidity ^0.8.0;
 
 import {console} from "forge-std/Test.sol";
 import "./SetUpAutoSwarmAccount.t.sol";
-import "forge-std/interfaces/IERC721.sol";
+import {IERC721} from "forge-std/interfaces/IERC721.sol";
 
 contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
-    function test_AutoSwarmAccountUnit_OK() public pure {
+    function test_AutoSwarmAccountUnit_OK() public view {
+        console.log("test_AutoSwarmAccountUnit_stampsBuy ~ autoSwarmAccount:", address(autoSwarmAccount));
         assert(true);
     }
 
-    function test_AutoSwarmAccountUnit_buy() public {
+    function test_AutoSwarmAccountUnit_Create() public {
+        address account = registry.account(address(implementation), chainId, collection, tokenId, salt);
+
+        if (account.code.length == 0) {
+            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+        }
+        assert(account.code.length != 0);
+    }
+
+    function test_AutoSwarmAccount_token() public {
+        (uint256 chId, address coll, uint256 tokId) = AutoSwarmAccount(payable(autoSwarmAccount)).token();
+
+        assert(chId == chainId);
+        assert(coll == collection);
+        assert(tokId == tokenId);
+    }
+
+    function test_AutoSwarmAccountUnit_stampsBuy() public {
         uint256 ttl = 10 weeks;
         uint8 depth = 20;
 
@@ -18,15 +36,6 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         bytes32 batchId = autoSwarmAccount.stampsBuy(ttl, depth);
 
         assert(postageStamp.remainingBalance(batchId) == ttl);
-    }
-
-    function test_AutoSwarmAccountUnit_remaining() public {
-        uint256 lastPrice = postageStamp.lastPrice();
-        vm.prank(oracle);
-        postageStamp.setPrice(lastPrice + 1);
-
-        vm.roll(postageStamp.lastUpdatedBlock() + 1);
-        assert(postageStamp.remainingBalance(batchId0) < ttl0);
     }
 
     function test_AutoSwarmAccountUnit_topUp() public {

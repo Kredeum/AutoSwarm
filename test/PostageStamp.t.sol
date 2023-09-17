@@ -28,7 +28,7 @@ contract PostageStampTest is SetUpSwarm {
         assert((ttl << depth) == ttl * (1 << depth));
     }
 
-    function test_PostageStamp_Buy() public {
+    function test_PostageStamp_stampsBuy() public {
         address buyer = msg.sender;
         uint256 ttl = 1 days;
         uint8 depth = 20;
@@ -37,32 +37,47 @@ contract PostageStampTest is SetUpSwarm {
         bool buyImmutable = true;
 
         uint256 totalAmount = ttl << depth;
-        bytes32 batchId = keccak256(abi.encode(buyer, buyNonce));
 
         deal(address(bzzToken), buyer, totalAmount);
 
         vm.startPrank(buyer);
-
         bzzToken.approve(address(postageStamp), totalAmount);
         postageStamp.createBatch(buyer, ttl, depth, buyBucketDepth, buyNonce, buyImmutable);
 
+        bytes32 batchId = keccak256(abi.encode(buyer, buyNonce));
         uint256 balance = postageStamp.remainingBalance(batchId);
-        console.log("test_PostageStamp_buy ~ balance:", balance);
+        console.log("test_PostageStamp_stampsBuy ~ balance:", balance);
 
         vm.stopPrank();
 
         assert(balance == ttl);
+
+        uint256 lastPrice = postageStamp.lastPrice();
+        vm.prank(oracle);
+        postageStamp.setPrice(lastPrice + 1);
+
+        vm.roll(postageStamp.lastUpdatedBlock() + 1);
+        assert(postageStamp.remainingBalance(batchId) < ttl);
     }
 
-    function test_PostageStamp_Batch() public {
+
+    function test_PostageStamp_Gnosis_Batch() public {
+        console.log("PostageStamp_Gnosis_Batch", block.chainid);
+
+        if (block.chainid != 100) return;
+        console.log("PostageStamp_Gnosis_Batch 1");
+
         bytes32 batchIdGnosis0 = 0xf20636dc0e9bc9f208ca4adbb43b3e538b9a4681437a7db992bd7617f7338fb1;
         bytes32 batchIdGnosis1 = 0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e;
-        bytes32 batchId = batchIdGnosis0;
+        bytes32 batchId = batchIdGnosis1;
 
         (address owner, uint8 depth, bool const, uint256 nbal) =
             IPostageStampGnosis(address(postageStamp)).batches(batchId);
-        uint256 rbal = postageStamp.remainingBalance(batchId);
+        console.log("PostageStamp_Gnosis_Batch 2");
         uint256 tbal = postageStamp.currentTotalOutPayment();
+        console.log("PostageStamp_Gnosis_Batch 3");
+        uint256 rbal = postageStamp.remainingBalance(batchId);
+        console.log("PostageStamp_Gnosis_Batch 4");
 
         console.log("test_PostageStamp_Batch ~ rbal:", rbal);
 

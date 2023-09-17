@@ -34,8 +34,8 @@ contract SetUpSwarm is Test, DeployAll {
         }
 
         bzzToken = IERC20(postageStamp.bzzToken());
-        minDepth = postageStamp.minimumBucketDepth();
 
-        // batchId0 = setUpSwarmBatchId(address(this));
+        console.log(address(bzzToken), "setUpSwarm ~ bzzToken:");
+        minDepth = postageStamp.minimumBucketDepth();
     }
 }
