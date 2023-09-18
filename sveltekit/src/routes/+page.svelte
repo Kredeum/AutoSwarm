@@ -50,9 +50,9 @@
 	let chainId: number;
 
 	let collection: string;
-	let tokenID: string = '1';
+	let tokenID: string = '2';
 	let nftMetadatasUrl: string =
-		'https://api.gateway.ethswarm.org/bzz/50e464a94da781c5b8f5b3ce46a948810bfce9bc879a19fc46197ee9b88a7046/';
+		'https://api.gateway.ethswarm.org/bzz/ac94e9eb260b3754b9bf1a8397d78fb1e094c7314c1f265e2246ab1680032314/';
 	let nftMetadatas: NftMetadata;
 
 	let bzzToken: GetContractReturnType;
@@ -208,6 +208,17 @@
 		return resultString;
 	};
 
+	const explorerLink = (addr: string): string => {
+		return `<a href="${gnosisExplorer}/${addr}" target="_blank">${textShort(addr, 10)}</a>`;
+	};
+
+	const textShort = (str: string, n = 16, p = n): string => {
+		if (!str) return '';
+
+		const l: number = str.length || 0;
+		return str.substring(0, n) + (l < n ? '' : '...' + (p > 0 ? str.substring(l - p, l) : ''));
+	};
+
 	// NFT
 	const metadataGet = async () => {
 		const response = await fetch(nftMetadatasUrl);
@@ -255,23 +266,26 @@
 			{/if}
 		</div>
 		<div class="nfts-info">
-			<p>NFT Minter : {nftMetadatas?.minter}</p>
+			<!-- <p>NFT Minter : {nftMetadatas?.minter}</p>
 			<p>
 				NFT Metadatas : <a href={nftMetadatasUrl} target="_blank" rel="noopener noreferrer"
 					>{nftMetadatasUrl}</a
 				>
-			</p>
-			<p>batchId : {batchId}</p>
-			<p class="btn display-ttl">Remaining TTL : {displayDuration(bal)}</p>
-		</div>
-		<div class="buttons">
-			<button class="btn btn-topup" on:click={topUp}>
-				TopUp
-				{#if topping}
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
-				{/if}
-			</button>
+			</p> -->
 			<a class="btn btn-light" href="./auto">Details ></a>
+			<!-- <p>AutoSwarm account : {@html explorerLink(batchId)}</p>
+			<p>batchId : {textShort(batchId, 10)}</p> -->
+			<div class="batch-topUp">
+				<p>AutoSwarm Balance : 1.2076576614121472 Bzz</p>
+				<button class="btn btn-topup" on:click={topUp}>
+					TopUp
+					{#if topping}
+						<i class="fa-solid fa-spinner fa-spin-pulse" />
+					{/if}
+				</button>
+				<p>Remaining TTL : {displayDuration(bal)}</p>
+			</div>
 		</div>
+		<div class="buttons" />
 	</section>
 {/if}

@@ -1,0 +1,20 @@
+.btn {
+    border: 1px solid var(--color-text-1);
+    border-radius: 2em;
+    padding: 0.7em 1em;
+    width: fit-content;
+    /* margin: 1em auto; */
+    background-color: transparent;
+    color: var(--color-text-1);
+    font-size: 1em;
+}
+
+.btn-light {
+    color: var(--color-text-2);
+    border-color: var(--color-text-2);
+}
+
+.btn-light:hover {
+    color: var(--color-text-1);
+    border-color: var(--color-text-1);
+}
