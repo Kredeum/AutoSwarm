@@ -157,6 +157,7 @@
 	};
 
 	const topUp = async () => {
+		if (topping) return;
 		console.log('topUp');
 
 		// Add 1h
@@ -185,22 +186,22 @@
 		let years = durationBase / oneYear;
 		remainder = durationBase % oneYear;
 		years = Math.floor(years);
-		resultString = years ? `${years} year | ` : '';
+		resultString = years ? `${years} year / ` : '';
 
 		let months = remainder / oneMonth;
 		remainder = remainder % oneMonth;
 		months = Math.floor(months);
-		resultString += months ? `${months} months | ` : '';
+		resultString += months ? `${months} months / ` : '';
 
 		let weeks = remainder / oneWeek;
 		remainder = remainder % oneWeek;
 		weeks = Math.floor(weeks);
-		resultString += weeks ? `${weeks} weeks | ` : '';
+		resultString += weeks ? `${weeks} weeks / ` : '';
 
 		let days = remainder / oneDay;
 		remainder = remainder % oneDay;
 		days = Math.floor(days);
-		resultString += days ? `${days} days | ` : '';
+		resultString += days ? `${days} days / ` : '';
 
 		let hours = (remainder / oneHour).toFixed(1);
 		resultString += hours ? `${hours} hours` : '';
@@ -208,16 +209,16 @@
 		return resultString;
 	};
 
-	const explorerLink = (addr: string): string => {
-		return `<a href="${gnosisExplorer}/${addr}" target="_blank">${textShort(addr, 10)}</a>`;
-	};
+	// const explorerLink = (addr: string): string => {
+	// 	return `<a href="${gnosisExplorer}/${addr}" target="_blank">${textShort(addr, 10)}</a>`;
+	// };
 
-	const textShort = (str: string, n = 16, p = n): string => {
-		if (!str) return '';
+	// const textShort = (str: string, n = 16, p = n): string => {
+	// 	if (!str) return '';
 
-		const l: number = str.length || 0;
-		return str.substring(0, n) + (l < n ? '' : '...' + (p > 0 ? str.substring(l - p, l) : ''));
-	};
+	// 	const l: number = str.length || 0;
+	// 	return str.substring(0, n) + (l < n ? '' : '...' + (p > 0 ? str.substring(l - p, l) : ''));
+	// };
 
 	// NFT
 	const metadataGet = async () => {
@@ -243,49 +244,45 @@
 	};
 </script>
 
-{#if !account}
-	<section class="user-config">
+<section class="user-config">
+	{#if account}
+		<p class="intro-text">NFT selected, click on TopUp to increase NFT's Swarm storage</p>
+	{:else}
 		<button class="btn-connect" on:click={connectMetamask}>
 			Connect your Metamask and choose your files
 		</button>
-	</section>
-{:else}
+	{/if}
+</section>
+{#if account}
 	<section>
 		<div class="nfts-grid">
-			{#if account && nftMetadatas}
+			{#if nftMetadatas}
 				<article>
 					<div
 						class="nft-img"
 						style="background-image: url({nftMetadatas.image});"
 						aria-label={nftMetadatas.description}
 					/>
-					<p>{nftMetadatas.name} <span># {tokenID}</span></p>
-					<i class="fa-solid fa-user" />
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
+					<p class="nft-title">{nftMetadatas.name} <span># {tokenID}</span></p>
 				</article>
 			{/if}
 		</div>
 		<div class="nfts-info">
-			<!-- <p>NFT Minter : {nftMetadatas?.minter}</p>
-			<p>
-				NFT Metadatas : <a href={nftMetadatasUrl} target="_blank" rel="noopener noreferrer"
-					>{nftMetadatasUrl}</a
-				>
-			</p> -->
-			<a class="btn btn-light" href="./auto">Details ></a>
-			<!-- <p>AutoSwarm account : {@html explorerLink(batchId)}</p>
-			<p>batchId : {textShort(batchId, 10)}</p> -->
-			<div class="batch-topUp">
-				<p>AutoSwarm Balance : 1.2076576614121472 Bzz</p>
-				<button class="btn btn-topup" on:click={topUp}>
-					TopUp
-					{#if topping}
-						<i class="fa-solid fa-spinner fa-spin-pulse" />
-					{/if}
-				</button>
-				<p>Remaining TTL : {displayDuration(bal)}</p>
-			</div>
+			<a class="details-link" href="./auto">See details</a>
 		</div>
-		<div class="buttons" />
+		<div class="batch-topUp">
+			<div class="batch-topUp-infos">
+				<p>AutoSwarm Balance</p>
+				<p>1.2076576614121472 Bzz</p>
+				<p>Batch Remaining TTL</p>
+				<p>{displayDuration(bal)}</p>
+			</div>
+			<button class="btn btn-topup" on:click={topUp}>
+				TopUp
+				{#if topping}
+					<i class="fa-solid fa-spinner fa-spin-pulse" />
+				{/if}
+			</button>
+		</div>
 	</section>
 {/if}
