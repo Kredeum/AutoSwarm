@@ -41,7 +41,7 @@
 	const postageStampAbi = abi as Abi;
 	console.log('postageStampAbi:', postageStampAbi);
 
-	let batchId: Hex = json.batchId1 as Hex;
+	let batchId: Hex = json.batchId as Hex;
 
 	let publicClient: PublicClient;
 	let walletClient: WalletClient;
