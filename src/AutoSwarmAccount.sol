@@ -5,7 +5,10 @@ import {PostageStamp} from "lib/storage-incentives/src/PostageStamp.sol";
 import {SimpleERC6551Account} from "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol";
 import {ERC6551Registry} from "lib/erc6551/src/ERC6551Registry.sol";
 import {IERC20} from "lib/forge-std/src/interfaces/IERC20.sol";
-import {console} from "forge-std/console.sol";
+
+interface IPostageStampLegacy {
+    function batches(bytes32) external returns (address, uint8, bool, uint256);
+}
 
 contract AutoSwarmAccount is SimpleERC6551Account {
     PostageStamp internal _postageStamp;
@@ -29,7 +32,12 @@ contract AutoSwarmAccount is SimpleERC6551Account {
     }
 
     function stampsTopUp(bytes32 batchId, uint256 ttl) public {
-        (, uint8 depth,,,,) = _postageStamp.batches(batchId);
+        uint8 depth;
+        if (block.chainid == 100) {
+            (, depth,,) = IPostageStampLegacy(address(_postageStamp)).batches(batchId);
+        } else {
+            (, depth,,,,) = _postageStamp.batches(batchId);
+        }
 
         _bzzToken.approve(address(_postageStamp), ttl << depth);
         _postageStamp.topUp(batchId, ttl);
@@ -37,5 +45,11 @@ contract AutoSwarmAccount is SimpleERC6551Account {
 
     function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external {
         _postageStamp.increaseDepth(batchId, newDepth);
+    }
+
+    function withdraw(address token) external {
+        IERC20(token).transfer(owner(), IERC20(token).balanceOf(address(this)));
+        (bool success,) = owner().call{value: address(this).balance}("");
+        require(success, "Withdraw failed!");
     }
 }

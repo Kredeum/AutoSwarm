@@ -8,6 +8,7 @@ contract DeployBzzToken is DeployLite {
     function deployBzzToken() public returns (address bzzToken) {
         vm.startBroadcast(deployer);
         bzzToken = address(new BzzToken());
+        BzzToken(bzzToken).mint(deployer, 10 ^ 20);
         vm.stopBroadcast();
     }
 

@@ -21,7 +21,7 @@ contract DeployAll is
         deploy("NFTCollection", false);
         deploy("BzzToken", false);
         deploy("PostageStamp", false);
-        deploy("ERC6551Registry");
+        deploy("ERC6551Registry", false);
         deploy("AutoSwarmAccount");
 
         writeAddresses();

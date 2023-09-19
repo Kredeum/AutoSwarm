@@ -20,7 +20,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(account.code.length != 0);
     }
 
-    function test_AutoSwarmAccount_token() public {
+    function test_AutoSwarmAccount_token() public view {
         (uint256 chId, address coll, uint256 tokId) = AutoSwarmAccount(payable(autoSwarmAccount)).token();
 
         assert(chId == chainId);
@@ -34,6 +34,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
         deal(address(bzzToken), address(autoSwarmAccount), ttl << depth);
         bytes32 batchId = autoSwarmAccount.stampsBuy(ttl, depth);
+        console.logBytes32(batchId);
 
         assert(postageStamp.remainingBalance(batchId) == ttl);
     }
