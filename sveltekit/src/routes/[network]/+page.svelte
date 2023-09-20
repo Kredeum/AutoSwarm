@@ -16,15 +16,15 @@
 	} from 'viem';
 	import { gnosis, localhost, sepolia } from 'viem/chains';
 
-	import { getDisplayDuration, getExplorerLink, getJson, type ChainIdInJson } from './get';
+	import { getDisplayDuration, getExplorerLink, getJson, type ChainIdInJson } from '$lib/ts/get';
 	import {
 		readAccount,
 		readBatchLegacy,
 		readBatchNew,
 		readBzzBalance,
 		readRemainingBalance
-	} from './read';
-	import { writeTopUp } from './write';
+	} from '$lib/ts/read';
+	import { writeTopUp } from '$lib/ts/write';
 
 	type ChainInJson = typeof gnosis | typeof sepolia | typeof localhost;
 
@@ -104,8 +104,8 @@
 				transport: custom(window.ethereum!)
 			}).extend(publicActions);
 		}
-    
-    await refreshDisplay();
+
+		await refreshDisplay();
 	};
 
 	const onChainChanged = (chainId: string): void => {

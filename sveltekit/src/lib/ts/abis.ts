@@ -10,6 +10,7 @@ const postageStampAbiBatcheslegacy = parseAbi([
 const postageStampAbi = parseAbi([
 	'function remainingBalance(bytes32) external view returns(uint256)',
 	'function batches(bytes32) external view returns(address,uint8,uint8,bool,uint256,uint256)',
+	'function lastPrice() external view returns (uint256)',
 	'function topUp(bytes32,uint256) external'
 ]);
 const registryAbi = parseAbi([

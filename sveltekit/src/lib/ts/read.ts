@@ -1,8 +1,8 @@
 import type { Address, Hex, PublicClient } from 'viem';
 import { bzzTokenAbi, postageStampAbi, postageStampAbiBatcheslegacy, registryAbi } from './abis';
-import { getJson } from './get';
-import { writeSalt } from './write';
-import type { ChainIdInJson } from './get';
+import { getJson } from '$lib/ts/get';
+import { writeSalt } from '$lib/ts/write';
+import type { ChainIdInJson } from '$lib/ts/get';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -25,6 +25,16 @@ const readJson = async (publicClient: PublicClient) => {
 	return getJson(chainId);
 };
 
+const readLastPrice = async (publicClient: PublicClient): Promise<bigint> => {
+	const json = await readJson(publicClient);
+
+	return await publicClient.readContract({
+		address: json.PostageStamp as Address,
+		abi: postageStampAbi,
+		functionName: 'lastPrice'
+	});
+};
+
 const readBzzBalance = async (publicClient: PublicClient, address: Address): Promise<bigint> => {
 	if (address == '0x0') return 0n;
 
@@ -37,6 +47,7 @@ const readBzzBalance = async (publicClient: PublicClient, address: Address): Pro
 		args: [address]
 	});
 };
+
 const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 	const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
@@ -107,6 +118,7 @@ export {
 	readChainId,
 	readAccount,
 	readIsContract,
+  readLastPrice,
 	readBatchLegacy,
 	readBatchNew,
 	readBzzBalance,

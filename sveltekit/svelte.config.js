@@ -17,7 +17,10 @@ const config = {
 			fallback: undefined,
 			precompress: false,
 			strict: true
-		})
+		}),
+		alias: {
+			"$addresses": '../addresses.json'
+		}
 	}
 };
 

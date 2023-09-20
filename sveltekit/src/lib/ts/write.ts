@@ -1,6 +1,6 @@
 import type { Address, Hex, PublicClient, WalletClient } from 'viem';
-import { autoSwarmAbi, bzzTokenAbi, registryAbi } from './abis';
-import { readJson, readChainId, readIsContract, readAccount } from './read';
+import { autoSwarmAbi, bzzTokenAbi, registryAbi } from '$lib/ts/abis';
+import { readJson, readChainId, readIsContract, readAccount } from '$lib/ts/read';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient

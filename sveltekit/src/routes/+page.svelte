@@ -1,288 +1,90 @@
 <script lang="ts">
-	import type { NftMetadata } from '$lib/types/types';
-
+	import { getBatchId, getDisplayDuration } from '$lib/ts/get.js';
 	import {
-		createPublicClient,
-		createWalletClient,
-		http,
-		custom,
-		getContract,
-		parseAbi,
-		type Hex,
-		type Address,
-		type WalletClient,
-		type GetContractReturnType,
-		type PublicClient,
-		type Abi
-	} from 'viem';
-	import { gnosis, sepolia } from 'viem/chains';
-
-	import 'viem/window';
-
+		readAccount,
+		readBzzBalance,
+		readLastPrice,
+		readRemainingBalance
+	} from '$lib/ts/read.js';
 	import { onMount } from 'svelte';
+	import { createPublicClient, http, type Address } from 'viem';
+	import { gnosis } from 'viem/chains';
 
-	import jsonFile from '../../../addresses.json';
-	import { abi } from '$lib/abis/postagStamp.json';
+	export let data;
 
-	const chain = gnosis;
-	const json = jsonFile[chain.id];
-
-	const bzzTokenStampAbi = parseAbi([
-		'function balanceOf(address) external view returns(uint256)',
-		'function approve(address,uint256) public returns (bool)'
-	]);
-
-	// const postageStampAbi = parseAbi([
-	// 	'function remainingBalance(bytes32) external view returns(uint256)',
-	// 	'function batches(bytes32) external view returns(address,uint8,bool,uint256)',
-	// 	'function topUp(bytes32, uint256) external',
-	// ]);
-
-	const postageStampAbi = abi as Abi;
-	console.log('postageStampAbi:', postageStampAbi);
-
-	let batchId: Hex = json.batchId as Hex;
-
-	let publicClient: PublicClient;
-	let walletClient: WalletClient;
-
-	let account: Hex;
-	let chainId: number;
-
-	let collection: string;
-	let tokenID: string = '2';
-	let nftMetadatasUrl: string =
-		'https://api.gateway.ethswarm.org/bzz/ac94e9eb260b3754b9bf1a8397d78fb1e094c7314c1f265e2246ab1680032314/';
-	let nftMetadatas: NftMetadata;
-
-	let bzzToken: GetContractReturnType;
-	let postageStamp: GetContractReturnType;
-
-	const gnosisExplorer = 'https://gnosisscan.io/address';
-
-	let bal: number = 0;
-
-	let owner: Address = '0x0';
-	let depth: number = 17;
-	let immutable: boolean = false;
-	let rBal: bigint = 0n;
-	let lastPrice: number = 24000;
-
-	const oneHour = 60 * 60;
-	const oneDay = oneHour * 24;
-	const oneWeek = oneDay * 7;
-	const oneMonth = oneDay * 30;
-	const oneYear = oneDay * 365;
-	const secondsPerBlock = 5;
+	const secondsPerBlock = 5n;
+	let autoSwarmAddress: Address = '0x0';
+	let autoSwarmBalance: bigint;
+	let remainingBalance = 0n;
+	let lastPrice = 0n;
+	let batchId = getBatchId(100);
+	let displayBalance = '*****';
+	let displayDuration = '***** weeks';
 
 	let topping = false;
+	let tokenId = 1;
 
-	$: console.log('account switch', account);
-	$: console.log('chainId switch', chainId);
-	$: console.log('NFT metadatas', nftMetadatas);
-
-	onMount(async () => {
-		if (typeof window.ethereum !== 'undefined') {
-			publicClient = createPublicClient({
-				chain,
-				transport: http()
-			});
-
-			walletClient = createWalletClient({
-				transport: custom(window.ethereum)
-			});
-
-			account = await getAddress();
-			chainId = await publicClient.getChainId();
-			nftMetadatas = await metadataGet();
-
-			walletClient = createWalletClient({
-				chain,
-				account,
-				transport: custom(window.ethereum)
-			});
-
-			// window.ethereum.on('accountsChanged', (_accounts: string[]) => {
-			// 	console.log('🚀 ~ file: +page.svelte:29 ~ window.ethereum.on ~ _accounts:', _accounts);
-			// 	account = _accounts[0] as Hex;
-			// });
-
-			// window.ethereum.on('chainChanged', (_chainId: string) => {
-			// 	console.log('🚀 ~ file: +page.svelte:33 ~ window.ethereum.on ~ _chainId:', _chainId);
-			// 	chainId = parseInt(_chainId, 16);
-			// 	console.log(
-			// 		'🚀 ~ file: +page.svelte:34 ~ window.ethereum.on ~ _chainId.toString():',
-			// 		parseInt(_chainId, 16)
-			// 	);
-			// });
-
-			postageStamp = getContract({
-				address: json.PostageStamp as Address,
-				abi: postageStampAbi,
-				publicClient,
-				walletClient
-			});
-			bzzToken = getContract({
-				address: json.BzzToken as Address,
-				abi: bzzTokenStampAbi,
-				publicClient,
-				walletClient
-			});
-		}
-
-		lastPrice = Number(await postageStamp.read.lastPrice());
-		console.log('onMount ~ lastPrice:', lastPrice);
-
-		[owner, depth, immutable, rBal] = await postageStamp.read.batches([json.batchId as Hex]);
-
-		await updateRemainingBal();
-		console.log('updateRemainingBal ~ bal:', bal);
-
-		const unwatch = publicClient.watchContractEvent({
-			address: json.PostageStamp as Address,
-			abi: postageStampAbi,
-			eventName: 'BatchTopUp',
-			args: { batchId: batchId },
-			onLogs: (logs) => {
-				console.log('BatchTopUp event : ', logs);
-				updateRemainingBal();
-			}
-		});
-
-		console.log('onMount ended');
-	});
-
-	const updateRemainingBal = async () => {
-		bal = Number(await postageStamp.read.remainingBalance([batchId]));
-	};
+	const publicClient = createPublicClient({ chain: gnosis, transport: http() });
 
 	const topUp = async () => {
 		if (topping) return;
 		console.log('topUp');
 
-		// Add 1h
-		let topUpttl: bigint = (24000n / 5n) * 3600n;
-
-		// Add 10 days
-		// let topUpttl: bigint = (24000n / 5n) * 3600n * 24n * 10n;
-		let topUpBzz: bigint = topUpttl * 2n ** BigInt(depth);
-		console.log('topUp ~ topUpBzz:', topUpBzz);
-
-		const hash1 = await bzzToken.write.approve([json.PostageStamp as Hex, topUpBzz]);
-		topping = true;
-		await publicClient.waitForTransactionReceipt({ hash: hash1 });
-
-		const hash2 = await postageStamp.write.topUp([batchId, topUpttl]);
-		await publicClient.waitForTransactionReceipt({ hash: hash2 });
 		topping = false;
 	};
 
-	const displayDuration = (duration: number = 0) => {
-		let remainder = 0;
-		let resultString = '';
+	const refreshDisplay = async () => {
+		autoSwarmBalance = await readBzzBalance(publicClient, autoSwarmAddress);
 
-		const durationBase = (duration * secondsPerBlock) / lastPrice;
+		remainingBalance = await readRemainingBalance(publicClient);
 
-		let years = durationBase / oneYear;
-		remainder = durationBase % oneYear;
-		years = Math.floor(years);
-		resultString = years ? `${years} year / ` : '';
+		lastPrice = await readLastPrice(publicClient);
 
-		let months = remainder / oneMonth;
-		remainder = remainder % oneMonth;
-		months = Math.floor(months);
-		resultString += months ? `${months} months / ` : '';
+		displayBalance = (Number(autoSwarmBalance || 0) / 1e16).toFixed(4);
 
-		let weeks = remainder / oneWeek;
-		remainder = remainder % oneWeek;
-		weeks = Math.floor(weeks);
-		resultString += weeks ? `${weeks} weeks / ` : '';
-
-		let days = remainder / oneDay;
-		remainder = remainder % oneDay;
-		days = Math.floor(days);
-		resultString += days ? `${days} days / ` : '';
-
-		let hours = (remainder / oneHour).toFixed(1);
-		resultString += hours ? `${hours} hours` : '';
-
-		return resultString;
+		displayDuration =
+			lastPrice > 0 ? getDisplayDuration((remainingBalance * secondsPerBlock) / lastPrice) : '';
 	};
 
-	// const explorerLink = (addr: string): string => {
-	// 	return `<a href="${gnosisExplorer}/${addr}" target="_blank">${textShort(addr, 10)}</a>`;
-	// };
-
-	// const textShort = (str: string, n = 16, p = n): string => {
-	// 	if (!str) return '';
-
-	// 	const l: number = str.length || 0;
-	// 	return str.substring(0, n) + (l < n ? '' : '...' + (p > 0 ? str.substring(l - p, l) : ''));
-	// };
-
-	// NFT
-	const metadataGet = async () => {
-		const response = await fetch(nftMetadatasUrl);
-		const jsonData = await response.json();
-		console.log(jsonData);
-
-		return jsonData;
-	};
-
-	// VIEM
-	const getAddress = async () => {
-		const addresses = await walletClient.getAddresses();
-		console.log('addresses:', addresses);
-		console.log('address current:', addresses[0]);
-		return addresses[0];
-	};
-
-	const connectMetamask = async () => {
-		if (typeof window.ethereum !== 'undefined') {
-			[account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-		}
-	};
+	onMount(async () => {
+		autoSwarmAddress = await readAccount(publicClient);
+		refreshDisplay();
+	});
 </script>
 
-<section class="user-config">
-	{#if account}
-		<p class="intro-text">NFT selected, click on TopUp to increase NFT's Swarm storage</p>
-	{:else}
-		<button class="btn-connect" on:click={connectMetamask}>
-			Connect your Metamask and choose your files
-		</button>
-	{/if}
-</section>
-{#if account}
-	<section>
-		<div class="nfts-grid">
-			{#if nftMetadatas}
-				<article>
-					<div
-						class="nft-img"
-						style="background-image: url({nftMetadatas.image});"
-						aria-label={nftMetadatas.description}
-					/>
-					<p class="nft-title">{nftMetadatas.name} <span># {tokenID}</span></p>
-				</article>
-			{/if}
-		</div>
-		<div class="nfts-info">
-			<a class="details-link" href="./auto">See details</a>
-		</div>
-		<div class="batch-topUp">
-			<div class="batch-topUp-infos">
-				<p>AutoSwarm Balance</p>
-				<p>1.2076576614121472 Bzz</p>
-				<p>Batch Remaining TTL</p>
-				<p>{displayDuration(bal)}</p>
-			</div>
-			<button class="btn btn-topup" on:click={topUp}>
-				TopUp
-				{#if topping}
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
-				{/if}
-			</button>
-		</div>
+<section>
+	<div class="nfts-grid">
+		{#if data.nftMetadata}
+			<article>
+				<div
+					class="nft-img"
+					style="background-image: url({data.nftMetadata.image});"
+					aria-label={data.nftMetadata.description}
+				/>
+				<p class="nft-title">{data.nftMetadata.name} <span># {tokenId}</span></p>
+			</article>
+		{/if}
+	</div>
+	<section class="user-config">
+		<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
+		<p>
+			<a class="details-link" href="./gnosis">see details</a>
+		</p>
 	</section>
-{/if}
+	<div class="batch-topUp">
+		<div class="batch-topUp-infos">
+			<p title="NFT AutoSwarm {autoSwarmAddress}">NFT AutoSwarm balance</p>
+			<p title="{autoSwarmBalance} bzz">
+				{displayBalance} Bzz
+			</p>
+			<p title="batchId {batchId}">Swarm Storage ends in</p>
+			<p title="{remainingBalance} seconds">{displayDuration}</p>
+		</div>
+		<button class="btn btn-topup" on:click={topUp}>
+			TopUp 1 Year
+			{#if topping}
+				<i class="fa-solid fa-spinner fa-spin-pulse" />
+			{/if}
+		</button>
+	</div>
+</section>

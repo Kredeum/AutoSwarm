@@ -5,5 +5,5 @@
 <header>
 	<img src={logoSwarm} alt="Swarm logo" />
 	<h1><span>Auto</span>Swarm</h1>
-	<h2>Increase the storage duration of your NFTs</h2>
+	<h2>Boost your NFT lifespan on Swarm</h2>
 </header>

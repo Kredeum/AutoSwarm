@@ -1,6 +1,7 @@
 <script>
-	import Header from './Header.svelte';
-	import './styles.css';
+	import Header from '$lib/svelte/Header.svelte';
+	import Footer from '$lib/svelte/Footer.svelte';
+	import '$lib/css/styles.css';
 </script>
 
 <div class="app">
@@ -10,11 +11,7 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>
-			visit <a href="https://app.kredeum.com" target="_blank" rel="noopener noreferrer"
-				>Kredeum Nfts Factory</a
-			> to Mint your NFTs :)
-		</p>
-	</footer>
+	<Footer />
+
+
 </div>
