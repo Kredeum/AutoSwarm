@@ -60,7 +60,7 @@ const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 			json.AutoSwarmAccount as Address,
 			BigInt(chainId),
 			json.NFTCollection as Address,
-			BigInt(1),
+			BigInt(json.tokenId),
 			writeSalt
 		]
 	});
@@ -118,7 +118,7 @@ export {
 	readChainId,
 	readAccount,
 	readIsContract,
-  readLastPrice,
+	readLastPrice,
 	readBatchLegacy,
 	readBatchNew,
 	readBzzBalance,

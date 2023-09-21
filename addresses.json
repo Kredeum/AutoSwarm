@@ -7,36 +7,30 @@
     "BzzToken": "0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da",
     "Admin": "0xD5C070FEb5EA883063c183eDFF10BA6836cf9816",
     "Oracle": "0x647942035bb69C8e4d7EB17C8313EBC50b0bABFA",
+    "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e",
     "NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82",
-    "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e"
+    "tokenId": "10"
   },
   "11155111": {
+    "chainName": "sepolia",
     "AutoSwarmAccount": "0x92cde6400cA5dbD1b36831D8B936144367D9Ff41",
     "ERC6551Registry": "0xf48F331AeB5ADF4e76b86fab06ec4a12d937dd8e",
     "PostageStamp": "0x6b8Fa21F9F262345c8Ebeb19adD9381EdB72367c",
     "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
     "BzzToken": "0x2A0c72063Ff6ad79c94A4109155DDe59e0909a22",
-    "NFTCollection": "0xdb448B0fD553d51B57b45BB85da8b25e0362ca1C",
     "batchId": "0xE83765CEEE12EEDEC606E9A6FB4017AE45FD8BB5BF1726C587C8F3F9ED75E189",
-    "chainName": "sepolia"
-  },
-  "31337": {
-    "AutoSwarmAccount": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "ERC6551Registry": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "PostageStamp": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
-    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "chainName": "local"
+    "NFTCollection": "0xdb448B0fD553d51B57b45BB85da8b25e0362ca1C",
+    "tokenId": "0"
   },
   "1337": {
+    "chainName": "localhost",
     "AutoSwarmAccount": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
     "ERC6551Registry": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
     "PostageStamp": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
     "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
     "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
     "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e",
-    "chainName": "localhost"
+    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
+    "tokenId": "1"
   }
 }

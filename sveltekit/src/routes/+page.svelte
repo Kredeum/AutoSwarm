@@ -1,7 +1,15 @@
 <script lang="ts">
-	import { getBatchId, getDisplayDuration } from '$lib/ts/get.js';
+	import { getBatchId } from '$lib/ts/get';
+	import {
+		displayBalance,
+		displayBzzFromBalance,
+		displayDuration,
+		displayTxt
+	} from '$lib/ts/display';
 	import {
 		readAccount,
+		readBatchLegacy,
+		readBatchNew,
 		readBzzBalance,
 		readLastPrice,
 		readRemainingBalance
@@ -9,20 +17,21 @@
 	import { onMount } from 'svelte';
 	import { createPublicClient, http, type Address } from 'viem';
 	import { gnosis } from 'viem/chains';
+	import { ONE_YEAR, SECONDS_PER_BLOCK } from '$lib/ts/constants.js';
 
 	export let data;
 
-	const secondsPerBlock = 5n;
+	let batchId = getBatchId(100);
 	let autoSwarmAddress: Address = '0x0';
 	let autoSwarmBalance: bigint;
-	let remainingBalance = 0n;
+	let remainingBalance: bigint;
 	let lastPrice = 0n;
-	let batchId = getBatchId(100);
-	let displayBalance = '*****';
-	let displayDuration = '***** weeks';
+	let duration: bigint;
+	let oneYearBzz: bigint;
+	let depth: number;
 
 	let topping = false;
-	let tokenId = 1;
+	let tokenId = 10;
 
 	const publicClient = createPublicClient({ chain: gnosis, transport: http() });
 
@@ -31,23 +40,24 @@
 		console.log('topUp');
 
 		topping = false;
+		refreshDisplay();
 	};
 
 	const refreshDisplay = async () => {
+		if (!publicClient) return;
+
+		autoSwarmAddress = await readAccount(publicClient);
 		autoSwarmBalance = await readBzzBalance(publicClient, autoSwarmAddress);
-
 		remainingBalance = await readRemainingBalance(publicClient);
-
 		lastPrice = await readLastPrice(publicClient);
+		oneYearBzz = (lastPrice * BigInt(ONE_YEAR)) / SECONDS_PER_BLOCK;
+		[, depth] = await readBatchLegacy(publicClient);
 
-		displayBalance = (Number(autoSwarmBalance || 0) / 1e16).toFixed(4);
-
-		displayDuration =
-			lastPrice > 0 ? getDisplayDuration((remainingBalance * secondsPerBlock) / lastPrice) : '';
+		const secondsPerBlock = 5n;
+		if (lastPrice > 0) duration = (remainingBalance * secondsPerBlock) / lastPrice;
 	};
 
 	onMount(async () => {
-		autoSwarmAddress = await readAccount(publicClient);
 		refreshDisplay();
 	});
 </script>
@@ -75,10 +85,10 @@
 		<div class="batch-topUp-infos">
 			<p title="NFT AutoSwarm {autoSwarmAddress}">NFT AutoSwarm balance</p>
 			<p title="{autoSwarmBalance} bzz">
-				{displayBalance} Bzz
+				{displayBalance(autoSwarmBalance, 16)} Bzz
 			</p>
 			<p title="batchId {batchId}">Swarm Storage ends in</p>
-			<p title="{remainingBalance} seconds">{displayDuration}</p>
+			<p title="{displayTxt(remainingBalance)} seconds">{displayDuration(duration)}</p>
 		</div>
 		<button class="btn btn-topup" on:click={topUp}>
 			TopUp 1 Year
@@ -86,5 +96,10 @@
 				<i class="fa-solid fa-spinner fa-spin-pulse" />
 			{/if}
 		</button>
+		<div class="batch-topUp-below">
+			<p>
+				Price: {displayBzzFromBalance(oneYearBzz, depth)} Bzz
+			</p>
+		</div>
 	</div>
 </section>

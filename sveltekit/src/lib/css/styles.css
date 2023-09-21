@@ -172,6 +172,7 @@ article p {
 	margin: 0;
 }
 
+
 .batch-topUp-infos {
 	display: grid;
 	/* grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 1fr); */
@@ -191,6 +192,11 @@ article p {
 .batch-topUp-infos p:nth-child(even) {
 	justify-self: start;
 	font-weight: 300;
+}
+
+.batch-topUp-below {
+  padding-top: 2em;
+  font-style: italic;
 }
 
 .btn-topup {
