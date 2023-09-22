@@ -15,6 +15,12 @@ import {
 // DISPLAY : offline functions returns [html] string to display
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+const displayAddress = (addr: string): string => {
+	if (!isAddress(addr)) return UNDEFINED_ADDRESS;
+
+	return addr;
+};
+
 const displayTxt = (data: string | number | bigint): string => {
 	if (data === undefined) return UNDEFINED_DATA;
 
@@ -86,6 +92,7 @@ export {
 	displayTtl,
 	displayNftLink,
 	displayBalance,
+  displayAddress,
 	displayDuration,
 	displayExplorerLink,
 	displayBzzFromBalance

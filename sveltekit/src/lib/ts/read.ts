@@ -1,7 +1,13 @@
 import type { Address, Hex, PublicClient } from 'viem';
-import { bzzTokenAbi, postageStampAbi, postageStampAbiBatcheslegacy, registryAbi } from './abis';
+import {
+	bzzTokenAbi,
+	postageStampAbi,
+	postageStampAbiBatcheslegacy,
+	erc6551RegistryAbi,
+	erc721Abi
+} from './abis';
 import { getJson } from '$lib/ts/get';
-import { writeSalt } from '$lib/ts/write';
+import { SALT, SWARM_GATEWAY, type NftMetadata } from '$lib/ts/constants';
 import type { ChainIdInJson } from '$lib/ts/get';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,7 +19,10 @@ const readIsContract = async (publicClient: PublicClient, address: Address): Pro
 
 	const bytecode = await publicClient.getBytecode({ address });
 
-	return Number(bytecode?.length || 0n) > 0;
+	const len = Number(bytecode?.length || 0n);
+	console.log('readIsContract ~ len:', len);
+
+	return len > 0;
 };
 
 const readChainId = async (publicClient: PublicClient) => {
@@ -48,21 +57,46 @@ const readBzzBalance = async (publicClient: PublicClient, address: Address): Pro
 	});
 };
 
+const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata> => {
+	const json = await readJson(publicClient);
+
+	const tokenURI = await publicClient.readContract({
+		address: json.NFTCollection as Address,
+		abi: erc721Abi,
+		functionName: 'tokenURI',
+		args: [BigInt(json.tokenId)]
+	});
+	const urlHash = tokenURI.replace('swarm://', SWARM_GATEWAY);
+	const data = await fetch(urlHash as string);
+	const nftMetadataJson = await data.json();
+	console.log('readNftMetadata ~ nftMetadataJson:', nftMetadataJson);
+
+	return {
+		name: nftMetadataJson.name,
+		image: nftMetadataJson.image,
+		description: nftMetadataJson.description,
+		tokenId: json.tokenId,
+		address: json.NFTCollection
+	};
+};
+
 const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 	const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
 
+	const args: [`0x${string}`, bigint, `0x${string}`, bigint, bigint] = [
+		json.AutoSwarmAccount as Address,
+		BigInt(chainId),
+		json.NFTCollection as Address,
+		BigInt(json.tokenId),
+		SALT
+	];
+
 	return await publicClient.readContract({
 		address: json.ERC6551Registry as Address,
-		abi: registryAbi,
+		abi: erc6551RegistryAbi,
 		functionName: 'account',
-		args: [
-			json.AutoSwarmAccount as Address,
-			BigInt(chainId),
-			json.NFTCollection as Address,
-			BigInt(json.tokenId),
-			writeSalt
-		]
+		args
 	});
 };
 
@@ -117,10 +151,11 @@ export {
 	readJson,
 	readChainId,
 	readAccount,
-	readIsContract,
-	readLastPrice,
-	readBatchLegacy,
 	readBatchNew,
+	readLastPrice,
+	readIsContract,
 	readBzzBalance,
+	readBatchLegacy,
+	readNftMetadata,
 	readRemainingBalance
 };

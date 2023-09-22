@@ -16,19 +16,18 @@ contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
 
     function setUpAutoSwarmAccount() public {
         require(chainId == block.chainid, "Wrong network");
-        autoSwarmAccount =
-            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
 
         address nftOwner = IERC721(collection).ownerOf(tokenId);
         require(nftOwner != address(0), "No NFT here!");
 
+        autoSwarmAccount =
+            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
         if (address(autoSwarmAccount).code.length == 0) {
+            bytes memory initData = abi.encodeWithSignature("initialize(address)", address(postageStamp));
             vm.prank(nftOwner);
-            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, initData);
         }
         assert(address(autoSwarmAccount).code.length != 0);
-
-        autoSwarmAccount.initialize(payable(address(postageStamp)));
 
         deal(address(bzzToken), address(autoSwarmAccount), ttl0 << depth0);
         batchId0 = autoSwarmAccount.stampsBuy(ttl0, depth0);

@@ -60,7 +60,6 @@ contract PostageStampTest is SetUpSwarm {
         assert(postageStamp.remainingBalance(batchId) < ttl);
     }
 
-
     function test_PostageStamp_Gnosis_Batch() public {
         console.log("PostageStamp_Gnosis_Batch", block.chainid);
 

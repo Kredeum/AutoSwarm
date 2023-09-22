@@ -13,14 +13,31 @@ const postageStampAbi = parseAbi([
 	'function lastPrice() external view returns (uint256)',
 	'function topUp(bytes32,uint256) external'
 ]);
-const registryAbi = parseAbi([
+const erc721Abi = parseAbi([
+	'function ownerOf(uint256) external view returns (address)',
+	'function tokenURI(uint256) external view returns (string)'
+]);
+const erc6551RegistryAbi = parseAbi([
 	'function account(address,uint256,address,uint256,uint256) external view returns (address)',
 	'function createAccount(address,uint256,address,uint256,uint256, bytes calldata) external returns (address)'
 ]);
 const bzzTokenAbi = parseAbi([
 	'function balanceOf(address) external view returns(uint256)',
-	'function approve(address,uint256) public returns (bool)'
+	'function approve(address,uint256) public returns (bool)',
+	'function transfer(address,uint256) public returns (bool)'
 ]);
-const autoSwarmAbi = parseAbi(['function stampsTopUp(bytes32,uint256) external']);
+const autoSwarmAbi = parseAbi([
+	'function stampsTopUp(bytes32,uint256) external',
+	'function initialize(address) external',
+	'function withdrawBzz() external',
+	'function deposit(uint256) external'
+]);
 
-export { registryAbi, postageStampAbiBatcheslegacy, postageStampAbi, bzzTokenAbi, autoSwarmAbi };
+export {
+	erc721Abi,
+	erc6551RegistryAbi,
+	postageStampAbiBatcheslegacy,
+	postageStampAbi,
+	bzzTokenAbi,
+	autoSwarmAbi
+};

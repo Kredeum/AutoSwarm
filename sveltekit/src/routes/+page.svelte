@@ -1,6 +1,12 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { gnosis } from 'viem/chains';
+	import { createPublicClient, http, type Address } from 'viem';
+
+	import { ONE_YEAR, SECONDS_PER_BLOCK, type NftMetadata } from '$lib/ts/constants.js';
 	import { getBatchId } from '$lib/ts/get';
 	import {
+		displayAddress,
 		displayBalance,
 		displayBzzFromBalance,
 		displayDuration,
@@ -9,20 +15,18 @@
 	import {
 		readAccount,
 		readBatchLegacy,
-		readBatchNew,
 		readBzzBalance,
 		readLastPrice,
+		readNftMetadata,
 		readRemainingBalance
 	} from '$lib/ts/read.js';
-	import { onMount } from 'svelte';
-	import { createPublicClient, http, type Address } from 'viem';
-	import { gnosis } from 'viem/chains';
-	import { ONE_YEAR, SECONDS_PER_BLOCK } from '$lib/ts/constants.js';
+	import { writeTopUp } from '$lib/ts/write.js';
+	import { autoSwarmAbi } from '$lib/ts/abis.js';
 
-	export let data;
+	let nftMetadataJson: NftMetadata;
 
 	let batchId = getBatchId(100);
-	let autoSwarmAddress: Address = '0x0';
+	let autoSwarmAddress: Address;
 	let autoSwarmBalance: bigint;
 	let remainingBalance: bigint;
 	let lastPrice = 0n;
@@ -31,13 +35,14 @@
 	let depth: number;
 
 	let topping = false;
-	let tokenId = 10;
 
 	const publicClient = createPublicClient({ chain: gnosis, transport: http() });
 
 	const topUp = async () => {
 		if (topping) return;
-		console.log('topUp');
+		console.info('topUp');
+
+		await writeTopUp(gnosis, publicClient);
 
 		topping = false;
 		refreshDisplay();
@@ -58,20 +63,29 @@
 	};
 
 	onMount(async () => {
+     nftMetadataJson = await readNftMetadata(publicClient);
+
+		autoSwarmAddress = await readAccount(publicClient);
+		const unwatch = publicClient.watchContractEvent({
+			address: autoSwarmAddress,
+			abi: autoSwarmAbi,
+			onLogs: (logs) => console.log(logs)
+		});
+
 		refreshDisplay();
 	});
 </script>
 
 <section>
-	<div class="nfts-grid">
-		{#if data.nftMetadata}
+	<div class="nfts-grid" >
+		{#if nftMetadataJson}
 			<article>
-				<div
+				<div title="NFT Collection Address  @{nftMetadataJson.address}"
 					class="nft-img"
-					style="background-image: url({data.nftMetadata.image});"
-					aria-label={data.nftMetadata.description}
+					style="background-image: url({nftMetadataJson.image});"
+					aria-label={nftMetadataJson.description}
 				/>
-				<p class="nft-title">{data.nftMetadata.name} <span># {tokenId}</span></p>
+				<p  class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
 			</article>
 		{/if}
 	</div>
@@ -83,7 +97,7 @@
 	</section>
 	<div class="batch-topUp">
 		<div class="batch-topUp-infos">
-			<p title="NFT AutoSwarm {autoSwarmAddress}">NFT AutoSwarm balance</p>
+			<p title="NFT AutoSwarm {displayAddress(autoSwarmAddress)}">NFT AutoSwarm balance</p>
 			<p title="{autoSwarmBalance} bzz">
 				{displayBalance(autoSwarmBalance, 16)} Bzz
 			</p>

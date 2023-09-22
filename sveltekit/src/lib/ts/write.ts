@@ -6,17 +6,18 @@ import {
 	type Hex,
 	type PublicClient,
 	type WalletClient,
-	custom
+	custom,
+	BaseError,
+	ContractFunctionRevertedError,
+	encodeFunctionData
 } from 'viem';
-import { autoSwarmAbi, bzzTokenAbi, registryAbi } from '$lib/ts/abis';
+import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
 import { readJson, readChainId, readIsContract, readAccount } from '$lib/ts/read';
-import { ONE_MONTH, ONE_YEAR } from './constants';
+import { DEFAULT_PRICE, ONE_YEAR, SALT, SECONDS_PER_BLOCK } from './constants';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-const writeSalt = 1120920938n;
 
 const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
 	if (!window?.ethereum) {
@@ -43,29 +44,38 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient) => {
 	const walletAddress = await writeWalletAddress(walletClient);
 	const autoSwarmAddress = await readAccount(publicClient);
 
-	console.log(
-		'writeCreateAccount ~ chainId walletAddress:',
-		chainId,
-		walletAddress,
-		autoSwarmAddress
-	);
+	try {
+		const data = encodeFunctionData({
+			abi: autoSwarmAbi,
+			functionName: 'initialize',
+			args: [json.PostageStamp as Address]
+		});
 
-	const { request } = await publicClient.simulateContract({
-		account: walletAddress,
-		address: json.ERC6551Registry as Address,
-		abi: registryAbi,
-		functionName: 'createAccount',
-		args: [
-			json.AutoSwarmAccount as Address,
-			BigInt(chainId),
-			json.NFTCollection as Address,
-			BigInt(1),
-			writeSalt,
-			''
-		]
-	});
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash: hash });
+		const { request } = await publicClient.simulateContract({
+			account: walletAddress,
+			address: json.ERC6551Registry as Address,
+			abi: erc6551RegistryAbi,
+			functionName: 'createAccount',
+			args: [
+				json.AutoSwarmAccount as Address,
+				BigInt(chainId),
+				json.NFTCollection as Address,
+				BigInt(json.tokenId),
+				SALT,
+				data
+			]
+		});
+		const hash = await walletClient.writeContract(request);
+		await publicClient.waitForTransactionReceipt({ hash: hash });
+	} catch (err) {
+		if (err instanceof BaseError) {
+			const revertError = err.walk((err) => err instanceof ContractFunctionRevertedError);
+			if (revertError instanceof ContractFunctionRevertedError) {
+				const errorName = revertError.data?.errorName ?? '';
+				console.error('writeCreateAccount ~ errorName:', errorName);
+			}
+		}
+	}
 
 	if (!(await readIsContract(publicClient, autoSwarmAddress))) throw Error('Create failed');
 };
@@ -104,24 +114,53 @@ const writeApproveBzz = async (chain: Chain, publicClient: PublicClient, bzzAmou
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeTopUp = async (chain: Chain, publicClient: PublicClient) => {
+const writeDeposit = async (chain: Chain, publicClient: PublicClient) => {
+	const json = await readJson(publicClient);
+	const walletClient = await writeWalletClient(chain);
+	const walletAddress = await writeWalletAddress(walletClient);
+	const autoSwarmAddress = await readAccount(publicClient);
+
+	const { request } = await publicClient.simulateContract({
+		account: walletAddress,
+		address: json.BzzToken as Address,
+		abi: bzzTokenAbi,
+		functionName: 'transfer',
+		args: [autoSwarmAddress, 2n * 10n ** 16n]
+	});
+	const hash = await walletClient.writeContract(request);
+	await publicClient.waitForTransactionReceipt({ hash });
+};
+
+const writeWithdraw = async (chain: Chain, publicClient: PublicClient) => {
+	const walletClient = await writeWalletClient(chain);
+	const walletAddress = await writeWalletAddress(walletClient);
+	console.log("writeWithdraw ~ walletAddress:", walletAddress);
+	const autoSwarmAddress = await readAccount(publicClient);
+	console.log("writeWithdraw ~ autoSwarmAddress:", autoSwarmAddress);
+
+	const { request } = await publicClient.simulateContract({
+		account: walletAddress,
+		address: autoSwarmAddress,
+		abi: autoSwarmAbi,
+		functionName: 'withdrawBzz'
+	});
+	const hash = await walletClient.writeContract(request);
+	await publicClient.waitForTransactionReceipt({ hash });
+};
+
+const writeTopUp = async (
+	chain: Chain,
+	publicClient: PublicClient,
+	topUpttl = (BigInt(ONE_YEAR) * DEFAULT_PRICE) / SECONDS_PER_BLOCK
+) => {
 	const autoSwarmAddress = await readAccount(publicClient);
 	console.log('writeTopUp ~ autoSwarmAddress:', autoSwarmAddress);
 
 	if (!(await readIsContract(publicClient, autoSwarmAddress))) {
-		console.log('writeTopUp ~ create');
-
 		await writeCreateAccount(chain, publicClient);
 	}
-	console.log('writeTopUp ~ follow');
-
-	// TopUp one hour TTL
-	const topUpttl: bigint = (BigInt(ONE_MONTH) * 24000n) / 5n;
-
-	// const topUpBzz: bigint = topUpttl * 2n ** 17n;
-	// await writeApproveBzz(chain, publicClient, topUpBzz);
 
 	await writeStampsTopUp(chain, publicClient, topUpttl);
 };
 
-export { writeCreateAccount, writeTopUp, writeApproveBzz, writeSalt };
+export { writeCreateAccount, writeTopUp, writeApproveBzz, writeWithdraw, writeDeposit };
