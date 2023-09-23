@@ -20,7 +20,7 @@
 		readNftMetadata,
 		readRemainingBalance
 	} from '$lib/ts/read.js';
-	import { writeTopUp } from '$lib/ts/write.js';
+	import { writeStampsTopUp } from '$lib/ts/writeStamps.js';
 	import { autoSwarmAbi } from '$lib/ts/abis.js';
 
 	let nftMetadataJson: NftMetadata;
@@ -42,7 +42,7 @@
 		if (topping) return;
 		console.info('topUp');
 
-		await writeTopUp(gnosis, publicClient);
+		await writeStampsTopUp(gnosis, publicClient);
 
 		topping = false;
 		refreshDisplay();
@@ -63,7 +63,7 @@
 	};
 
 	onMount(async () => {
-     nftMetadataJson = await readNftMetadata(publicClient);
+		nftMetadataJson = await readNftMetadata(publicClient);
 
 		autoSwarmAddress = await readAccount(publicClient);
 		const unwatch = publicClient.watchContractEvent({
@@ -77,15 +77,16 @@
 </script>
 
 <section>
-	<div class="nfts-grid" >
+	<div class="nfts-grid">
 		{#if nftMetadataJson}
 			<article>
-				<div title="NFT Collection Address  @{nftMetadataJson.address}"
+				<div
+					title="NFT Collection Address  @{nftMetadataJson.address}"
 					class="nft-img"
 					style="background-image: url({nftMetadataJson.image});"
 					aria-label={nftMetadataJson.description}
 				/>
-				<p  class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
+				<p class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
 			</article>
 		{/if}
 	</div>

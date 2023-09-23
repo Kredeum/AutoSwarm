@@ -1,18 +1,30 @@
 {
+  "31337": {
+    "AutoSwarmAccount": "0x0C8E79F3534B00D9a3D4a856B665Bf4eBC22f2ba",
+    "ERC6551Registry": "0xe1DA8919f262Ee86f9BE05059C9280142CF23f48",
+    "PostageStamp": "0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629",
+    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
+    "BzzToken": "0xb19b36b1456E65E3A6D514D3F715f204BD59f431",
+    "NFTCollection": "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
+    "tokenId": "0",
+    "Oracle": "",
+    "batchId": "0xd78149fdeb6cdeb7ae84853d090d4f262e2e795740e9278b15a7dcd57bc6d175",
+    "chainName": "anvil"
+  },
   "1": {
     "chainName": "mainnet",
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb"
   },
   "100": {
     "chainName": "gnosis",
-    "ERC6551Registry": "0xbDdB2c83ACFFb4A6Ec4ebCC48114C1B9D721D72d",
-    "AutoSwarmAccount": "0x41A3488bE8489881a3aCeeac112F2bE10F780c78",
-    "PostageStamp": "0xd798E6E526d7893e4F7aCED9F56DF69643bCf1B6",
-    "BzzToken": "0xD7662BCA15C53F30D0c83Df84079619753aBC5b4",
+    "ERC6551Registry": "0xAc1d836f3D8884d95AAfbddC568677d14f1729e6",
+    "AutoSwarmAccount": "0xCd2b7E1e4DeF1B377a3f05ee60fE9da880Bdd002",
+    "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
+    "BzzToken": "0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da",
     "Admin": "0xD5C070FEb5EA883063c183eDFF10BA6836cf9816",
     "Oracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
     "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e",
-    "NFTCollection": "0x97915aA350603f50D1B48e0Ac7d1820b13b65Ee0",
+    "NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82",
     "tokenId": "11"
   },
   "11155111": {
@@ -36,8 +48,9 @@
     "PostageStamp": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
     "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
     "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e",
     "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "tokenId": "1"
+    "Oracle": "",
+    "batchId": "",
+    "tokenId": "0"
   }
 }

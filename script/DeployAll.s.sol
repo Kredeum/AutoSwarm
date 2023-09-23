@@ -23,7 +23,5 @@ contract DeployAll is
         deploy("PostageStamp", false);
         deploy("ERC6551Registry", false);
         deploy("AutoSwarmAccount");
-
-        writeAddresses();
     }
 }

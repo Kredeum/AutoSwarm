@@ -21,20 +21,20 @@ const displayAddress = (addr: string): string => {
 	return addr;
 };
 
-const displayTxt = (data: string | number | bigint): string => {
+const displayTxt = (data: string | number | bigint | undefined): string => {
 	if (data === undefined) return UNDEFINED_DATA;
 
 	return String(data);
 };
 
-const displayTtl = (balance: bigint, lastPrice: bigint): string => {
+const displayTtl = (balance: bigint | undefined, lastPrice: bigint | undefined): string => {
 	if (balance === undefined || lastPrice === undefined) return UNDEFINED_DATA;
 	if (lastPrice == 0n) return DIVISION_BY_ZERO;
 
 	return displayDuration((balance * SECONDS_PER_BLOCK) / lastPrice);
 };
 
-const displayDuration = (seconds: bigint): string => {
+const displayDuration = (seconds: bigint | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} weeks`;
 
 	const hours = Number(seconds) / ONE_HOUR;
@@ -57,8 +57,8 @@ const displayDuration = (seconds: bigint): string => {
 	return ret;
 };
 
-const displayExplorerLink = (chain: Chain, addr: string): string => {
-	if (!isAddress(addr)) return UNDEFINED_ADDRESS;
+const displayExplorerLink = (chain: Chain, addr: string | undefined): string => {
+	if (addr === undefined || !isAddress(addr)) return UNDEFINED_ADDRESS;
 
 	const explorer =
 		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
@@ -66,13 +66,17 @@ const displayExplorerLink = (chain: Chain, addr: string): string => {
 	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;
 };
 
-const displayBzzFromBalance = (balance: bigint, depth: number): string => {
+const displayBzzFromBalance = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
 
 	return displayBalance(balance * 2n ** BigInt(depth), 16);
 };
 
-const displayBalance = (balance: bigint, decimals: number = 18, toFixed: number = 3): string => {
+const displayBalance = (
+	balance: bigint | undefined,
+	decimals: number = 18,
+	toFixed: number = 3
+): string => {
 	if (balance === undefined) return UNDEFINED_DATA;
 
 	const str = formatUnits(balance, decimals);
@@ -84,7 +88,7 @@ const displayNftLink = (chain: Chain, collection: string, tokenId: number): stri
 	if (!isAddress(collection)) return UNDEFINED_DATA;
 
 	const url = `https://app.kredeum.com/#/${chain.id}/${collection}/${tokenId}`;
-	return `<a href="${url}" target="_blank">nft://${chain.network}/${collection}/${tokenId}</a>`;
+	return `<a href="${url}" target="_blank"> #${tokenId}</a>`;
 };
 
 export {
@@ -92,7 +96,7 @@ export {
 	displayTtl,
 	displayNftLink,
 	displayBalance,
-  displayAddress,
+	displayAddress,
 	displayDuration,
 	displayExplorerLink,
 	displayBzzFromBalance

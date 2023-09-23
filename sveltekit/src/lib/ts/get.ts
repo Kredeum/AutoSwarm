@@ -7,7 +7,8 @@ import jsonFile from '$addresses';
 enum ChainIdInJson {
 	'gnosis' = 100,
 	'sepolia' = 11155111,
-	'localhost' = 1337
+	'localhost' = 1337,
+	'anvil' = 31337
 }
 
 const getJson = (chainId: ChainIdInJson) => {

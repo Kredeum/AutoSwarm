@@ -57,8 +57,20 @@ const readBzzBalance = async (publicClient: PublicClient, address: Address): Pro
 	});
 };
 
-const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata> => {
+const readNftOwner = async (publicClient: PublicClient): Promise<Address> => {
 	const json = await readJson(publicClient);
+
+	return await publicClient.readContract({
+		address: json.NFTCollection as Address,
+		abi: erc721Abi,
+		functionName: 'ownerOf',
+		args: [BigInt(json.tokenId)]
+	});
+};
+
+const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata | undefined> => {
+	const json = await readJson(publicClient);
+	if (!('tokenId' in json)) throw Error('No tokenId in json');
 
 	const tokenURI = await publicClient.readContract({
 		address: json.NFTCollection as Address,
@@ -83,6 +95,7 @@ const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata>
 const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 	const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
+	if (!('tokenId' in json)) throw Error('No tokenId in json');
 
 	const args: [`0x${string}`, bigint, `0x${string}`, bigint, bigint] = [
 		json.AutoSwarmAccount as Address,
@@ -102,6 +115,8 @@ const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 
 const readBatchLegacy = async (publicClient: PublicClient): Promise<[Address, number, bigint]> => {
 	const json = await readJson(publicClient);
+	if (!('batchId' in json))
+		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
 
 	const [owner, depth, , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -115,6 +130,9 @@ const readBatchLegacy = async (publicClient: PublicClient): Promise<[Address, nu
 
 const readBatchNew = async (publicClient: PublicClient): Promise<[Address, number, bigint]> => {
 	const json = await readJson(publicClient);
+	if (!('batchId' in json))
+		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+
 	console.log('readBatchNew ~ json:', json);
 
 	const [owner, depth, , , rBal] = await publicClient.readContract({
@@ -129,20 +147,16 @@ const readBatchNew = async (publicClient: PublicClient): Promise<[Address, numbe
 
 const readRemainingBalance = async (publicClient: PublicClient): Promise<bigint> => {
 	const json = await readJson(publicClient);
-	let data;
+	if (!('batchId' in json))
+		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
 
-	try {
-		data = await publicClient.readContract({
-			address: json.PostageStamp as Address,
-			abi: postageStampAbi,
-			functionName: 'remainingBalance',
-			args: [json.batchId as Hex]
-		});
-		console.log('readRemainingBalance ~ data:', data);
-	} catch (e) {
-		console.info('batchId not exists ?');
-		return 0n;
-	}
+	const data = await publicClient.readContract({
+		address: json.PostageStamp as Address,
+		abi: postageStampAbi,
+		functionName: 'remainingBalance',
+		args: [json.batchId as Hex]
+	});
+	console.log('readRemainingBalance ~ data:', data);
 
 	return data;
 };
@@ -151,6 +165,7 @@ export {
 	readJson,
 	readChainId,
 	readAccount,
+  readNftOwner,
 	readBatchNew,
 	readLastPrice,
 	readIsContract,

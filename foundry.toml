@@ -9,6 +9,8 @@ fs_permissions = [
   { access = "read-write", path = "./addresses.json" },
   { access = "read-write", path = "./out" },
 ]
+
+[profile.sepolia]
 eth_rpc_url = "sepolia"
 fork_block_number = 4342233
 
@@ -16,10 +18,8 @@ fork_block_number = 4342233
 eth_rpc_url = "gnosis"
 fork_block_number = 30066829
 
-[profile.localhost]
-eth_rpc_url = "localhost"
-fork_block_number = 0
-
+[profile.anvil]
+eth_rpc_url = "local"
 
 [profile.incentives]
 src = 'lib/storage-incentives'

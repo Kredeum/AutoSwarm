@@ -27,10 +27,11 @@ const bzzTokenAbi = parseAbi([
 	'function transfer(address,uint256) public returns (bool)'
 ]);
 const autoSwarmAbi = parseAbi([
-	'function stampsTopUp(bytes32,uint256) external',
 	'function initialize(address) external',
-	'function withdrawBzz() external',
-	'function deposit(uint256) external'
+  'function stampsBuy(uint256,uint8) external returns (bytes32)',
+	'function stampsTopUp(bytes32,uint256) external',
+  'function stampsIncreaseDepth(bytes32,uint8) external',
+	'function withdrawBzz() external'
 ]);
 
 export {

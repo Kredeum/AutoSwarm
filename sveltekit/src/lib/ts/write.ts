@@ -3,7 +3,6 @@ import {
 	createWalletClient,
 	type Address,
 	type Chain,
-	type Hex,
 	type PublicClient,
 	type WalletClient,
 	custom,
@@ -13,7 +12,7 @@ import {
 } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
 import { readJson, readChainId, readIsContract, readAccount } from '$lib/ts/read';
-import { DEFAULT_PRICE, ONE_YEAR, SALT, SECONDS_PER_BLOCK } from './constants';
+import { SALT } from './constants';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
@@ -26,10 +25,15 @@ const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
 		throw new Error(message);
 	}
 
-	return createWalletClient({
+	const walletClient = createWalletClient({
 		chain,
 		transport: custom(window.ethereum!)
 	});
+	if ((await walletClient.getChainId()) !== chain.id) {
+		await walletClient.switchChain({ id: chain.id });
+	}
+
+	return walletClient;
 };
 
 const writeWalletAddress = async (walletClient: WalletClient): Promise<Address> => {
@@ -80,23 +84,6 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient) => {
 	if (!(await readIsContract(publicClient, autoSwarmAddress))) throw Error('Create failed');
 };
 
-const writeStampsTopUp = async (chain: Chain, publicClient: PublicClient, topUpAmount: bigint) => {
-	const json = await readJson(publicClient);
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
-
-	const { request } = await publicClient.simulateContract({
-		account: walletAddress,
-		address: autoSwarmAddress,
-		abi: autoSwarmAbi,
-		functionName: 'stampsTopUp',
-		args: [json.batchId as Hex, topUpAmount]
-	});
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash });
-};
-
 const writeApproveBzz = async (chain: Chain, publicClient: PublicClient, bzzAmount: bigint) => {
 	const json = await readJson(publicClient);
 	const walletClient = await writeWalletClient(chain);
@@ -114,53 +101,4 @@ const writeApproveBzz = async (chain: Chain, publicClient: PublicClient, bzzAmou
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeDeposit = async (chain: Chain, publicClient: PublicClient) => {
-	const json = await readJson(publicClient);
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
-
-	const { request } = await publicClient.simulateContract({
-		account: walletAddress,
-		address: json.BzzToken as Address,
-		abi: bzzTokenAbi,
-		functionName: 'transfer',
-		args: [autoSwarmAddress, 2n * 10n ** 16n]
-	});
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash });
-};
-
-const writeWithdraw = async (chain: Chain, publicClient: PublicClient) => {
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	console.log("writeWithdraw ~ walletAddress:", walletAddress);
-	const autoSwarmAddress = await readAccount(publicClient);
-	console.log("writeWithdraw ~ autoSwarmAddress:", autoSwarmAddress);
-
-	const { request } = await publicClient.simulateContract({
-		account: walletAddress,
-		address: autoSwarmAddress,
-		abi: autoSwarmAbi,
-		functionName: 'withdrawBzz'
-	});
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash });
-};
-
-const writeTopUp = async (
-	chain: Chain,
-	publicClient: PublicClient,
-	topUpttl = (BigInt(ONE_YEAR) * DEFAULT_PRICE) / SECONDS_PER_BLOCK
-) => {
-	const autoSwarmAddress = await readAccount(publicClient);
-	console.log('writeTopUp ~ autoSwarmAddress:', autoSwarmAddress);
-
-	if (!(await readIsContract(publicClient, autoSwarmAddress))) {
-		await writeCreateAccount(chain, publicClient);
-	}
-
-	await writeStampsTopUp(chain, publicClient, topUpttl);
-};
-
-export { writeCreateAccount, writeTopUp, writeApproveBzz, writeWithdraw, writeDeposit };
+export { writeCreateAccount, writeApproveBzz, writeWalletClient, writeWalletAddress };
