@@ -172,7 +172,6 @@ article p {
 	margin: 0;
 }
 
-
 .batch-topUp-infos {
 	display: grid;
 	/* grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 1fr); */
@@ -195,12 +194,12 @@ article p {
 }
 
 .batch-topUp-below {
-  padding-top: 2em;
-  font-style: italic;
+	padding-top: 2em;
+	font-style: italic;
 }
 
 .btn-topup {
-	place-self: center;
+  place-self: center;
 	font-size: 2rem;
 	background-color: var(--color-link);
 	border-color: transparent;
@@ -209,8 +208,15 @@ article p {
 }
 
 .btn.btn-topup:hover {
-	color: var(--color-link);
+  color: var(--color-link);
 	border-color: var(--color-link);
 	background-color: transparent;
 	cursor: pointer;
 }
+
+button:disabled.btn.btn-topup  {
+  cursor: no-drop;
+  border-color: var(--color-link);
+	background-color: transparent;
+}
+

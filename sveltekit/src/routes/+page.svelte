@@ -21,7 +21,6 @@
 		readRemainingBalance
 	} from '$lib/ts/read.js';
 	import { writeStampsTopUp } from '$lib/ts/writeStamps.js';
-	import { autoSwarmAbi } from '$lib/ts/abis.js';
 
 	let nftMetadataJson: NftMetadata;
 
@@ -33,6 +32,7 @@
 	let duration: bigint;
 	let oneYearBzz: bigint;
 	let depth: number;
+	let disabled: boolean = true;
 
 	let topping = false;
 
@@ -61,6 +61,8 @@
 		lastPrice = await readLastPrice(publicClient);
 		oneYearBzz = (lastPrice * BigInt(ONE_YEAR)) / SECONDS_PER_BLOCK;
 		[, depth] = await readBatchLegacy(publicClient);
+
+    disabled = autoSwarmBalance < oneYearBzz;
 
 		const secondsPerBlock = 5n;
 		if (lastPrice > 0) duration = (remainingBalance * secondsPerBlock) / lastPrice;
@@ -102,7 +104,7 @@
 			<p title="batchId {batchId}">Swarm Storage ends in</p>
 			<p title="{displayTxt(remainingBalance)} seconds">{displayDuration(duration)}</p>
 		</div>
-		<button class="btn btn-topup" on:click={topUp}>
+		<button {disabled} class="btn btn-topup" on:click={topUp}>
 			TopUp 1 Year
 			{#if topping}
 				<i class="fa-solid fa-spinner fa-spin-pulse" />

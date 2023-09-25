@@ -65,7 +65,6 @@
 	let bzzNftOwnerBalance: bigint | undefined;
 	let oneDayBzz: bigint | undefined;
 	let addressOrCreated = '';
-	let disabled: boolean = true;
 	let tokenId = 1n;
 
 	const reset = () => {
@@ -181,7 +180,6 @@
 				on:click={() => topUp(30)}>TopUp 1 Month</button
 			>
 			<button
-				{disabled}
 				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz"
 				on:click={() => topUp(365)}>TopUp 1 Year</button
 			>
