@@ -11,7 +11,7 @@ import {
 	encodeFunctionData
 } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
-import { readJson, readChainId, readIsContract, readAccount } from '$lib/ts/read';
+import { readJson, readChainId, readIsContract, readAccount, readLastTokenId } from '$lib/ts/read';
 import { SALT } from './constants';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,13 +40,17 @@ const writeWalletAddress = async (walletClient: WalletClient): Promise<Address> 
 	return (await walletClient.requestAddresses())[0];
 };
 
-const writeCreateAccount = async (chain: Chain, publicClient: PublicClient) => {
-	const chainId = await readChainId(publicClient);
+const writeCreateAccount = async (chain: Chain, publicClient: PublicClient): Promise<Address> => {
+	const autoSwarmAddress = await readAccount(publicClient);
+	if (await readIsContract(publicClient, autoSwarmAddress)) return autoSwarmAddress;
+
+  const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
+	const tokenId = await readLastTokenId(publicClient);
 
 	const walletClient = await writeWalletClient(chain);
 	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
+
 
 	try {
 		const data = encodeFunctionData({
@@ -64,7 +68,7 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient) => {
 				json.AutoSwarmAccount as Address,
 				BigInt(chainId),
 				json.NFTCollection as Address,
-				BigInt(json.tokenId),
+				tokenId,
 				SALT,
 				data
 			]
@@ -82,6 +86,8 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient) => {
 	}
 
 	if (!(await readIsContract(publicClient, autoSwarmAddress))) throw Error('Create failed');
+
+	return autoSwarmAddress;
 };
 
 const writeApproveBzz = async (chain: Chain, publicClient: PublicClient, bzzAmount: bigint) => {

@@ -38,6 +38,15 @@
     {
       "filePath": "sveltekit/src/routes/[network]/+page.svelte",
       "group": "Default"
+    },
+    {
+      "filePath": "addresses.json",
+      "group": "Default"
+    },
+    {
+      "filePath": "foundry.toml",
+      "group": "Default"
     }
-  ]
+  ],
+  "favorites.sortOrder": "ASC"
 }

@@ -6,10 +6,17 @@
 	import { createPublicClient, http, type Address, type PublicClient } from 'viem';
 
 	import { anvil } from '$lib/ts/anvil';
-	import { SECONDS_PER_BLOCK, ONE_YEAR, DEFAULT_PRICE, ONE_MONTH } from '$lib/ts/constants';
+	import {
+		SECONDS_PER_BLOCK,
+		ONE_YEAR,
+		DEFAULT_PRICE,
+		ONE_MONTH,
+		ONE_DAY
+	} from '$lib/ts/constants';
 	import {
 		writeStampsBuy,
 		writeStampsDeposit,
+		writeStampsIncreaseDepth,
 		writeStampsTopUp,
 		writeStampsWithdraw
 	} from '$lib/ts/writeStamps.js';
@@ -18,7 +25,9 @@
 		readBatchLegacy,
 		readBatchNew,
 		readBzzBalance,
+		readIsContract,
 		readLastPrice,
+		readLastTokenId,
 		readNftOwner,
 		readRemainingBalance
 	} from '$lib/ts/read';
@@ -54,7 +63,10 @@
 	let normalisedBalance: bigint | undefined;
 	let bzzNftBalance: bigint | undefined;
 	let bzzNftOwnerBalance: bigint | undefined;
-	let oneYearBzz: bigint | undefined;
+	let oneDayBzz: bigint | undefined;
+	let addressOrCreated = '';
+	let disabled: boolean = true;
+	let tokenId = 1n;
 
 	const reset = () => {
 		lastPrice = DEFAULT_PRICE;
@@ -62,7 +74,7 @@
 		normalisedBalance = undefined;
 		bzzNftBalance = undefined;
 		bzzNftOwnerBalance = undefined;
-		oneYearBzz = undefined;
+		oneDayBzz = undefined;
 		autoSwarmAddress = undefined;
 		owner = undefined;
 		nftOwner = undefined;
@@ -73,6 +85,7 @@
 		if (!publicClient) return;
 		reset();
 
+    tokenId = await readLastTokenId(publicClient);
 		nftOwner = await readNftOwner(publicClient);
 		bzzNftOwnerBalance = await readBzzBalance(publicClient, nftOwner);
 		autoSwarmAddress = await readAccount(publicClient);
@@ -84,18 +97,24 @@
 
 		const lastPriceRead = await readLastPrice(publicClient);
 		if (lastPriceRead > 0) lastPrice = lastPriceRead;
-		oneYearBzz = (lastPrice * BigInt(ONE_YEAR)) / SECONDS_PER_BLOCK;
+		oneDayBzz = (lastPrice * BigInt(ONE_DAY)) / SECONDS_PER_BLOCK;
+
+		addressOrCreated = (await readIsContract(publicClient, autoSwarmAddress as Address))
+			? 'Created'
+			: 'Address';
 	};
 
 	const buy = () => writeStampsBuy(chain, publicClient).then(refreshDisplay);
 	const withdraw = () => writeStampsWithdraw(chain, publicClient).then(refreshDisplay);
 	const deposit = () => writeStampsDeposit(chain, publicClient).then(refreshDisplay);
+	const dilute = () =>
+		writeStampsIncreaseDepth(chain, publicClient, depth + 2).then(refreshDisplay);
 
 	const topUp = (months: number) =>
 		writeStampsTopUp(
 			chain,
 			publicClient,
-			(BigInt(months * ONE_MONTH) * lastPrice) / SECONDS_PER_BLOCK
+			(BigInt(months * ONE_DAY) * lastPrice) / SECONDS_PER_BLOCK
 		).then(refreshDisplay);
 
 	const initChain = async (nw: string): Promise<void> => {
@@ -104,7 +123,7 @@
 		let transport = http();
 		if (nw == 'sepolia') {
 			chain = sepolia;
-			transport = http('https://eth-sepolia-public.unifra.io');
+			transport = http('https://rpc.ankr.com/eth_sepolia');
 		} else if (nw == 'localhost') {
 			chain = localhost;
 		} else if (nw == 'anvil') {
@@ -125,8 +144,6 @@
 	};
 
 	const onChainChanged = (chainId: string): void => {
-		console.log('onChainChanged', chainId);
-
 		let next = 'gnosis';
 		if (chainId == '11155111') next = 'sepolia';
 		else if (chainId == '31337') next = 'anvil';
@@ -147,38 +164,53 @@
 		Block #{blockNumber} <span>{network} ({chain.id})</span>
 	</p>
 	<p>
-		<button><a href="..">back</a></button> &nbsp;
-		<button on:click={refreshDisplay}>refresh</button> &nbsp;
-		<button on:click={() => onChainChanged('100')}>go gnosis</button>
-		<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
-		<button on:click={() => onChainChanged('31337')}>go anvil</button>
+		<button on:click={withdraw}>Withdraw</button> &nbsp;
+		<button on:click={deposit}>Deposit</button> &nbsp;
+		<button on:click={dilute}>Dilute</button> &nbsp;
+		<button on:click={buy}>Buy</button> &nbsp;
 		<span>
-			<button on:click={withdraw}>Withdraw</button> &nbsp;
-			<button on:click={deposit}>Deposit</button> &nbsp;
-			<button on:click={buy}>Buy</button> &nbsp;
-			<button on:click={() => topUp(1)}>TopUp 1 Month</button>
-			<button on:click={() => topUp(12)}>TopUp 1 Year</button>
+			<button title="Cost {displayBzzFromBalance(oneDayBzz, depth)} Bzz" on:click={() => topUp(1)}
+				>TopUp 1 Day</button
+			>
+			<button
+				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 7n, depth)} Bzz"
+				on:click={() => topUp(7)}>TopUp 1 Week</button
+			>
+			<button
+				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 30n, depth)} Bzz"
+				on:click={() => topUp(30)}>TopUp 1 Month</button
+			>
+			<button
+				{disabled}
+				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz"
+				on:click={() => topUp(365)}>TopUp 1 Year</button
+			>
 		</span>
 	</p>
 	<p>
 		Batch Remaining LifeSpan
 		<span
-			>{displayBzzFromBalance(remainingBalance, depth)} Bzz | {displayTtl(
-				remainingBalance,
-				lastPrice
-			)}</span
+			>{displayBzzFromBalance(remainingBalance, depth)} Bzz |
+			{displayTtl(remainingBalance, lastPrice)} | depth {depth}</span
 		>
 	</p>
 	<p>
 		One Year TopUp at price {lastPrice}<span
-			>{displayBzzFromBalance(oneYearBzz, depth)} Bzz | {displayTtl(oneYearBzz, lastPrice)}</span
+			>{displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz | {displayTtl(
+				oneDayBzz && oneDayBzz * 365n,
+				lastPrice
+			)} | depth
+			{depth}</span
 		>
 	</p>
 
 	<p>
-		NFT <span
-			>Token Id {@html displayNftLink(chain, json.NFTCollection, Number(json.tokenId))} &nbsp; Collection
-			{@html displayExplorerLink(chain, json.NFTCollection)}</span
+		NFT SmartAccount {addressOrCreated}
+		<span
+			>{displayBalance(bzzNftBalance, 16, 4)} Bzz | {@html displayExplorerLink(
+				chain,
+				autoSwarmAddress
+			)}</span
 		>
 	</p>
 	<p>
@@ -190,11 +222,9 @@
 		>
 	</p>
 	<p>
-		NFT SmartAccount <span
-			>{displayBalance(bzzNftBalance, 16, 4)} Bzz | {@html displayExplorerLink(
-				chain,
-				autoSwarmAddress
-			)}</span
+		NFT <span
+			>Token Id {@html displayNftLink(chain, json.NFTCollection, Number(tokenId))} &nbsp; Collection
+			{@html displayExplorerLink(chain, json.NFTCollection)}</span
 		>
 	</p>
 	<p>
@@ -221,6 +251,15 @@
 	</p>
 	<p>
 		Price Oracle <span>{@html displayExplorerLink(chain, json.Oracle)}</span>
+	</p>
+	<p>
+		<button><a href="..">back</a></button> &nbsp;
+		<button on:click={refreshDisplay}>refresh</button> &nbsp;
+		<span>
+			<button on:click={() => onChainChanged('100')}>go gnosis</button>
+			<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
+			<button on:click={() => onChainChanged('31337')}>go anvil</button>
+		</span>
 	</p>
 </section>
 

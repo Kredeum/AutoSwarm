@@ -8,7 +8,7 @@
     "NFTCollection": "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
     "tokenId": "0",
     "Oracle": "",
-    "batchId": "0xd78149fdeb6cdeb7ae84853d090d4f262e2e795740e9278b15a7dcd57bc6d175",
+    "batchId": "",
     "chainName": "anvil"
   },
   "1": {
@@ -18,14 +18,14 @@
   "100": {
     "chainName": "gnosis",
     "ERC6551Registry": "0xAc1d836f3D8884d95AAfbddC568677d14f1729e6",
-    "AutoSwarmAccount": "0xCd2b7E1e4DeF1B377a3f05ee60fE9da880Bdd002",
+    "AutoSwarmAccount": "0xD0F4c6E06D7EBFc1f78Abb2a2f4E42D3920123BE",
     "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
     "BzzToken": "0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da",
     "Admin": "0xD5C070FEb5EA883063c183eDFF10BA6836cf9816",
     "Oracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
-    "batchId": "0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e",
-    "NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82",
-    "tokenId": "11"
+    "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
+    "NFTCollection": "0x7dD24ACB40AeE48c79358009ed86CC292e8f9991",
+    "1NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82"
   },
   "11155111": {
     "chainName": "sepolia",
@@ -37,7 +37,7 @@
     "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
     "BzzTokenOrig": "0xa66be4A7De4DfA5478Cb2308469D90115C45aA23",
     "BzzToken": "0x2A0c72063Ff6ad79c94A4109155DDe59e0909a22",
-    "batchId": "0xE83765CEEE12EEDEC606E9A6FB4017AE45FD8BB5BF1726C587C8F3F9ED75E189",
+    "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
     "NFTCollection": "0x7A6002B7Cd1fb3D28E9942529da919FCAd831f9A",
     "tokenId": "2"
   },

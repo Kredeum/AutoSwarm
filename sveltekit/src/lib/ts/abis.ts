@@ -15,7 +15,8 @@ const postageStampAbi = parseAbi([
 ]);
 const erc721Abi = parseAbi([
 	'function ownerOf(uint256) external view returns (address)',
-	'function tokenURI(uint256) external view returns (string)'
+	'function tokenURI(uint256) external view returns (string)',
+	'function totalSupply() external view returns (uint256)'
 ]);
 const erc6551RegistryAbi = parseAbi([
 	'function account(address,uint256,address,uint256,uint256) external view returns (address)',
@@ -28,9 +29,9 @@ const bzzTokenAbi = parseAbi([
 ]);
 const autoSwarmAbi = parseAbi([
 	'function initialize(address) external',
-  'function stampsBuy(uint256,uint8) external returns (bytes32)',
+	'function stampsBuy(uint256,uint8) external returns (bytes32)',
 	'function stampsTopUp(bytes32,uint256) external',
-  'function stampsIncreaseDepth(bytes32,uint8) external',
+	'function stampsIncreaseDepth(bytes32,uint8) external',
 	'function withdrawBzz() external'
 ]);
 

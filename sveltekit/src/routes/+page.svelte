@@ -42,7 +42,11 @@
 		if (topping) return;
 		console.info('topUp');
 
-		await writeStampsTopUp(gnosis, publicClient);
+		await writeStampsTopUp(
+			gnosis,
+			publicClient,
+			(BigInt(ONE_YEAR) * lastPrice) / SECONDS_PER_BLOCK
+		);
 
 		topping = false;
 		refreshDisplay();
@@ -64,14 +68,7 @@
 
 	onMount(async () => {
 		nftMetadataJson = await readNftMetadata(publicClient);
-
 		autoSwarmAddress = await readAccount(publicClient);
-		const unwatch = publicClient.watchContractEvent({
-			address: autoSwarmAddress,
-			abi: autoSwarmAbi,
-			onLogs: (logs) => console.log(logs)
-		});
-
 		refreshDisplay();
 	});
 </script>

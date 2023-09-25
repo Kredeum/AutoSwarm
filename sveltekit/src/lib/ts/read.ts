@@ -19,10 +19,7 @@ const readIsContract = async (publicClient: PublicClient, address: Address): Pro
 
 	const bytecode = await publicClient.getBytecode({ address });
 
-	const len = Number(bytecode?.length || 0n);
-	console.log('readIsContract ~ len:', len);
-
-	return len > 0;
+	return Number(bytecode?.length || 0n) > 0;
 };
 
 const readChainId = async (publicClient: PublicClient) => {
@@ -59,35 +56,35 @@ const readBzzBalance = async (publicClient: PublicClient, address: Address): Pro
 
 const readNftOwner = async (publicClient: PublicClient): Promise<Address> => {
 	const json = await readJson(publicClient);
+	const tokenId = await readLastTokenId(publicClient);
 
 	return await publicClient.readContract({
 		address: json.NFTCollection as Address,
 		abi: erc721Abi,
 		functionName: 'ownerOf',
-		args: [BigInt(json.tokenId)]
+		args: [tokenId]
 	});
 };
 
-const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata | undefined> => {
+const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata> => {
 	const json = await readJson(publicClient);
-	if (!('tokenId' in json)) throw Error('No tokenId in json');
+	const tokenId = await readLastTokenId(publicClient);
 
 	const tokenURI = await publicClient.readContract({
 		address: json.NFTCollection as Address,
 		abi: erc721Abi,
 		functionName: 'tokenURI',
-		args: [BigInt(json.tokenId)]
+		args: [tokenId]
 	});
 	const urlHash = tokenURI.replace('swarm://', SWARM_GATEWAY);
 	const data = await fetch(urlHash as string);
 	const nftMetadataJson = await data.json();
-	console.log('readNftMetadata ~ nftMetadataJson:', nftMetadataJson);
 
 	return {
 		name: nftMetadataJson.name,
 		image: nftMetadataJson.image,
 		description: nftMetadataJson.description,
-		tokenId: json.tokenId,
+		tokenId: String(tokenId),
 		address: json.NFTCollection
 	};
 };
@@ -95,13 +92,13 @@ const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata 
 const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 	const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
-	if (!('tokenId' in json)) throw Error('No tokenId in json');
+	const tokenId = await readLastTokenId(publicClient);
 
 	const args: [`0x${string}`, bigint, `0x${string}`, bigint, bigint] = [
 		json.AutoSwarmAccount as Address,
 		BigInt(chainId),
 		json.NFTCollection as Address,
-		BigInt(json.tokenId),
+		tokenId,
 		SALT
 	];
 
@@ -133,8 +130,6 @@ const readBatchNew = async (publicClient: PublicClient): Promise<[Address, numbe
 	if (!('batchId' in json))
 		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
 
-	console.log('readBatchNew ~ json:', json);
-
 	const [owner, depth, , , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
 		abi: postageStampAbi,
@@ -143,6 +138,20 @@ const readBatchNew = async (publicClient: PublicClient): Promise<[Address, numbe
 	});
 
 	return [owner, depth, rBal];
+};
+
+const readLastTokenId = async (publicClient: PublicClient): Promise<bigint> => {
+	const json = await readJson(publicClient);
+	if (!('batchId' in json))
+		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+
+	const data = await publicClient.readContract({
+		address: json.NFTCollection as Address,
+		abi: erc721Abi,
+		functionName: 'totalSupply'
+	});
+  
+	return data;
 };
 
 const readRemainingBalance = async (publicClient: PublicClient): Promise<bigint> => {
@@ -156,7 +165,6 @@ const readRemainingBalance = async (publicClient: PublicClient): Promise<bigint>
 		functionName: 'remainingBalance',
 		args: [json.batchId as Hex]
 	});
-	console.log('readRemainingBalance ~ data:', data);
 
 	return data;
 };
@@ -165,11 +173,12 @@ export {
 	readJson,
 	readChainId,
 	readAccount,
-  readNftOwner,
+	readNftOwner,
 	readBatchNew,
 	readLastPrice,
 	readIsContract,
 	readBzzBalance,
+	readLastTokenId,
 	readBatchLegacy,
 	readNftMetadata,
 	readRemainingBalance

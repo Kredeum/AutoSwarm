@@ -1,4 +1,4 @@
-import { formatUnits, type Chain, isAddress } from 'viem';
+import { formatUnits, type Chain, isAddress, type Address } from 'viem';
 import {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
