@@ -251,7 +251,7 @@
 		Price Oracle <span>{@html displayExplorerLink(chain, json.Oracle)}</span>
 	</p>
 	<p>
-		<button><a href="..">back</a></button> &nbsp;
+		<button><a href="./">back</a></button> &nbsp;
 		<button on:click={refreshDisplay}>refresh</button> &nbsp;
 		<span>
 			<button on:click={() => onChainChanged('100')}>go gnosis</button>

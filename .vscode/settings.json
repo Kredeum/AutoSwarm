@@ -12,27 +12,27 @@
       "group": "Default"
     },
     {
-      "filePath": "src/AutoSwarmAccount.sol",
+      "filePath": "contracts/src/AutoSwarmAccount.sol",
       "group": "Default"
     },
     {
-      "filePath": "script/DeployAll.s.sol",
+      "filePath": "contracts/script/DeployAll.s.sol",
       "group": "Default"
     },
     {
-      "filePath": "test/AutoSwarmAccount.t.sol",
+      "filePath": "contracts/test/AutoSwarmAccount.t.sol",
       "group": "Default"
     },
     {
-      "filePath": "lib/forge-deploy-lite/script/DeployLite.s.sol",
+      "filePath": "contracts/lib/forge-deploy-lite/script/DeployLite.s.sol",
       "group": "Default"
     },
     {
-      "filePath": "lib/storage-incentives/src/PostageStamp.sol",
+      "filePath": "contracts/lib/storage-incentives/PostageStamp.sol",
       "group": "Default"
     },
     {
-      "filePath": "lib/erc6551/src/examples/simple/SimpleERC6551Account.sol",
+      "filePath": "contracts/lib/erc6551/src/examples/simple/SimpleERC6551Account.sol",
       "group": "Default"
     },
     {

@@ -1,0 +1,56 @@
+{
+  "31337": {
+    "AutoSwarmAccount": "0xDEb1E9a6Be7Baf84208BB6E10aC9F9bbE1D70809",
+    "ERC6551Registry": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
+    "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
+    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
+    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
+    "NFTCollection": "0x6d7B9379bC8546BBEeEc919190714dB2bBeED0b2",
+    "tokenId": "0",
+    "Oracle": "",
+    "batchId": "",
+    "chainName": "anvil"
+  },
+  "1": {
+    "chainName": "mainnet",
+    "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb"
+  },
+  "100": {
+    "chainName": "gnosis",
+    "ERC6551Registry": "0xAc1d836f3D8884d95AAfbddC568677d14f1729e6",
+    "AutoSwarmAccount": "0xD0F4c6E06D7EBFc1f78Abb2a2f4E42D3920123BE",
+    "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
+    "BzzToken": "0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da",
+    "Admin": "0xD5C070FEb5EA883063c183eDFF10BA6836cf9816",
+    "Oracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
+    "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
+    "NFTCollection": "0x7dD24ACB40AeE48c79358009ed86CC292e8f9991",
+    "1NFTCollection": "0x88A9B09B081CA46daEa53f170d8da27490a16b82"
+  },
+  "11155111": {
+    "chainName": "sepolia",
+    "AutoSwarmAccount": "0x07Fc1f455D198B518B1998dCc0EE63cB8c77491d",
+    "ERC6551Registry": "0xf48F331AeB5ADF4e76b86fab06ec4a12d937dd8e",
+    "PostageStamp": "0x6b8Fa21F9F262345c8Ebeb19adD9381EdB72367c",
+    "PostageStampOrig": "0x3398a0C47d473349d38E7D2c1873c0bD1f763858",
+    "Oracle": "0x38Db6e0fb64bf05f3c8d02F3E03a697c72ed397C",
+    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
+    "BzzTokenOrig": "0xa66be4A7De4DfA5478Cb2308469D90115C45aA23",
+    "BzzToken": "0x2A0c72063Ff6ad79c94A4109155DDe59e0909a22",
+    "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
+    "NFTCollection": "0x7A6002B7Cd1fb3D28E9942529da919FCAd831f9A",
+    "tokenId": "2"
+  },
+  "1337": {
+    "chainName": "localhost",
+    "AutoSwarmAccount": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
+    "ERC6551Registry": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
+    "PostageStamp": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
+    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
+    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
+    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
+    "Oracle": "",
+    "batchId": "",
+    "tokenId": "0"
+  }
+}
