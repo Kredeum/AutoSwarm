@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "comprehensive-interface": "off",
+    "func-name-mixedcase": "off"
+  }
+}

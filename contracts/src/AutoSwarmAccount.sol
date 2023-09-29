@@ -2,17 +2,17 @@
 pragma solidity ^0.8.0;
 
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
-import {SimpleERC6551Account} from "erc6551/src/examples/simple/SimpleERC6551Account.sol";
 import {ERC6551Registry} from "erc6551/src/ERC6551Registry.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 
+import {ERC6551Account} from "@autoswarm/src/ERC6551Account.sol";
 // import {console} from "forge-std/console.sol";
 
 interface IPostageStampLegacy {
     function batches(bytes32) external returns (address, uint8, bool, uint256);
 }
 
-contract AutoSwarmAccount is SimpleERC6551Account {
+contract AutoSwarmAccount is ERC6551Account {
     PostageStamp public postageStamp;
     bytes32 internal _nonce;
 

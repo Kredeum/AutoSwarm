@@ -84,7 +84,7 @@
 		if (!publicClient) return;
 		reset();
 
-    tokenId = await readLastTokenId(publicClient);
+		tokenId = await readLastTokenId(publicClient);
 		nftOwner = await readNftOwner(publicClient);
 		bzzNftOwnerBalance = await readBzzBalance(publicClient, nftOwner);
 		autoSwarmAddress = await readAccount(publicClient);
@@ -229,7 +229,7 @@
 		Batch <span
 			>[{@html displayExplorerLink(chain, owner)}, {displayTxt(depth)}, {displayTxt(
 				remainingBalance
-			)}]</span
+			)}, {displayTxt(normalisedBalance)}]</span
 		>
 	</p>
 	<p>
