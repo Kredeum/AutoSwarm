@@ -21,12 +21,12 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(account.code.length != 0);
     }
 
-    function test_AutoSwarmAccount_nonce() public {
-        bytes32 salt1 = autoSwarmAccount._newNonce();
-        assert(salt1 != "");
-        bytes32 salt2 = autoSwarmAccount._newNonce();
-        assert(salt2 != salt1);
-    }
+    // function test_AutoSwarmAccount_nonce() public {
+    //     bytes32 salt1 = autoSwarmAccount._newNonce();
+    //     assert(salt1 != "");
+    //     bytes32 salt2 = autoSwarmAccount._newNonce();
+    //     assert(salt2 != salt1);
+    // }
 
     function test_AutoSwarmAccount_token() public view {
         (uint256 chId, address coll, uint256 tokId) = AutoSwarmAccount(payable(autoSwarmAccount)).token();

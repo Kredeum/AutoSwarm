@@ -7,10 +7,10 @@ import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
-import {IAutoSwarmAccount} from "./interfaces/IAutoSwarmAccount.sol";
-import {IPostageStampLegacy} from "./interfaces/IPostageStampLegacy.sol";
+import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccountV0.sol";
+import {IPostageStampLegacy} from "../interfaces/IPostageStampLegacy.sol";
 
-contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
+contract AutoSwarmAccountV0 is IAutoSwarmAccount, SimpleERC6551Account {
     PostageStamp public postageStamp;
     bytes32 internal _nonce;
 

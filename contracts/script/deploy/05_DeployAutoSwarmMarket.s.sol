@@ -7,9 +7,7 @@ import {console} from "forge-std/console.sol";
 
 contract DeployAutoSwarmMarket is DeployLite {
     function deployAutoSwarmMarket() public returns (address autoSwarmMarketAddress) {
-        console.log("deployAutoSwarmMarket");
         address postageStamp = deploy("PostageStamp", false);
-        console.log("deployAutoSwarmMarket ~ postageStamp:", postageStamp);
 
         vm.startBroadcast(deployer);
         AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);

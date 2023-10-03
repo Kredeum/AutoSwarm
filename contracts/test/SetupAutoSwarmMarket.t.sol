@@ -14,11 +14,19 @@ import {SetUpAutoSwarmAccount} from "@autoswarm/test/SetUpAutoSwarmAccount.t.sol
 
 contract SetUpAutoSwarmMarket is SetUpAutoSwarmAccount {
     AutoSwarmMarket public autoSwarmMarket;
+    uint256 initYear;
+    uint256 initTtl;
+    uint8 initDepth;
 
     function setUpAutoSwarmMarket() public {
-        console.log("setUpAutoSwarmMarket");
         autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
-        console.log("setUpAutoSwarmMarket ~ autoSwarmMarket:", address(autoSwarmMarket));
+
+        initYear = autoSwarmMarket.FIRST_PERIOD();
+        initTtl = autoSwarmMarket.INITIAL_TTL();
+        initDepth = autoSwarmMarket.INITIAL_DEPTH();
+
+        deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+        autoSwarmMarket.buyBatch(initYear);
     }
 
     function setUp() public override(SetUpAutoSwarmAccount) {

@@ -18,7 +18,14 @@ contract DeployAll is
 {
     function run()
         public
-        override(DeployNFTCollection, DeployBzzToken, DeployPostageStamp, DeployERC6551Registry, DeployAutoSwarmAccount, DeployAutoSwarmMarket)
+        override(
+            DeployNFTCollection,
+            DeployBzzToken,
+            DeployPostageStamp,
+            DeployERC6551Registry,
+            DeployAutoSwarmAccount,
+            DeployAutoSwarmMarket
+        )
     {
         deploy("NFTCollection", false);
         deploy("BzzToken", false);

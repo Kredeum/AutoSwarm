@@ -11,14 +11,28 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
         assert(true);
     }
 
-    function test_AutoSwarmMarket_addBatch() external {
-        vm.prank(deployer);
-        autoSwarmMarket.addBatch(batchId0);
-        assert(autoSwarmMarket.batchIds(0) == batchId0);
+    function testFails_AutoSwarmMarket_buyBatch() external {
+        deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+        autoSwarmMarket.buyBatch(initYear);
     }
 
-    function test_AutoSwarmMarket_buyStamp() external {
-        autoSwarmMarket.buyStamp(40_960, 1 days);
+    function test_AutoSwarmMarket_buyBatch() external {
+        uint256 year = autoSwarmMarket.nextYear();
+
+        deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+        autoSwarmMarket.buyBatch(year);
+
+        assert(autoSwarmMarket.getBatchTtl(year) == initTtl);
+        assert(autoSwarmMarket.getBatchDepth(year) == initDepth);
+    }
+
+    function test_AutoSwarmMarket_extandsbatch() external {
+        uint8 newDepth = 25;
+        uint256 mul = 1 << (newDepth - initDepth);
+
+        deal(address(bzzToken), address(autoSwarmMarket), ((initTtl * (mul - 1)) / mul) << newDepth);
+        autoSwarmMarket.extendsBatch(initYear, newDepth);
+
         assert(true);
     }
 }
