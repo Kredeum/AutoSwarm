@@ -21,11 +21,13 @@ contract SetUpAutoSwarmMarket is SetUpAutoSwarmAccount {
     function setUpAutoSwarmMarket() public {
         autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
 
-        initYear = autoSwarmMarket.FIRST_PERIOD();
+        initYear = autoSwarmMarket.FIRST_YEAR();
         initTtl = autoSwarmMarket.INITIAL_TTL();
         initDepth = autoSwarmMarket.INITIAL_DEPTH();
 
         deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+
+        vm.prank(deployer);
         autoSwarmMarket.buyBatch(initYear);
     }
 

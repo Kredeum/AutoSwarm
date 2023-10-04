@@ -20,19 +20,45 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
         uint256 year = autoSwarmMarket.nextYear();
 
         deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+
+        vm.prank(deployer);
         autoSwarmMarket.buyBatch(year);
 
         assert(autoSwarmMarket.getBatchTtl(year) == initTtl);
         assert(autoSwarmMarket.getBatchDepth(year) == initDepth);
     }
 
-    function test_AutoSwarmMarket_extandsbatch() external {
-        uint8 newDepth = 25;
+    function test_AutoSwarmMarket_topUpBatch() external {
+        uint256 ttl = 1e10;
+
+        deal(address(bzzToken), address(autoSwarmMarket), ttl << initDepth);
+
+        vm.prank(deployer);
+        autoSwarmMarket.topUpBatch(initYear, ttl);
+
+        assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl + ttl);
+        assert(autoSwarmMarket.getBatchDepth(initYear) == initDepth);
+    }
+
+    function test_AutoSwarmMarket_diluteBatch() external {
+        uint8 deltaDepth = 2;
+
+        vm.prank(deployer);
+        autoSwarmMarket.diluteBatch(initYear, deltaDepth);
+
+        assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl / (1 << deltaDepth));
+        assert(autoSwarmMarket.getBatchDepth(initYear) == initDepth + deltaDepth);
+    }
+
+    function test_AutoSwarmMarket_extendsBatch() external {
+        uint8 newDepth = initDepth + 2;
         uint256 mul = 1 << (newDepth - initDepth);
 
         deal(address(bzzToken), address(autoSwarmMarket), ((initTtl * (mul - 1)) / mul) << newDepth);
-        autoSwarmMarket.extendsBatch(initYear, newDepth);
+        vm.prank(deployer);
+        autoSwarmMarket.extendsBatch(initYear, newDepth - initDepth);
 
-        assert(true);
+        assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl);
+        assert(autoSwarmMarket.getBatchDepth(initYear) == newDepth);
     }
 }

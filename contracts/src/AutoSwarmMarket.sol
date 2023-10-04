@@ -12,12 +12,18 @@ import {IPostageStampLegacy} from "./interfaces/IPostageStampLegacy.sol";
 // import {console} from "forge-std/console.sol";
 
 contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
+    // year of stampId
     mapping(bytes32 => uint256) public stampYear;
+
+    // batchId of year
     mapping(uint256 => bytes32) public yearBatchId;
-    mapping(uint256 => uint256) public batchSize;
+
+    // batchSize of year
+    mapping(uint256 => uint256) public yearBatchSize;
 
     PostageStamp public postageStamp;
     IERC20 public bzzToken;
+
     uint256 public constant RATIO = 3;
     uint256 public constant SECONDS_PER_BLOCK = 5;
     uint256 public constant BUCKET_SIZE = 4096;
@@ -25,17 +31,23 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
     uint256 public constant INITIAL_TTL = 30 days;
     uint8 public constant INITIAL_DEPTH = 23;
 
-    uint256 public constant FIRST_PERIOD = 2023; // year 2023
-    uint256 public constant PERIOD = 3600 * 24 * 365 / SECONDS_PER_BLOCK; // number of blocks in 1 year
-
-    uint256 public nextYear = FIRST_PERIOD;
+    uint256 public constant FIRST_YEAR = 2023;
+    uint256 public nextYear = FIRST_YEAR;
+    uint256 public currentYear = FIRST_YEAR;
 
     constructor(address postageStamp_) {
-        postageStamp = PostageStamp(payable(postageStamp_));
-        bzzToken = IERC20(postageStamp.bzzToken());
+        _setPostage(postageStamp_);
     }
 
-    function buyBatch(uint256 year) external override(IAutoSwarmMarket) returns (bytes32) {
+    function setCurrentYear(uint256 year) external override(IAutoSwarmMarket) onlyOwner {
+        currentYear = year;
+    }
+
+    function setPostage(address postageStamp_) external override(IAutoSwarmMarket) onlyOwner {
+        _setPostage(postageStamp_);
+    }
+
+    function buyBatch(uint256 year) external override(IAutoSwarmMarket) onlyOwner returns (bytes32 batchId) {
         require(year == nextYear++, "Buy next year first");
 
         bytes32 nonce = keccak256(abi.encode("Batch of year", year));
@@ -43,26 +55,25 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
         bzzToken.approve(address(postageStamp), INITIAL_TTL << INITIAL_DEPTH);
         postageStamp.createBatch(address(this), INITIAL_TTL, INITIAL_DEPTH, BUCKET_DEPTH, nonce, false);
 
-        return yearBatchId[year] = keccak256(abi.encode(address(this), nonce));
+        batchId = yearBatchId[year] = keccak256(abi.encode(address(this), nonce));
+
+        emit BuyBatch(batchId, year, INITIAL_DEPTH, INITIAL_TTL);
     }
 
-    function extendsBatch(uint256 year, uint8 newDepth) external override(IAutoSwarmMarket) {
+    function extendsBatch(uint256 year, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {
         uint256 ttl = getBatchTtl(year);
         require(ttl > 0, "Batch not valid");
 
-        uint8 oldDepth = getBatchDepth(year);
-        require(newDepth > oldDepth, "Batch depth not increased");
+        _diluteBatch(year, deltaDepth);
 
-        uint256 mul = 1 << (newDepth - oldDepth);
+        uint256 mul = 1 << deltaDepth;
 
-        diluteBatch(year, newDepth);
-
-        // topup mul time minus 1/mul already
-        // => 1 - 1/mul = (mul-1)/mul
-        topUpBatch(year, (ttl * (mul - 1)) / mul);
+        _topUpBatch(year, (ttl * (mul - 1)) / mul);
 
         // ttl unchanged after dilute and topup
         assert(getBatchTtl(year) == ttl);
+
+        emit UpdateBatch(year, getBatchDepth(year), ttl);
     }
 
     function buyStamp(uint256 year, bytes32 hash, uint256 size)
@@ -83,30 +94,25 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
         uint256 bzzStampPrice = (ttl * postageStamp.lastPrice() * size * RATIO) / (SECONDS_PER_BLOCK * BUCKET_SIZE);
 
         stampYear[stampId] = year;
-        batchSize[year] += size;
+        yearBatchSize[year] += size;
 
-        require(batchSize[year] * RATIO < getBatchSizeLimit(year), "No more space");
+        require(yearBatchSize[year] * RATIO < getBatchSizeLimit(year), "No more space");
 
-        require(bzzToken.transferFrom(msg.sender, address(this), bzzStampPrice), "failed transfer");
+        require(bzzToken.transferFrom(msg.sender, address(this), bzzStampPrice), "Transfer failed");
+
+        emit BuyStamp(stampId, year, size, hash);
     }
 
-    function topUpBatch(uint256 year, uint256 ttl) public override(IAutoSwarmMarket) returns (uint256 newTtl) {
-        require(getBatchTtl(year) > 0, "Batch not valid");
+    function topUpBatch(uint256 year, uint256 ttl) public override(IAutoSwarmMarket) onlyOwner {
+        _topUpBatch(year, ttl);
 
-        uint8 depth = getBatchDepth(year);
-
-        bzzToken.approve(address(postageStamp), ttl << depth);
-        postageStamp.topUp(yearBatchId[year], ttl);
-
-        newTtl = getBatchTtl(year);
+        emit UpdateBatch(year, getBatchDepth(year), ttl);
     }
 
-    function diluteBatch(uint256 year, uint8 newDepth) public override(IAutoSwarmMarket) returns (uint256 newTtl) {
-        require(getBatchTtl(year) > 0, "Batch not valid");
+    function diluteBatch(uint256 year, uint8 deltaDepth) public override(IAutoSwarmMarket) onlyOwner {
+        _diluteBatch(year, deltaDepth);
 
-        postageStamp.increaseDepth(yearBatchId[year], newDepth);
-
-        newTtl = getBatchTtl(year);
+        emit UpdateBatch(year, getBatchDepth(year) + deltaDepth, getBatchTtl(year));
     }
 
     function getBatchSizeLimit(uint256 year) public view override(IAutoSwarmMarket) returns (uint256) {
@@ -119,5 +125,23 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
 
     function getBatchTtl(uint256 year) public view override(IAutoSwarmMarket) returns (uint256) {
         return postageStamp.remainingBalance(yearBatchId[year]);
+    }
+
+    function _topUpBatch(uint256 year, uint256 ttl) internal {
+        require(getBatchTtl(year) > 0, "Batch not valid");
+
+        bzzToken.approve(address(postageStamp), ttl << getBatchDepth(year));
+        postageStamp.topUp(yearBatchId[year], ttl);
+    }
+
+    function _diluteBatch(uint256 year, uint8 deltaDepth) internal {
+        require(getBatchTtl(year) > 0, "Batch not valid");
+
+        postageStamp.increaseDepth(yearBatchId[year], getBatchDepth(year) + deltaDepth);
+    }
+
+    function _setPostage(address postageStamp_) internal {
+        postageStamp = PostageStamp(payable(postageStamp_));
+        bzzToken = IERC20(postageStamp.bzzToken());
     }
 }
