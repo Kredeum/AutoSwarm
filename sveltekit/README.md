@@ -21,6 +21,7 @@ pnpm build
 ```
 
 You can preview the production build with `pnpm preview`.
+
 ```bash
 pnpm preview
 

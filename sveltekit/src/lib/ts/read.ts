@@ -150,7 +150,7 @@ const readLastTokenId = async (publicClient: PublicClient): Promise<bigint> => {
 		abi: erc721Abi,
 		functionName: 'totalSupply'
 	});
-  
+
 	return data;
 };
 

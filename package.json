@@ -3,7 +3,13 @@
   "version": "0.0.2",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm -r build"
+    "all": "pnpm -r all",
+    "clean": "pnpm -r clean",
+    "format": "pnpm -r format",
+    "check": "pnpm -r check",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "deploy": "pnpm -r deploy"
   },
   "keywords": [],
   "author": "",

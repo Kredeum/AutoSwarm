@@ -19,7 +19,7 @@ const config = {
 			strict: true
 		}),
 		alias: {
-			"$addresses": '../contracts/addresses.json'
+			$addresses: '../contracts/addresses.json'
 		}
 	}
 };

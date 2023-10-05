@@ -7,10 +7,10 @@ import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
-import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccountV0.sol";
+import {IAutoSwarmAccountV0} from "../interfaces/IAutoSwarmAccountV0.sol";
 import {IPostageStampLegacy} from "../interfaces/IPostageStampLegacy.sol";
 
-contract AutoSwarmAccountV0 is IAutoSwarmAccount, SimpleERC6551Account {
+contract AutoSwarmAccountV0 is IAutoSwarmAccountV0, SimpleERC6551Account {
     PostageStamp public postageStamp;
     bytes32 internal _nonce;
 
@@ -19,18 +19,18 @@ contract AutoSwarmAccountV0 is IAutoSwarmAccount, SimpleERC6551Account {
         _;
     }
 
-    function initialize(address postageStamp_) external override(IAutoSwarmAccount) {
+    function initialize(address postageStamp_) external override(IAutoSwarmAccountV0) {
         require(_nonce == 0x0, "Already initialized");
         _newNonce();
 
         postageStamp = PostageStamp(payable(postageStamp_));
     }
 
-    function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external override(IAutoSwarmAccount) initialized {
+    function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external override(IAutoSwarmAccountV0) initialized {
         postageStamp.increaseDepth(batchId, newDepth);
     }
 
-    function stampsBuy(uint256 ttl, uint8 depth) external override(IAutoSwarmAccount) initialized returns (bytes32) {
+    function stampsBuy(uint256 ttl, uint8 depth) external override(IAutoSwarmAccountV0) initialized returns (bytes32) {
         bytes32 nonce = _newNonce();
         uint8 minDepth = postageStamp.minimumBucketDepth();
         IERC20 bzzToken = IERC20(postageStamp.bzzToken());
@@ -41,7 +41,7 @@ contract AutoSwarmAccountV0 is IAutoSwarmAccount, SimpleERC6551Account {
         return keccak256(abi.encode(address(this), nonce));
     }
 
-    function stampsTopUp(bytes32 batchId, uint256 ttl) external override(IAutoSwarmAccount) initialized {
+    function stampsTopUp(bytes32 batchId, uint256 ttl) external override(IAutoSwarmAccountV0) initialized {
         IERC20 bzzToken = IERC20(postageStamp.bzzToken());
 
         uint8 depth;
@@ -55,7 +55,7 @@ contract AutoSwarmAccountV0 is IAutoSwarmAccount, SimpleERC6551Account {
         postageStamp.topUp(batchId, ttl);
     }
 
-    function withdraw(address token) external override(IAutoSwarmAccount) {
+    function withdraw(address token) external override(IAutoSwarmAccountV0) {
         require(_isValidSigner(msg.sender), "Not authorized");
 
         if (token == address(0)) {

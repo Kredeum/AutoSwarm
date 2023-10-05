@@ -29,7 +29,11 @@ const writeStampsTopUp = async (chain: Chain, publicClient: PublicClient, topUpA
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeStampsIncreaseDepth = async (chain: Chain, publicClient: PublicClient, newDepth = 23) => {
+const writeStampsIncreaseDepth = async (
+	chain: Chain,
+	publicClient: PublicClient,
+	newDepth = 23
+) => {
 	await writeCreateAccount(chain, publicClient);
 
 	const json = await readJson(publicClient);

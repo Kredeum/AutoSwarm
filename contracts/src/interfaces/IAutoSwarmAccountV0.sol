@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IAutoSwarmAccount {
+interface IAutoSwarmAccountV0 {
     function initialize(address) external;
     function stampsIncreaseDepth(bytes32, uint8) external;
     function withdraw(address) external;

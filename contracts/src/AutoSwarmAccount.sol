@@ -3,15 +3,21 @@ pragma solidity ^0.8.0;
 
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
-import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
-import {IAutoSwarmAccount} from "./interfaces/IAutoSwarmAccount.sol";
 import {IPostageStampLegacy} from "./interfaces/IPostageStampLegacy.sol";
+import {IAutoSwarmAccount} from "./interfaces/IAutoSwarmAccount.sol";
+import {Stamp, IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
 
 contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
-    PostageStamp public postageStamp;
+    bytes32 public metadataHash;
+    bytes32 public contentHash;
+
+    // Stamp mapping
+    mapping(uint256 => bytes32[2]) public stamp;
+
+    IAutoSwarmMarket public autoSwarmMarket;
     bytes32 internal _nonce;
 
     modifier initialized() {
@@ -19,40 +25,20 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
         _;
     }
 
-    function initialize(address postageStamp_) external override(IAutoSwarmAccount) {
+    function initialize(address autoSwarmMarket_) external override(IAutoSwarmAccount) {
         require(_nonce == 0x0, "Already initialized");
         _newNonce();
 
-        postageStamp = PostageStamp(payable(postageStamp_));
+        autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
     }
 
-    function stampsIncreaseDepth(bytes32 batchId, uint8 newDepth) external override(IAutoSwarmAccount) initialized {
-        postageStamp.increaseDepth(batchId, newDepth);
-    }
-
-    function stampsBuy(uint256 ttl, uint8 depth) external override(IAutoSwarmAccount) initialized returns (bytes32) {
-        bytes32 nonce = _newNonce();
-        uint8 minDepth = postageStamp.minimumBucketDepth();
-        IERC20 bzzToken = IERC20(postageStamp.bzzToken());
-
-        bzzToken.approve(address(postageStamp), ttl << depth);
-        postageStamp.createBatch(address(this), ttl, depth, minDepth, nonce, false);
-
-        return keccak256(abi.encode(address(this), nonce));
-    }
-
-    function stampsTopUp(bytes32 batchId, uint256 ttl) external override(IAutoSwarmAccount) initialized {
-        IERC20 bzzToken = IERC20(postageStamp.bzzToken());
-
-        uint8 depth;
-        if (block.chainid == 100) {
-            (, depth,,) = IPostageStampLegacy(address(postageStamp)).batches(batchId);
-        } else {
-            (, depth,,,,) = postageStamp.batches(batchId);
-        }
-
-        bzzToken.approve(address(postageStamp), ttl << depth);
-        postageStamp.topUp(batchId, ttl);
+    function buyYearStamp(uint256 year, bytes32 hash, uint256 size, uint8 tp)
+        public
+        override(IAutoSwarmAccount)
+        returns (bytes32 stampId)
+    {
+        stampId = autoSwarmMarket.buyStamp(year, hash, size, tp);
+        stamp[year][tp] = stampId;
     }
 
     function withdraw(address token) external override(IAutoSwarmAccount) {

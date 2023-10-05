@@ -44,13 +44,12 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient): Pro
 	const autoSwarmAddress = await readAccount(publicClient);
 	if (await readIsContract(publicClient, autoSwarmAddress)) return autoSwarmAddress;
 
-  const chainId = await readChainId(publicClient);
+	const chainId = await readChainId(publicClient);
 	const json = await readJson(publicClient);
 	const tokenId = await readLastTokenId(publicClient);
 
 	const walletClient = await writeWalletClient(chain);
 	const walletAddress = await writeWalletAddress(walletClient);
-
 
 	try {
 		const data = encodeFunctionData({

@@ -3,9 +3,10 @@
   "version": "0.0.2",
   "main": "",
   "scripts": {
-    "all": "pnpm clean && pnpm format && pnpm build && pnpm test && pnpm run deploy",
+    "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy",
     "clean": "forge clean",
     "format": "forge fmt",
+    "check": "echo contracts check empty",
     "build": "forge build",
     "test": "forge test",
     "deploy": "forge script script/DeployAll.s.sol",

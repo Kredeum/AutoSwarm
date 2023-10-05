@@ -199,7 +199,7 @@ article p {
 }
 
 .btn-topup {
-  place-self: center;
+	place-self: center;
 	font-size: 2rem;
 	background-color: var(--color-link);
 	border-color: transparent;
@@ -208,15 +208,14 @@ article p {
 }
 
 .btn.btn-topup:hover {
-  color: var(--color-link);
+	color: var(--color-link);
 	border-color: var(--color-link);
 	background-color: transparent;
 	cursor: pointer;
 }
 
-button:disabled.btn.btn-topup  {
-  cursor: no-drop;
-  border-color: var(--color-link);
+button:disabled.btn.btn-topup {
+	cursor: no-drop;
+	border-color: var(--color-link);
 	background-color: transparent;
 }
-

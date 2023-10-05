@@ -5,6 +5,7 @@ import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 
 import {SetUpAutoSwarmMarket} from "./SetUpAutoSwarmMarket.t.sol";
+import {Stamp} from "@autoswarm/src/interfaces/IAutoSwarmMarket.sol";
 
 contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
     function test_AutoSwarmMarket_OK() external pure {
@@ -60,5 +61,16 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
 
         assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl);
         assert(autoSwarmMarket.getBatchDepth(initYear) == newDepth);
+    }
+
+    function test_AutoSwarmMarket_buyStamp() external {
+        bytes32 stampId = autoSwarmMarket.buyStamp(initYear, keccak256("42"), 42, 0);
+
+        Stamp memory stamp = autoSwarmMarket.getStamp(stampId);
+        console.logBytes32(stamp.stampId);
+        console.logBytes32(stamp.batchId);
+        console.logBytes32(stamp.hash);
+        console.log("test_AutoSwarmMarket_buyStamp ~ stamp: %s %s", stamp.year, stamp.size);
+        console.log("test_AutoSwarmMarket_buyStamp ~ stamp: %s %s", stamp.time, stamp.price);
     }
 }
