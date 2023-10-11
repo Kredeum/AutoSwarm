@@ -10,6 +10,9 @@
 [submodule "contracts/lib/storage-incentives"]
 	path = contracts/lib/storage-incentives
 	url = https://github.com/ethersphere/storage-incentives
+[submodule "contracts/lib/tokenbound"]
+	path = contracts/lib/tokenbound
+	url = https://github.com/tokenbound/contracts
 [submodule "contracts/lib/erc6551"]
 	path = contracts/lib/erc6551
 	url = https://github.com/erc6551/reference

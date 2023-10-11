@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {DeployLite} from "forge-deploy-lite/script/DeployLite.s.sol";
+import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {console} from "forge-std/console.sol";
 
