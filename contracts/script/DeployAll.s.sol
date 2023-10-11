@@ -7,6 +7,7 @@ import {DeployPostageStamp} from "@autoswarm/script/deploy/02_DeployPostageStamp
 import {DeployERC6551Registry} from "@autoswarm/script/deploy/03_DeployERC6551Registry.s.sol";
 import {DeployAutoSwarmAccount} from "@autoswarm/script/deploy/04_DeployAutoSwarmAccount.s.sol";
 import {DeployAutoSwarmMarket} from "@autoswarm/script/deploy/05_DeployAutoSwarmMarket.s.sol";
+import {DeployAutoSwarmHelper} from "@autoswarm/script/deploy/06_DeployAutoSwarmHelper.s.sol";
 
 contract DeployAll is
     DeployNFTCollection,
@@ -14,7 +15,8 @@ contract DeployAll is
     DeployPostageStamp,
     DeployERC6551Registry,
     DeployAutoSwarmAccount,
-    DeployAutoSwarmMarket
+    DeployAutoSwarmMarket,
+    DeployAutoSwarmHelper
 {
     function run()
         public
@@ -24,7 +26,8 @@ contract DeployAll is
             DeployPostageStamp,
             DeployERC6551Registry,
             DeployAutoSwarmAccount,
-            DeployAutoSwarmMarket
+            DeployAutoSwarmMarket,
+            DeployAutoSwarmHelper
         )
     {
         deploy("NFTCollection", false);
@@ -33,5 +36,6 @@ contract DeployAll is
         deploy("ERC6551Registry", false);
         deploy("AutoSwarmAccount");
         deploy("AutoSwarmMarket");
+        deploy("AutoSwarmHelper");
     }
 }

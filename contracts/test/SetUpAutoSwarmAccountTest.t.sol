@@ -4,6 +4,12 @@ pragma solidity ^0.8.0;
 import "@autoswarm/test/SetUpAutoSwarmAccount.t.sol";
 
 contract SetUpAutoSwarmAccountTest is SetUpAutoSwarmAccount {
+    function setUp() public virtual {
+        setUpERC6551();
+        setUpSwarm();
+        setUpAutoSwarmAccount();
+    }
+
     function test_SetUpAutoSwarmAccount_OK() public pure {
         assert(true);
     }

@@ -1,16 +1,4 @@
 {
-  "31337": {
-    "AutoSwarmAccount": "0xDEb1E9a6Be7Baf84208BB6E10aC9F9bbE1D70809",
-    "ERC6551Registry": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "NFTCollection": "0x6d7B9379bC8546BBEeEc919190714dB2bBeED0b2",
-    "tokenId": "0",
-    "Oracle": "",
-    "batchId": "",
-    "chainName": "anvil"
-  },
   "1": {
     "chainName": "mainnet",
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb"
@@ -52,5 +40,17 @@
     "Oracle": "",
     "batchId": "",
     "tokenId": "0"
+  },
+  "31337": {
+    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
+    "AutoSwarmAccount": "0xF99700204F7FaFff86f193EbcA679B9658B1A0E3",
+    "AutoSwarmHelper": "0xdDaC1ADc8466CDd60f7422cB1443774B6D283063",
+    "AutoSwarmMarket": "0xF99700204F7FaFff86f193EbcA679B9658B1A0E3",
+    "BzzToken": "0x0Ef7Ad72AAF30D9c6C74224a1b3EDBA11A497c8e",
+    "ERC6551Registry": "0x0735aBf93a42ef8291b4242be6353f10c0673022",
+    "NFTCollection": "0x6d7B9379bC8546BBEeEc919190714dB2bBeED0b2",
+    "Oracle": "0xc217Cd9f81cDCE5f17273BF6006523d9Ab19ca0B",
+    "PostageStamp": "0x15C725dc60aCEc8919cad03DA9F6e3759D076824",
+    "chainName": ""
   }
 }

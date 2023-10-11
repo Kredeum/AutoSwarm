@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
-import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
 import {IAutoSwarmAccountV0} from "../interfaces/IAutoSwarmAccountV0.sol";

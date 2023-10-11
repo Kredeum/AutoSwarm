@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import {Test, console} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
-import {DeployLite} from "forge-deploy-lite/script/DeployLite.s.sol";
-import {ReadWriteJson} from "forge-deploy-lite/script/ReadWriteJson.s.sol";
-import {PostageStamp} from "storage-incentives/PostageStamp.sol";
+import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
+import {ReadWriteJson} from "@forge-deploy-lite/ReadWriteJson.s.sol";
+import {PostageStamp} from "@storage-incentives/PostageStamp.sol";
 
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 

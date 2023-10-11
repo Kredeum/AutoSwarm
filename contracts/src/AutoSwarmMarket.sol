@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {PostageStamp} from "storage-incentives/PostageStamp.sol";
+import {PostageStamp} from "@storage-incentives/PostageStamp.sol";
 
-import {Stamp, Batch, IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
-import {IPostageStampLegacy} from "./interfaces/IPostageStampLegacy.sol";
+import {Stamp, Batch, IAutoSwarmMarket} from "@autoswarm/src/interfaces/IAutoSwarmMarket.sol";
+import {IPostageStampLegacy} from "@autoswarm/src/interfaces/IPostageStampLegacy.sol";
 
 // import {console} from "forge-std/console.sol";
 

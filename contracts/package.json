@@ -6,7 +6,7 @@
     "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy",
     "clean": "forge clean",
     "format": "forge fmt",
-    "check": "echo contracts check empty",
+    "check": "solhint src/**/*.sol",
     "build": "forge build",
     "test": "forge test",
     "deploy": "forge script script/DeployAll.s.sol",
@@ -18,5 +18,8 @@
     "addresses"
   ],
   "author": "Kredeum",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "solhint": "^3.6.2"
+  }
 }

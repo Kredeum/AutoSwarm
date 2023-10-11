@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {DeployLite} from "forge-deploy-lite/script/DeployLite.s.sol";
-import {PostageStamp} from "storage-incentives/PostageStamp.sol";
+import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
+import {PostageStamp} from "@storage-incentives/PostageStamp.sol";
 
 contract DeployPostageStamp is DeployLite {
     function deployPostageStamp() public returns (address postageStamp) {
-        address bzzToken = deploy("BzzToken", false);
+        address bzzToken = deploy("BzzToken");
         address admin = getAddress("Admin");
 
         vm.startBroadcast(deployer);
