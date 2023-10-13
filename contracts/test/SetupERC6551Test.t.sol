@@ -8,6 +8,7 @@ import "@autoswarm/test/SetUpERC6551.t.sol";
 
 contract SetUpERC6551Test is SetUpERC6551 {
     function setUp() public {
+        setRecording(false);
         setUpERC6551();
     }
 

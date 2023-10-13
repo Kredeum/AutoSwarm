@@ -5,6 +5,7 @@ import "@autoswarm/test/SetUpSwarm.t.sol";
 
 contract SetUpSwarmTest is SetUpSwarm {
     function setUp() public {
+        setRecording(false);
         setUpSwarm();
     }
 

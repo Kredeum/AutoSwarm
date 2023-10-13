@@ -5,7 +5,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
-import {ReadWriteJson} from "@forge-deploy-lite/ReadWriteJson.s.sol";
+import {DeployLiteRWJson} from "@forge-deploy-lite/DeployLiteRWJson.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";

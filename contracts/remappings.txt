@@ -6,5 +6,8 @@ openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 
 @forge-deploy-lite/=lib/forge-deploy-lite/script/
 @storage-incentives/=lib/storage-incentives/src/
+@tokenbound/=lib/tokenbound/src/
 @erc6551/=lib/erc6551/src/
+erc6551/=lib/erc6551/src/
 @autoswarm/=./
+

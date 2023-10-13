@@ -6,10 +6,9 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
-import {IPostageStampLegacy} from "./interfaces/IPostageStampLegacy.sol";
-import {IAutoSwarmAccount} from "./interfaces/IAutoSwarmAccount.sol";
-import {Stamp, IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
-import {console} from "forge-std/console.sol";
+import {IPostageStampLegacy} from "../interfaces/IPostageStampLegacy.sol";
+import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccount.sol";
+import {Stamp, IAutoSwarmMarket} from "../interfaces/IAutoSwarmMarket.sol";
 
 contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
     bytes32 public metadataHash;
@@ -24,14 +23,6 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
     modifier initialized() {
         require(_nonce != 0x0, "Not initialized");
         _;
-    }
-
-    function isOwner() external view returns (bool ok) {
-        // console.log(tx.origin, "AutoSwarmAccount tx.origin");
-        // console.log(msg.sender, "AutoSwarmAccount msg.sender");
-        // console.log(address(this), "AutoSwarmAccount this");
-        ok = owner() == msg.sender;
-        // console.log("AutoSwarmAccount isOwner", ok);
     }
 
     function initialize(address autoSwarmMarket_) external override(IAutoSwarmAccount) {

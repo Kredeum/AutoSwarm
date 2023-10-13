@@ -31,6 +31,7 @@ contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
     }
 
     function setUp() public virtual {
+        setRecording(false);
         setUpERC6551();
         setUpSwarm();
         setUpAutoSwarmAccount();

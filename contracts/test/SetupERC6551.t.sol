@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
 import {Test, console} from "forge-std/Test.sol";
-import {ERC6551Registry} from "erc6551/src/ERC6551Registry.sol";
+import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 
 import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
