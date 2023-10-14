@@ -6,11 +6,11 @@ import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 
 contract DeployAutoSwarmAccount is DeployLite {
     function deployAutoSwarmAccount() public returns (address autoSwarmAccountAddress) {
-        address postageStamp = deploy("PostageStamp", false);
+        address autoSwarmMarket = deploy("AutoSwarmMarket");
 
         vm.startBroadcast(deployer);
         AutoSwarmAccount autoSwarmAccount = new AutoSwarmAccount();
-        autoSwarmAccount.initialize(payable(postageStamp));
+        autoSwarmAccount.initialize(payable(autoSwarmMarket));
         vm.stopBroadcast();
 
         autoSwarmAccountAddress = address(autoSwarmAccount);

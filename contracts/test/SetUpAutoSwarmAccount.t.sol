@@ -4,11 +4,13 @@ pragma solidity ^0.8.0;
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/Test.sol";
 
-import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
-import {SetUpERC6551} from "@autoswarm/test/SetUpERC6551.t.sol";
 import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 
-contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
+import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
+import {SetUpAutoSwarmMarket} from "@autoswarm/test/SetUpAutoSwarmMarket.t.sol";
+import {SetUpERC6551} from "@autoswarm/test/SetUpERC6551.t.sol";
+
+contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
     AutoSwarmAccount public autoSwarmAccount;
     bytes32 batchId0;
     uint256 ttl0 = 10 weeks;
@@ -23,17 +25,16 @@ contract SetUpAutoSwarmAccount is SetUpSwarm, SetUpERC6551 {
         autoSwarmAccount =
             AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
         if (address(autoSwarmAccount).code.length == 0) {
-            bytes memory initData = abi.encodeWithSignature("initialize(address)", address(postageStamp));
+            bytes memory initData = abi.encodeWithSignature("initialize(address)", address(autoSwarmMarket));
             vm.prank(nftOwner);
             registry.createAccount(address(implementation), chainId, collection, tokenId, salt, initData);
         }
         assert(address(autoSwarmAccount).code.length != 0);
     }
 
-    function setUp() public virtual {
-        setRecording(false);
+    function setUp() public override {
+        super.setUp();
         setUpERC6551();
-        setUpSwarm();
         setUpAutoSwarmAccount();
     }
 }

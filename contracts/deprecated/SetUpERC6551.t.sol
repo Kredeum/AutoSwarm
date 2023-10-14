@@ -25,7 +25,7 @@ contract SetUpERC6551 is Test, DeployAll {
         tokenId = 0;
 
         setDeployer(makeAddr("NFTOwner"));
-        collection = deploy("NFTCollection", false);
+        collection = deploy("NFTCollection");
 
         setDeployer(makeAddr("Deployer"));
         registry = ERC6551Registry(deploy("ERC6551Registry"));

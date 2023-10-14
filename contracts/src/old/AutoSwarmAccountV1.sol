@@ -7,7 +7,7 @@ import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
 import {IPostageStampLegacy} from "../interfaces/IPostageStampLegacy.sol";
-import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccount.sol";
+import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccountV1.sol";
 import {Stamp, IAutoSwarmMarket} from "../interfaces/IAutoSwarmMarket.sol";
 
 contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {

@@ -16,11 +16,11 @@ contract AutoSwarmHelper {
         console.log(address(this), "AutoSwarmHelper this");
 
         console.log(address(autoSwarmAccount), "autoSwarmAccount");
-        bytes memory data = abi.encodeWithSignature("isOwner()");
 
         ok = autoSwarmAccount.isOwner();
         console.log("AutoSwarmHelper isOwnerHelper", ok);
 
+        // bytes memory data = abi.encodeWithSignature("isOwner()");
         // bytes memory res = address(autoSwarmAccount).functionDelegateCall(data);
         // ok = abi.decode(res, (bool));
         // console.log("AutoSwarmHelper isOwnerHelper", ok);

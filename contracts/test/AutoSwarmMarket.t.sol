@@ -64,6 +64,13 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
     }
 
     function test_AutoSwarmMarket_buyStamp() external {
+        address buyer = makeAddr("buyer");
+        uint256 amount = 1e18;
+        deal(address(bzzToken), buyer, amount);
+
+        vm.startPrank(buyer);
+
+        bzzToken.approve(address(autoSwarmMarket), amount);
         bytes32 stampId = autoSwarmMarket.buyStamp(initYear, keccak256("42"), 42, 0);
 
         Stamp memory stamp = autoSwarmMarket.getStamp(stampId);
@@ -72,5 +79,9 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
         console.logBytes32(stamp.hash);
         console.log("test_AutoSwarmMarket_buyStamp ~ stamp: %s %s", stamp.year, stamp.size);
         console.log("test_AutoSwarmMarket_buyStamp ~ stamp: %s %s", stamp.time, stamp.price);
+
+        vm.stopPrank();
+
+        assert(true);
     }
 }

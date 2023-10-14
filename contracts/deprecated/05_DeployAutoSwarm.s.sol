@@ -8,7 +8,7 @@ contract DeployAutoSwarm is DeployLite {
     function deployAutoSwarm() public returns (address autoSwarm) {
         address registry = deploy("ERC6551Registry");
         address implementation = deploy("SimpleERC6551Account");
-        address postageStamp = deploy("PostageStamp", false);
+        address postageStamp = deploy("PostageStamp");
 
         vm.startBroadcast(deployer);
         autoSwarm = address(new AutoSwarm(registry, payable(implementation), payable(postageStamp)));

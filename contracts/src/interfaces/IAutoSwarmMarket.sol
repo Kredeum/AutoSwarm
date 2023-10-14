@@ -30,6 +30,8 @@ interface IAutoSwarmMarket {
     event BuyBatch(bytes32 indexed batchId, uint256 indexed year, uint8 indexed depth, uint256 ttl);
     event UpdateBatch(uint256 indexed year, uint8 indexed depth, uint256 indexed ttl);
 
+    function bzzToken() external returns (address);
+
     function buyStamp(uint256, bytes32, uint256, uint8) external returns (bytes32);
     function buyBatch(uint256) external returns (bytes32);
 
@@ -49,5 +51,6 @@ interface IAutoSwarmMarket {
     function getBatchTtl(uint256) external view returns (uint256);
     function getBatchSizeLimit(uint256) external view returns (uint256);
 
-    function getStampId(uint256, bytes32, uint256, uint8) external pure returns (bytes32);
+    function getStampId(uint256, bytes32, uint256) external pure returns (bytes32);
+    function getStampPrice(uint256, uint256) external view returns (uint256);
 }

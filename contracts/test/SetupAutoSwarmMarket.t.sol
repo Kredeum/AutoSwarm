@@ -1,18 +1,10 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.0;
 
-import {Test, console} from "forge-std/Test.sol";
-import {IERC20} from "forge-std/interfaces/IERC20.sol";
-
-import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
-import {DeployLiteRWJson} from "@forge-deploy-lite/DeployLiteRWJson.s.sol";
-import {PostageStamp} from "storage-incentives/PostageStamp.sol";
-
-import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
-import {SetUpAutoSwarmAccount} from "@autoswarm/test/SetUpAutoSwarmAccount.t.sol";
+import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
 
-contract SetUpAutoSwarmMarket is SetUpAutoSwarmAccount {
+contract SetUpAutoSwarmMarket is SetUpSwarm {
     AutoSwarmMarket public autoSwarmMarket;
     uint256 initYear;
     uint256 initTtl;
@@ -25,14 +17,17 @@ contract SetUpAutoSwarmMarket is SetUpAutoSwarmAccount {
         initTtl = autoSwarmMarket.INITIAL_TTL();
         initDepth = autoSwarmMarket.INITIAL_DEPTH();
 
-        deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
+        uint256 amount = initTtl << initDepth;
+
+        deal(address(bzzToken), address(autoSwarmMarket), amount);
 
         vm.prank(deployer);
         autoSwarmMarket.buyBatch(initYear);
     }
 
-    function setUp() public override(SetUpAutoSwarmAccount) {
-        super.setUp();
+    function setUp() public virtual {
+        setRecording(false);
+        setUpSwarm();
         setUpAutoSwarmMarket();
     }
 }

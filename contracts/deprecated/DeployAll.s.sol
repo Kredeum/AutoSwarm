@@ -29,11 +29,11 @@ contract DeployAll is
     {
         logCallers("DeployAll callers");
 
-        deploy("BzzToken", false);
-        deploy("NFTCollection", false);
+        deploy("BzzToken");
+        deploy("NFTCollection");
         deploy("ERC6551Registry");
         deploy("SimpleERC6551Account");
-        deploy("PostageStamp", false);
+        deploy("PostageStamp");
         deploy("AutoSwarm");
 
         writeAddresses();
