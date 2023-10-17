@@ -3,13 +3,13 @@ import {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
 	DIVISION_BY_ZERO,
-	SECONDS_PER_BLOCK,
 	ONE_WEEK,
 	ONE_DAY,
 	ONE_HOUR,
 	ONE_MONTH,
 	ONE_YEAR
 } from '$lib/ts/constants';
+import { utilsNBalToBzz, utilsNBalToTtl } from './utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -37,7 +37,7 @@ const displayTtl = (balance: bigint | undefined, lastPrice: bigint | undefined):
 	if (balance === undefined || lastPrice === undefined) return UNDEFINED_DATA;
 	if (lastPrice == 0n) return DIVISION_BY_ZERO;
 
-	return displayDuration((balance * SECONDS_PER_BLOCK) / lastPrice);
+	return displayDuration(utilsNBalToTtl(balance, lastPrice));
 };
 
 const displayDuration = (seconds: bigint | undefined): string => {
@@ -75,7 +75,7 @@ const displayExplorerLink = (chain: Chain, addr?: string): string => {
 const displayBzzFromBalance = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
 
-	return displayBalance(balance * 2n ** BigInt(depth), 16);
+	return displayBalance(utilsNBalToBzz(balance, depth), 16);
 };
 
 const displayBalance = (

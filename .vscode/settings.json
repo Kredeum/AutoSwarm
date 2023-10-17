@@ -46,6 +46,10 @@
     {
       "filePath": "foundry.toml",
       "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/routes/new/[network]/+page.svelte",
+      "group": "Default"
     }
   ],
   "favorites.sortOrder": "ASC",

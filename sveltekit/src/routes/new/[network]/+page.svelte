@@ -34,12 +34,15 @@
 	import {
 		displayBalance,
 		displayBzzFromBalance,
+		displayDuration,
 		displayExplorerLink,
 		displayNftLink,
 		displayTbaDisplayed,
 		displayTtl,
 		displayTxt
 	} from '$lib/ts/display';
+	import { utilsNBalToTtl, utilsBzzToNBal } from '$lib/ts/utils.js';
+	import { stampBzzToTtl } from '$lib/ts/stamp.js';
 
 	export let data;
 
@@ -182,8 +185,8 @@
 	<p>
 		NFT Owner<span> {@html displayExplorerLink(chain, nftOwner)}</span>
 	</p>
-  <hr/>
-  <p>
+	<hr />
+	<p>
 		<button on:click={withdraw}>Withdraw</button> &nbsp;
 		<button on:click={deposit}>Deposit</button> &nbsp;
 		<button on:click={dilute}>Dilute</button> &nbsp;
@@ -207,9 +210,16 @@
 		</span>
 	</p>
 	<p>PostageStamp Last Price (1 Plur=1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
-	<p>Current StampId</p>
-	<p>Current BatchId</p>
-	<p>Current Ttl</p>
+	<p>Expiration Date</p>
+	<p>Total Ttl</p>
+	<p>
+		Bzz Ttl <span
+			>{displayDuration(stampBzzToTtl(bzzNftBalance || 0n, lastPrice, BigInt(10_000)))}</span
+		>
+	</p>
+	<p>Stamp/Batch Ttl</p>
+	<p>Current Stamp</p>
+	<p>Current Batch</p>
 
 	<p>
 		<button><a href="/">back</a></button> &nbsp;
@@ -220,7 +230,6 @@
 			<button on:click={() => onChainChanged('31337')}>go anvil</button>
 		</span>
 	</p>
-
 
 	<hr />
 	<p>
@@ -250,7 +259,7 @@
 	<p>
 		Batch Id <span>{json.batchId}</span>
 	</p>
-  <hr/>
+	<hr />
 	<p>
 		PostageStamp <span>{@html displayExplorerLink(chain, json.PostageStamp)}</span>
 	</p>
