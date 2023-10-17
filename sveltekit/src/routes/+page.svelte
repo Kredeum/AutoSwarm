@@ -62,7 +62,7 @@
 		oneYearBzz = (lastPrice * BigInt(ONE_YEAR)) / SECONDS_PER_BLOCK;
 		[, depth] = await readBatchLegacy(publicClient);
 
-    disabled = autoSwarmBalance < oneYearBzz;
+		disabled = autoSwarmBalance < oneYearBzz;
 
 		const secondsPerBlock = 5n;
 		if (lastPrice > 0) duration = (remainingBalance * secondsPerBlock) / lastPrice;
@@ -92,7 +92,9 @@
 	<section class="user-config">
 		<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
 		<p>
-			<a class="details-link" href="./gnosis">see details</a>
+			<a class="details-link" href="./new/sepolia">sepolia</a> -
+			<a class="details-link" href="./new/anvil">anvil</a> -
+			<a class="details-link" href="./old/sepolia">sepolia</a> -
 		</p>
 	</section>
 	<div class="batch-topUp">

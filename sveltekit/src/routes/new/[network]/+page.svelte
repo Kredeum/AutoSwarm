@@ -36,6 +36,7 @@
 		displayBzzFromBalance,
 		displayExplorerLink,
 		displayNftLink,
+		displayTbaDisplayed,
 		displayTtl,
 		displayTxt
 	} from '$lib/ts/display';
@@ -64,7 +65,7 @@
 	let bzzNftBalance: bigint | undefined;
 	let bzzNftOwnerBalance: bigint | undefined;
 	let oneDayBzz: bigint | undefined;
-	let addressOrCreated = '';
+	let tbaDeployed: boolean | undefined;
 	let tokenId = 1n;
 
 	const reset = () => {
@@ -77,6 +78,7 @@
 		autoSwarmAddress = undefined;
 		owner = undefined;
 		nftOwner = undefined;
+		tbaDeployed = undefined;
 	};
 
 	const refreshDisplay = async () => {
@@ -98,9 +100,8 @@
 		if (lastPriceRead > 0) lastPrice = lastPriceRead;
 		oneDayBzz = (lastPrice * BigInt(ONE_DAY)) / SECONDS_PER_BLOCK;
 
-		addressOrCreated = (await readIsContract(publicClient, autoSwarmAddress as Address))
-			? 'Created'
-			: 'Address';
+		tbaDeployed = await readIsContract(publicClient, autoSwarmAddress as Address);
+		console.log('refreshDisplay ~ tbaDeployed:', tbaDeployed);
 	};
 
 	const buy = () => writeStampsBuy(chain, publicClient).then(refreshDisplay);
@@ -160,9 +161,29 @@
 
 <section>
 	<p>
-		Block #{blockNumber} <span>{network} ({chain.id})</span>
+		{chain.name} network (chainId #{chain.id}) <span>block #{blockNumber}</span>
 	</p>
 	<p>
+		NFT <span>
+			{@html displayExplorerLink(chain)} /
+			{@html displayExplorerLink(chain, json.NFTCollection)} /
+			{@html displayNftLink(chain, json.NFTCollection, Number(tokenId))}
+		</span>
+	</p>
+	<p>
+		NFT AutoSwarm TBA ({displayTbaDisplayed(tbaDeployed)})
+		<span
+			>{displayBalance(bzzNftBalance, 16, 4)} Bzz | {@html displayExplorerLink(
+				chain,
+				autoSwarmAddress
+			)}</span
+		>
+	</p>
+	<p>
+		NFT Owner<span> {@html displayExplorerLink(chain, nftOwner)}</span>
+	</p>
+  <hr/>
+  <p>
 		<button on:click={withdraw}>Withdraw</button> &nbsp;
 		<button on:click={deposit}>Deposit</button> &nbsp;
 		<button on:click={dilute}>Dilute</button> &nbsp;
@@ -185,6 +206,23 @@
 			>
 		</span>
 	</p>
+	<p>PostageStamp Last Price (1 Plur=1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
+	<p>Current StampId</p>
+	<p>Current BatchId</p>
+	<p>Current Ttl</p>
+
+	<p>
+		<button><a href="/">back</a></button> &nbsp;
+		<button on:click={refreshDisplay}>refresh</button> &nbsp;
+		<span>
+			<!-- <button on:click={() => onChainChanged('100')}>go gnosis</button> -->
+			<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
+			<button on:click={() => onChainChanged('31337')}>go anvil</button>
+		</span>
+	</p>
+
+
+	<hr />
 	<p>
 		Batch Remaining LifeSpan
 		<span
@@ -203,29 +241,6 @@
 	</p>
 
 	<p>
-		NFT SmartAccount {addressOrCreated}
-		<span
-			>{displayBalance(bzzNftBalance, 16, 4)} Bzz | {@html displayExplorerLink(
-				chain,
-				autoSwarmAddress
-			)}</span
-		>
-	</p>
-	<p>
-		NFT Owner<span
-			>{displayBalance(bzzNftOwnerBalance, 16, 4)} Bzz | {@html displayExplorerLink(
-				chain,
-				nftOwner
-			)}</span
-		>
-	</p>
-	<p>
-		NFT <span
-			>Token Id {@html displayNftLink(chain, json.NFTCollection, Number(tokenId))} &nbsp; Collection
-			{@html displayExplorerLink(chain, json.NFTCollection)}</span
-		>
-	</p>
-	<p>
 		Batch <span
 			>[{@html displayExplorerLink(chain, owner)}, {displayTxt(depth)}, {displayTxt(
 				remainingBalance
@@ -235,6 +250,7 @@
 	<p>
 		Batch Id <span>{json.batchId}</span>
 	</p>
+  <hr/>
 	<p>
 		PostageStamp <span>{@html displayExplorerLink(chain, json.PostageStamp)}</span>
 	</p>
@@ -249,15 +265,6 @@
 	</p>
 	<p>
 		Price Oracle <span>{@html displayExplorerLink(chain, json.Oracle)}</span>
-	</p>
-	<p>
-		<button><a href="./">back</a></button> &nbsp;
-		<button on:click={refreshDisplay}>refresh</button> &nbsp;
-		<span>
-			<button on:click={() => onChainChanged('100')}>go gnosis</button>
-			<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
-			<button on:click={() => onChainChanged('31337')}>go anvil</button>
-		</span>
 	</p>
 </section>
 

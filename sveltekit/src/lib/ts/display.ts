@@ -21,6 +21,12 @@ const displayAddress = (addr: string): string => {
 	return addr;
 };
 
+const displayTbaDisplayed = (deployed: boolean | undefined): string => {
+	if (deployed === undefined) return UNDEFINED_DATA;
+
+	return deployed ? 'deployed' : 'not deployed';
+};
+
 const displayTxt = (data: string | number | bigint | undefined): string => {
 	if (data === undefined) return UNDEFINED_DATA;
 
@@ -57,13 +63,13 @@ const displayDuration = (seconds: bigint | undefined): string => {
 	return ret;
 };
 
-const displayExplorerLink = (chain: Chain, addr: string | undefined): string => {
-	if (addr === undefined || !isAddress(addr)) return UNDEFINED_ADDRESS;
-
+const displayExplorerLink = (chain: Chain, addr?: string): string => {
 	const explorer =
 		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
 
-	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;
+	return addr && isAddress(addr)
+		? `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`
+		: `<a href="${explorer}" target="_blank">${chain.id}</a>`;
 };
 
 const displayBzzFromBalance = (balance: bigint | undefined, depth: number | undefined): string => {
@@ -98,6 +104,7 @@ export {
 	displayBalance,
 	displayAddress,
 	displayDuration,
+	displayTbaDisplayed,
 	displayExplorerLink,
 	displayBzzFromBalance
 };
