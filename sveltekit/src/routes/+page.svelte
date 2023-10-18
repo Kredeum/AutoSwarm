@@ -8,7 +8,7 @@
 	import {
 		displayAddress,
 		displayBalance,
-		displayBzzFromBalance,
+		displayBzzFromNBal,
 		displayDuration,
 		displayTxt
 	} from '$lib/ts/display';
@@ -94,7 +94,8 @@
 		<p>
 			<a class="details-link" href="./new/sepolia">sepolia</a> -
 			<a class="details-link" href="./new/anvil">anvil</a> -
-			<a class="details-link" href="./old/sepolia">sepolia</a> -
+			<a class="details-link" href="./new/gnosis">new gnosis</a> -
+			<a class="details-link" href="./old/gnosis">old gnosis</a> -
 		</p>
 	</section>
 	<div class="batch-topUp">
@@ -114,7 +115,7 @@
 		</button>
 		<div class="batch-topUp-below">
 			<p>
-				Price: {displayBzzFromBalance(oneYearBzz, depth)} Bzz
+				Price: {displayBzzFromNBal(oneYearBzz, depth)} Bzz
 			</p>
 		</div>
 	</div>

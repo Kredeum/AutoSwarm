@@ -1,14 +1,22 @@
-import { BUCKET_SIZE } from './constants';
+import { batchBzzToNBal } from './batch';
+import { BUCKET_DEPTH, BUCKET_SIZE } from './constants';
 import { utilsNBalToTtl } from './utils';
 
-// bzz = (ttl * lastPrice * size * RATIO) / (SECONDS_PER_BLOCK * BUCKET_SIZE);
-// ttl = (bzz * SECONDS_PER_BLOCK * BUCKET_SIZE) / (lastPrice * size * RATIO);
+// const batchBzzToNBal = (bzz: bigint, depth: number): bigint => {
+// 	if (depth <= BUCKET_DEPTH) return 0n;
 
-const stampBzzToNBal = (bzz: bigint, size: bigint): bigint => (bzz * BUCKET_SIZE) / size;
+// 	return bzz / 2n ** BigInt(depth - BUCKET_DEPTH);
+// };
+
+const stampBzzToNBal = (bzz: bigint, size: bigint): bigint => {
+	if (size === 0n) return 0n;
+
+	return bzz * BUCKET_SIZE / size;
+};
 
 const stampNBalToBzz = (nBal: bigint, size: bigint): bigint => (nBal * size) / BUCKET_SIZE;
 
-const stampBzzToTtl = (bzz: bigint, lastPrice: bigint, size: bigint): bigint =>
+const stampBzzToTtl = (bzz: bigint, size: bigint, lastPrice: bigint): bigint =>
 	utilsNBalToTtl(stampBzzToNBal(bzz, size), lastPrice);
 
 export { stampNBalToBzz, stampBzzToNBal, stampBzzToTtl };

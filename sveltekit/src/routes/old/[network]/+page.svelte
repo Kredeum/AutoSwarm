@@ -11,6 +11,7 @@
 		ONE_YEAR,
 		DEFAULT_PRICE,
 		ONE_MONTH,
+		SEPOLIA_RPC,
 		ONE_DAY
 	} from '$lib/ts/constants';
 	import {
@@ -33,12 +34,14 @@
 	} from '$lib/ts/read';
 	import {
 		displayBalance,
-		displayBzzFromBalance,
+		displayBatchDepthWithSize,
+		displayBzzFromNBal,
 		displayExplorerLink,
 		displayNftLink,
 		displayTtl,
 		displayTxt
 	} from '$lib/ts/display';
+	import { batchSizeBatch } from '$lib/ts/batch.js';
 
 	export let data;
 
@@ -122,7 +125,7 @@
 		let transport = http();
 		if (nw == 'sepolia') {
 			chain = sepolia;
-			transport = http('https://rpc.ankr.com/eth_sepolia');
+			transport = http(SEPOLIA_RPC);
 		} else if (nw == 'localhost') {
 			chain = localhost;
 		} else if (nw == 'anvil') {
@@ -146,7 +149,7 @@
 		let next = 'gnosis';
 		if (chainId == '11155111') next = 'sepolia';
 		else if (chainId == '31337') next = 'anvil';
-		else if (chainId == '1337') next = 'localhost';ƒ
+		else if (chainId == '1337') next = 'localhost';
 
 		goto(next).then(() => initChain(next));
 	};
@@ -168,19 +171,19 @@
 		<button on:click={dilute}>Dilute</button> &nbsp;
 		<button on:click={buy}>Buy</button> &nbsp;
 		<span>
-			<button title="Cost {displayBzzFromBalance(oneDayBzz, depth)} Bzz" on:click={() => topUp(1)}
+			<button title="Cost {displayBzzFromNBal(oneDayBzz, depth)} Bzz" on:click={() => topUp(1)}
 				>TopUp 1 Day</button
 			>
 			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 7n, depth)} Bzz"
+				title="Cost {displayBzzFromNBal(oneDayBzz && oneDayBzz * 7n, depth)} Bzz"
 				on:click={() => topUp(7)}>TopUp 1 Week</button
 			>
 			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 30n, depth)} Bzz"
+				title="Cost {displayBzzFromNBal(oneDayBzz && oneDayBzz * 30n, depth)} Bzz"
 				on:click={() => topUp(30)}>TopUp 1 Month</button
 			>
 			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz"
+				title="Cost {displayBzzFromNBal(oneDayBzz && oneDayBzz * 365n, depth)} Bzz"
 				on:click={() => topUp(365)}>TopUp 1 Year</button
 			>
 		</span>
@@ -188,17 +191,16 @@
 	<p>
 		Batch Remaining LifeSpan
 		<span
-			>{displayBzzFromBalance(remainingBalance, depth)} Bzz |
-			{displayTtl(remainingBalance, lastPrice)} | depth {depth}</span
+			>{displayBzzFromNBal(remainingBalance, depth)} Bzz |
+			{displayTtl(remainingBalance, lastPrice)} | {displayBatchDepthWithSize(depth)}</span
 		>
 	</p>
 	<p>
 		One Year TopUp at price {lastPrice}<span
-			>{displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz | {displayTtl(
+			>{displayBzzFromNBal(oneDayBzz && oneDayBzz * 365n, depth)} Bzz | {displayTtl(
 				oneDayBzz && oneDayBzz * 365n,
 				lastPrice
-			)} | depth
-			{depth}</span
+			)} | {displayBatchDepthWithSize(depth)}</span
 		>
 	</p>
 

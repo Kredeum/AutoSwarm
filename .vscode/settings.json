@@ -50,6 +50,14 @@
     {
       "filePath": "sveltekit/src/routes/new/[network]/+page.svelte",
       "group": "Default"
+    },
+    {
+      "filePath": "contracts/addresses.json",
+      "group": "Default"
+    },
+    {
+      "filePath": "contracts/foundry.toml",
+      "group": "Default"
     }
   ],
   "favorites.sortOrder": "ASC",

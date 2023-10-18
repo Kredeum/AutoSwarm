@@ -1,4 +1,4 @@
-import type { Address, Hex, PublicClient } from 'viem';
+import type { Address, Block, Hex, PublicClient } from 'viem';
 import {
 	bzzTokenAbi,
 	postageStampAbi,
@@ -13,6 +13,13 @@ import type { ChainIdInJson } from '$lib/ts/get';
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const readBlock = async (publicClient: PublicClient, blockNumber?: bigint): Promise<Block> => {
+	let param = {};
+	if (blockNumber) param = { blockNumber };
+
+	return await publicClient.getBlock(param);
+};
 
 const readIsContract = async (publicClient: PublicClient, address: Address): Promise<boolean> => {
 	if (address == '0x0') return false;
@@ -181,5 +188,6 @@ export {
 	readLastTokenId,
 	readBatchLegacy,
 	readNftMetadata,
-	readRemainingBalance
+	readRemainingBalance,
+	readBlock
 };

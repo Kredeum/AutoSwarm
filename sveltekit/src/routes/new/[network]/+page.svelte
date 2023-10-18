@@ -11,7 +11,8 @@
 		ONE_YEAR,
 		DEFAULT_PRICE,
 		ONE_MONTH,
-		ONE_DAY
+		ONE_DAY,
+		SEPOLIA_RPC
 	} from '$lib/ts/constants';
 	import {
 		writeStampsBuy,
@@ -24,6 +25,7 @@
 		readAccount,
 		readBatchLegacy,
 		readBatchNew,
+		readBlock,
 		readBzzBalance,
 		readIsContract,
 		readLastPrice,
@@ -33,23 +35,28 @@
 	} from '$lib/ts/read';
 	import {
 		displayBalance,
-		displayBzzFromBalance,
+		displayBatchDepthWithSize,
+		displayBatchSize,
+		displayBzzFromNBal,
+		displayDate,
 		displayDuration,
 		displayExplorerLink,
 		displayNftLink,
+		displaySize,
 		displayTbaDisplayed,
 		displayTtl,
 		displayTxt
 	} from '$lib/ts/display';
 	import { utilsNBalToTtl, utilsBzzToNBal } from '$lib/ts/utils.js';
-	import { stampBzzToTtl } from '$lib/ts/stamp.js';
+	import { stampBzzToNBal, stampBzzToTtl } from '$lib/ts/stamp.js';
 
 	export let data;
 
 	$: json = data.json;
 	$: network = data.network || 'gnosis';
 
-	let blockNumber: bigint = 0n;
+	let blockNumber: number = 0;
+	let blockTimestamp: number = 0;
 
 	type ChainInJson = typeof gnosis | typeof sepolia | typeof anvil | typeof localhost;
 	let chain: ChainInJson = gnosis;
@@ -59,6 +66,7 @@
 	let autoSwarmAddress: Address | undefined;
 	let owner: Address | undefined;
 	let nftOwner: Address | undefined;
+	const nftSize = 1024n ** 2n;
 	let depth: number;
 	let unwatch: () => void;
 
@@ -67,7 +75,7 @@
 	let normalisedBalance: bigint | undefined;
 	let bzzNftBalance: bigint | undefined;
 	let bzzNftOwnerBalance: bigint | undefined;
-	let oneDayBzz: bigint | undefined;
+	let oneDayNBal: bigint | undefined;
 	let tbaDeployed: boolean | undefined;
 	let tokenId = 1n;
 
@@ -77,7 +85,7 @@
 		normalisedBalance = undefined;
 		bzzNftBalance = undefined;
 		bzzNftOwnerBalance = undefined;
-		oneDayBzz = undefined;
+		oneDayNBal = undefined;
 		autoSwarmAddress = undefined;
 		owner = undefined;
 		nftOwner = undefined;
@@ -88,6 +96,10 @@
 		console.info('refreshDisplay');
 		if (!publicClient) return;
 		reset();
+
+		const block = await readBlock(publicClient);
+		blockTimestamp = Number(block.timestamp);
+		blockNumber = Number(block.number) || 0;
 
 		tokenId = await readLastTokenId(publicClient);
 		nftOwner = await readNftOwner(publicClient);
@@ -101,7 +113,7 @@
 
 		const lastPriceRead = await readLastPrice(publicClient);
 		if (lastPriceRead > 0) lastPrice = lastPriceRead;
-		oneDayBzz = (lastPrice * BigInt(ONE_DAY)) / SECONDS_PER_BLOCK;
+		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / SECONDS_PER_BLOCK;
 
 		tbaDeployed = await readIsContract(publicClient, autoSwarmAddress as Address);
 		console.log('refreshDisplay ~ tbaDeployed:', tbaDeployed);
@@ -126,7 +138,7 @@
 		let transport = http();
 		if (nw == 'sepolia') {
 			chain = sepolia;
-			transport = http('https://rpc.ankr.com/eth_sepolia');
+			transport = http(SEPOLIA_RPC);
 		} else if (nw == 'localhost') {
 			chain = localhost;
 		} else if (nw == 'anvil') {
@@ -135,11 +147,6 @@
 			chain = gnosis;
 		}
 		publicClient = createPublicClient({ chain, transport });
-		if (unwatch) unwatch();
-		unwatch = publicClient.watchBlockNumber({
-			emitOnBegin: true,
-			onBlockNumber: (num: bigint) => (blockNumber = num)
-		});
 
 		await refreshDisplay();
 
@@ -164,14 +171,31 @@
 
 <section>
 	<p>
-		{chain.name} network (chainId #{chain.id}) <span>block #{blockNumber}</span>
+		{chain.name} network (chainId #{chain.id})
+		<span>{displayDate(blockTimestamp)} | block #{blockNumber}</span>
 	</p>
+	<p>Last Price (1 Plur = 1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
+
 	<p>
-		NFT <span>
+		<button><a href="/">back</a></button> &nbsp;
+		<button on:click={refreshDisplay}>refresh</button> &nbsp;
+		<span>
+			<button on:click={() => onChainChanged('100')}>go gnosis</button>
+			<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
+			<button on:click={() => onChainChanged('31337')}>go anvil</button>
+		</span>
+	</p>
+	<hr />
+	<p>
+		NFT <span
+			>{displaySize(nftSize)} |
 			{@html displayExplorerLink(chain)} /
 			{@html displayExplorerLink(chain, json.NFTCollection)} /
 			{@html displayNftLink(chain, json.NFTCollection, Number(tokenId))}
 		</span>
+	</p>
+	<p>
+		NFT Owner<span> {@html displayExplorerLink(chain, nftOwner)}</span>
 	</p>
 	<p>
 		NFT AutoSwarm TBA ({displayTbaDisplayed(tbaDeployed)})
@@ -183,71 +207,35 @@
 		>
 	</p>
 	<p>
-		NFT Owner<span> {@html displayExplorerLink(chain, nftOwner)}</span>
-	</p>
-	<hr />
-	<p>
-		<button on:click={withdraw}>Withdraw</button> &nbsp;
-		<button on:click={deposit}>Deposit</button> &nbsp;
-		<button on:click={dilute}>Dilute</button> &nbsp;
-		<button on:click={buy}>Buy</button> &nbsp;
+		<button on:click={withdraw}>TBA Withdraw</button> &nbsp;
+		<button on:click={deposit}>TBA Deposit</button> &nbsp;
 		<span>
-			<button title="Cost {displayBzzFromBalance(oneDayBzz, depth)} Bzz" on:click={() => topUp(1)}
-				>TopUp 1 Day</button
-			>
-			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 7n, depth)} Bzz"
-				on:click={() => topUp(7)}>TopUp 1 Week</button
-			>
-			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 30n, depth)} Bzz"
-				on:click={() => topUp(30)}>TopUp 1 Month</button
-			>
-			<button
-				title="Cost {displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz"
-				on:click={() => topUp(365)}>TopUp 1 Year</button
-			>
+			<button>TBA TopUp 1 Week</button>
+			<button>TBA TopUp 1 Month</button>
+			<button>TBA TopUp 1 Year</button>
 		</span>
 	</p>
-	<p>PostageStamp Last Price (1 Plur=1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
-	<p>Expiration Date</p>
-	<p>Total Ttl</p>
-	<p>
-		Bzz Ttl <span
-			>{displayDuration(stampBzzToTtl(bzzNftBalance || 0n, lastPrice, BigInt(10_000)))}</span
-		>
-	</p>
-	<p>Stamp/Batch Ttl</p>
-	<p>Current Stamp</p>
-	<p>Current Batch</p>
-
-	<p>
-		<button><a href="/">back</a></button> &nbsp;
-		<button on:click={refreshDisplay}>refresh</button> &nbsp;
-		<span>
-			<!-- <button on:click={() => onChainChanged('100')}>go gnosis</button> -->
-			<button on:click={() => onChainChanged('11155111')}>go sepolia</button>
-			<button on:click={() => onChainChanged('31337')}>go anvil</button>
-		</span>
-	</p>
-
 	<hr />
+
 	<p>
-		Batch Remaining LifeSpan
+		Expiration Date
 		<span
-			>{displayBzzFromBalance(remainingBalance, depth)} Bzz |
-			{displayTtl(remainingBalance, lastPrice)} | depth {depth}</span
+			>{displayDate(
+				blockTimestamp + Number(stampBzzToTtl(bzzNftBalance || 0n, nftSize, lastPrice))
+			)}</span
 		>
 	</p>
+	<p>Stamp Ttl</p>
+	<p>Current Stamp</p>
 	<p>
-		One Year TopUp at price {lastPrice}<span
-			>{displayBzzFromBalance(oneDayBzz && oneDayBzz * 365n, depth)} Bzz | {displayTtl(
-				oneDayBzz && oneDayBzz * 365n,
-				lastPrice
-			)} | depth
-			{depth}</span
+		TBA Ttl
+		<span
+			>{displayBalance(bzzNftBalance, 16, 4)} Bzz => {displayDuration(
+				stampBzzToTtl(bzzNftBalance || 0n, nftSize, lastPrice)
+			)}</span
 		>
 	</p>
+	<hr />
 
 	<p>
 		Batch <span
@@ -257,23 +245,59 @@
 		>
 	</p>
 	<p>
-		Batch Id <span>{json.batchId}</span>
+		Batch Id <span
+			>{json.batchId}
+			| {displayBatchSize(depth)}</span
+		>
+	</p>
+	<p>
+		Batch Remaining Ttl
+		<span
+			>{displayBzzFromNBal(remainingBalance, depth)} Bzz =>
+			{displayTtl(remainingBalance, lastPrice)}</span
+		>
+	</p>
+	<p>
+		Batch TopUp of One Year at price {lastPrice}<span
+			>{displayBzzFromNBal(oneDayNBal && oneDayNBal * 365n, depth)} Bzz => {displayTtl(
+				oneDayNBal && oneDayNBal * 365n,
+				lastPrice
+			)}</span
+		>
+	</p>
+	<p>
+		<button on:click={dilute}>Batch Dilute</button> &nbsp;
+		<button on:click={buy}>Batch Buy</button> &nbsp;
+		<span>
+			<button
+				title="Cost {displayBzzFromNBal(oneDayNBal && oneDayNBal * 7n, depth)} Bzz"
+				on:click={() => topUp(7)}>Batch TopUp 1 Week</button
+			>
+			<button
+				title="Cost {displayBzzFromNBal(oneDayNBal && oneDayNBal * 30n, depth)} Bzz"
+				on:click={() => topUp(30)}>Batch TopUp 1 Month</button
+			>
+			<button
+				title="Cost {displayBzzFromNBal(oneDayNBal && oneDayNBal * 365n, depth)} Bzz"
+				on:click={() => topUp(365)}>Batch TopUp 1 Year</button
+			>
+		</span>
 	</p>
 	<hr />
-	<p>
-		PostageStamp <span>{@html displayExplorerLink(chain, json.PostageStamp)}</span>
-	</p>
 	<p>
 		BzzToken <span>{@html displayExplorerLink(chain, json.BzzToken)}</span>
 	</p>
 	<p>
-		AutoSwarm implementation <span>{@html displayExplorerLink(chain, json.AutoSwarmAccount)}</span>
+		PostageStamp <span>{@html displayExplorerLink(chain, json.PostageStamp)}</span>
+	</p>
+	<p>
+		Price Oracle <span>{@html displayExplorerLink(chain, json.Oracle)}</span>
 	</p>
 	<p>
 		ERC6551 Registry <span>{@html displayExplorerLink(chain, json.ERC6551Registry)}</span>
 	</p>
 	<p>
-		Price Oracle <span>{@html displayExplorerLink(chain, json.Oracle)}</span>
+		AutoSwarm implementation <span>{@html displayExplorerLink(chain, json.AutoSwarmAccount)}</span>
 	</p>
 </section>
 

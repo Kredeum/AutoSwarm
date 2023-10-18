@@ -4,7 +4,7 @@ import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/abis';
 import { readJson, readAccount, readLastPrice } from '$lib/ts/read';
 import { DEFAULT_PRICE, ONE_MONTH } from './constants';
 import { writeCreateAccount, writeWalletAddress, writeWalletClient } from './write';
-import { utilsTtlToBalance } from './utils';
+import { utilsTtlToNBal } from './utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
@@ -61,7 +61,7 @@ const writeStampsBuy = async (chain: Chain, publicClient: PublicClient) => {
 	const walletClient = await writeWalletClient(chain);
 	const walletAddress = await writeWalletAddress(walletClient);
 	const lastPrice = (await readLastPrice(publicClient)) || DEFAULT_PRICE;
-	const buyTtl = utilsTtlToBalance(BigInt(ONE_MONTH), lastPrice);
+	const buyTtl = utilsTtlToNBal(BigInt(ONE_MONTH), lastPrice);
 	const depth = 17;
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

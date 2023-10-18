@@ -7,13 +7,23 @@ import {
 	ONE_DAY,
 	ONE_HOUR,
 	ONE_MONTH,
-	ONE_YEAR
+	ONE_YEAR,
+	BZZ_DECIMALS,
+	BUCKET_DEPTH
 } from '$lib/ts/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from './utils';
+import { batchSizeBatch } from './batch';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+const displayDate = (timestamp: number): string => {
+	let date = new Date();
+	if (timestamp !== undefined) date = new Date(Number(timestamp) * 1000);
+
+	return date.toLocaleString();
+};
 
 const displayAddress = (addr: string): string => {
 	if (!isAddress(addr)) return UNDEFINED_ADDRESS;
@@ -40,27 +50,46 @@ const displayTtl = (balance: bigint | undefined, lastPrice: bigint | undefined):
 	return displayDuration(utilsNBalToTtl(balance, lastPrice));
 };
 
+const displayBatchDepthWithSize = (depth: number | undefined): string => {
+	if (depth === undefined) return UNDEFINED_DATA;
+	if (!(depth && depth > BUCKET_DEPTH)) return `${depth} invalid`;
+
+	return `depth ${depth} (${displayBatchSize(depth)})`;
+};
+
+const displayBatchSize = (depth: number): string => displaySize(batchSizeBatch(depth));
+
+const displaySize = (size: bigint | undefined): string => {
+	const nsize = Number(size);
+	if (nsize < 1024) return `${nsize} B`;
+
+	const kbytes = nsize / 1024;
+	if (kbytes < 1024) return `${nsize} KB`;
+
+	const mbytes = nsize / 1024 ** 2;
+	if (mbytes < 1024) return `${mbytes} MB`;
+
+	const gbytes = nsize / 1024 ** 3;
+	return `${gbytes} GB`;
+};
+
 const displayDuration = (seconds: bigint | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} weeks`;
 
 	const hours = Number(seconds) / ONE_HOUR;
+	if (hours < 24) return `${hours.toFixed(2)} hour${hours > 1 ? 's' : ''}`;
+
 	const days = Number(seconds) / ONE_DAY;
+	if (days < 7) return `${days.toFixed(2)} day${days > 1 ? 's' : ''}`;
+
 	const weeks = Number(seconds) / ONE_WEEK;
+	if (weeks < 5) return `${weeks.toFixed(2)} week${weeks > 1 ? 's' : ''}`;
+
 	const months = Number(seconds) / ONE_MONTH;
+	if (days < 365) return `${months.toFixed(2)} month${months > 1 ? 's' : ''}`;
+
 	const years = Number(seconds) / ONE_YEAR;
-
-	const ret =
-		hours < 24
-			? `${hours.toFixed(2)} hour${hours > 1 ? 's' : ''}`
-			: days < 7
-			? `${days.toFixed(2)} day${days > 1 ? 's' : ''}`
-			: weeks < 5
-			? `${weeks.toFixed(2)} week${weeks > 1 ? 's' : ''}`
-			: days < 365
-			? `${months.toFixed(2)} month${months > 1 ? 's' : ''}`
-			: `${years.toFixed(2)} year${years > 1 ? 's' : ''}`;
-
-	return ret;
+	return `${years.toFixed(2)} year${years > 1 ? 's' : ''}`;
 };
 
 const displayExplorerLink = (chain: Chain, addr?: string): string => {
@@ -72,10 +101,10 @@ const displayExplorerLink = (chain: Chain, addr?: string): string => {
 		: `<a href="${explorer}" target="_blank">${chain.id}</a>`;
 };
 
-const displayBzzFromBalance = (balance: bigint | undefined, depth: number | undefined): string => {
+const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
 
-	return displayBalance(utilsNBalToBzz(balance, depth), 16);
+	return displayBalance(utilsNBalToBzz(balance, depth), BZZ_DECIMALS);
 };
 
 const displayBalance = (
@@ -105,6 +134,10 @@ export {
 	displayAddress,
 	displayDuration,
 	displayTbaDisplayed,
+	displaySize,
+	displayDate,
+	displayBatchSize,
+	displayBatchDepthWithSize,
 	displayExplorerLink,
-	displayBzzFromBalance
+	displayBzzFromNBal
 };

@@ -1,16 +1,27 @@
-import { SECONDS_PER_BLOCK } from './constants';
+import { BUCKET_DEPTH, SECONDS_PER_BLOCK } from './constants';
 
-const utilsBzzToNBal = (bzz: bigint, depth: number): bigint => bzz / 2n ** BigInt(depth);
+const utilsBzzToNBal = (bzz: bigint, depth: number): bigint => {
+	if (depth <= BUCKET_DEPTH) return 0n;
 
-const utilsNBalToBzz = (balance: bigint, depth: number): bigint => balance * 2n ** BigInt(depth);
+	return bzz / 2n ** BigInt(depth);
+};
+
+const utilsNBalToBzz = (nbal: bigint, depth: number): bigint => {
+	if (depth <= BUCKET_DEPTH) return 0n;
+
+	return nbal * 2n ** BigInt(depth);
+};
 
 const utilsBzzToTtl = (bzz: bigint, lastPrice: bigint, depth: number): bigint =>
-	utilsNBalToTtl(utilsNBalToBzz(bzz, depth), lastPrice);
+	utilsNBalToTtl(utilsBzzToNBal(bzz, depth), lastPrice);
 
-const utilsNBalToTtl = (balance: bigint, lastPrice: bigint): bigint =>
-	(balance * SECONDS_PER_BLOCK) / lastPrice;
+const utilsNBalToTtl = (nBal: bigint, lastPrice: bigint): bigint => {
+	if (lastPrice == 0n) return 0n;
 
-const utilsTtlToBalance = (ttl: bigint, lastPrice: bigint): bigint =>
+	return (nBal * SECONDS_PER_BLOCK) / lastPrice;
+};
+
+const utilsTtlToNBal = (ttl: bigint, lastPrice: bigint): bigint =>
 	(ttl * lastPrice) / SECONDS_PER_BLOCK;
 
-export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToBalance, utilsNBalToBzz, utilsBzzToNBal };
+export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal };
