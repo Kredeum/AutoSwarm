@@ -74,13 +74,13 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
         // Generate nonce for batch
         bytes32 nonce = keccak256(abi.encode("Batch of year", year));
 
+        // Set batch ID
+        batch[year].batchId = batchId = keccak256(abi.encode(address(this), nonce));
+
         // Approve BZZ token for PostageStamp contract
         IERC20(bzzToken).approve(address(postageStamp), INITIAL_TTL << INITIAL_DEPTH);
         // Create batch using PostageStamp contract
         postageStamp.createBatch(address(this), INITIAL_TTL, INITIAL_DEPTH, BUCKET_DEPTH, nonce, false);
-
-        // Generate batch ID
-        batch[year].batchId = batchId = keccak256(abi.encode(address(this), nonce));
 
         // Emit BuyBatch event
         emit BuyBatch(batchId, year, INITIAL_DEPTH, INITIAL_TTL);
