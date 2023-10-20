@@ -2,17 +2,15 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	import { gnosis, localhost, sepolia, thunderTestnet } from 'viem/chains';
-	import { createPublicClient, http, type Address, type PublicClient } from 'viem';
-
-	import { anvil } from '$lib/ts/anvil';
 	import {
 		SECONDS_PER_BLOCK,
 		ONE_YEAR,
 		DEFAULT_PRICE,
 		ONE_MONTH,
 		ONE_DAY,
-		SEPOLIA_RPC
+		SEPOLIA_RPC,
+		AUTOSWARM_UNIT_PRICE,
+		AUTOSWARM_PERIOD
 	} from '$lib/ts/constants';
 	import {
 		writeStampsBuy,
@@ -47,26 +45,24 @@
 		displayTtl,
 		displayTxt
 	} from '$lib/ts/display';
-	import { utilsNBalToTtl, utilsBzzToNBal } from '$lib/ts/utils.js';
-	import { stampBzzToNBal, stampBzzToTtl } from '$lib/ts/stamp.js';
+	import { stampBzzToTtl } from '$lib/ts/stamp.js';
+	import type { ChainInJson } from '$lib/ts/types.js';
+	import { anvil } from '$lib/ts/anvil.js';
+	import type { Address, PublicClient } from 'viem';
 
 	export let data;
 
-	$: json = data.json;
-	$: network = data.network || 'gnosis';
+	const { json, chain } = data;
 
 	let blockNumber: number = 0;
 	let blockTimestamp: number = 0;
-
-	type ChainInJson = typeof gnosis | typeof sepolia | typeof anvil | typeof localhost;
-	let chain: ChainInJson = gnosis;
 
 	let publicClient: PublicClient;
 
 	let autoSwarmAddress: Address | undefined;
 	let owner: Address | undefined;
 	let nftOwner: Address | undefined;
-	const nftSize = 1024n ** 2n;
+	const nftSize = 1024 ** 2;
 	let depth: number;
 	let unwatch: () => void;
 
@@ -98,7 +94,7 @@
 		reset();
 
 		const block = await readBlock(publicClient);
-		blockTimestamp = Number(block.timestamp);
+		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
 		tokenId = await readLastTokenId(publicClient);
@@ -113,7 +109,7 @@
 
 		const lastPriceRead = await readLastPrice(publicClient);
 		if (lastPriceRead > 0) lastPrice = lastPriceRead;
-		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / SECONDS_PER_BLOCK;
+		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 
 		tbaDeployed = await readIsContract(publicClient, autoSwarmAddress as Address);
 		console.log('refreshDisplay ~ tbaDeployed:', tbaDeployed);
@@ -129,43 +125,21 @@
 		writeStampsTopUp(
 			chain,
 			publicClient,
-			(BigInt(months * ONE_DAY) * lastPrice) / SECONDS_PER_BLOCK
+			(BigInt(months * ONE_DAY) * lastPrice) / BigInt(SECONDS_PER_BLOCK)
 		).then(refreshDisplay);
-
-	const initChain = async (nw: string): Promise<void> => {
-		console.info('initChain <-', nw);
-
-		let transport = http();
-		if (nw == 'sepolia') {
-			chain = sepolia;
-			transport = http(SEPOLIA_RPC);
-		} else if (nw == 'localhost') {
-			chain = localhost;
-		} else if (nw == 'anvil') {
-			chain = anvil;
-		} else {
-			chain = gnosis;
-		}
-		publicClient = createPublicClient({ chain, transport });
-
-		await refreshDisplay();
-
-		console.info('initChain ->', chain);
-	};
 
 	const onChainChanged = (chainId: string): void => {
 		let next = 'gnosis';
 		if (chainId == '11155111') next = 'sepolia';
 		else if (chainId == '31337') next = 'anvil';
-		else if (chainId == '1337') next = 'localhost';
 
-		goto(next).then(() => initChain(next));
+		goto(next);
 	};
 
 	onMount(async () => {
 		console.info('onMount');
 
-		await initChain(network);
+		await readInit(chain);
 	});
 </script>
 
@@ -174,8 +148,7 @@
 		{chain.name} network (chainId #{chain.id})
 		<span>{displayDate(blockTimestamp)} | block #{blockNumber}</span>
 	</p>
-	<p>Last Price (1 Plur = 1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
-
+	<p>AutoSwarm Price<span>{displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</span></p>
 	<p>
 		<button><a href="/">back</a></button> &nbsp;
 		<button on:click={refreshDisplay}>refresh</button> &nbsp;
@@ -191,7 +164,7 @@
 			>{displaySize(nftSize)} |
 			{@html displayExplorerLink(chain)} /
 			{@html displayExplorerLink(chain, json.NFTCollection)} /
-			{@html displayNftLink(chain, json.NFTCollection, Number(tokenId))}
+			{@html displayNftLink(chain, json.NFTCollection, tokenId)}
 		</span>
 	</p>
 	<p>
@@ -221,7 +194,8 @@
 		Expiration Date
 		<span
 			>{displayDate(
-				blockTimestamp + Number(stampBzzToTtl(bzzNftBalance || 0n, nftSize, lastPrice))
+				BigInt(blockTimestamp) +
+					((bzzNftBalance || 0n) * BigInt(AUTOSWARM_PERIOD)) / BigInt(AUTOSWARM_UNIT_PRICE)
 			)}</span
 		>
 	</p>
@@ -236,6 +210,7 @@
 		>
 	</p>
 	<hr />
+	<p>LastPrice (1 Plur = 1e-16 Bzz) <span>{lastPrice} Plur/block</span></p>
 
 	<p>
 		Batch <span

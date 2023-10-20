@@ -18,10 +18,10 @@ const utilsBzzToTtl = (bzz: bigint, lastPrice: bigint, depth: number): bigint =>
 const utilsNBalToTtl = (nBal: bigint, lastPrice: bigint): bigint => {
 	if (lastPrice == 0n) return 0n;
 
-	return (nBal * SECONDS_PER_BLOCK) / lastPrice;
+	return (nBal * BigInt(SECONDS_PER_BLOCK)) / lastPrice;
 };
 
-const utilsTtlToNBal = (ttl: bigint, lastPrice: bigint): bigint =>
-	(ttl * lastPrice) / SECONDS_PER_BLOCK;
+const utilsTtlToNBal = (ttl: number, lastPrice: bigint): bigint =>
+	(BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
 
 export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal };

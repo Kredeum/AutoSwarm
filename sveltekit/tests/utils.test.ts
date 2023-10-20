@@ -11,7 +11,7 @@ import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants';
 
 test('BUCKET_DEPTH and BUCKET_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);
-	expect(BUCKET_SIZE).toBe(4_096n);
+	expect(BUCKET_SIZE).toBe(4_096);
 });
 
 test('pow pow', () => {
@@ -52,5 +52,5 @@ test('utilsNBalToTtl should convert balance to TTL', () => {
 });
 
 test('utilsTtlToNBal should convert TTL to balance', () => {
-	expect(utilsTtlToNBal(200n, 10n)).toBe(400n);
+	expect(utilsTtlToNBal(200, 10n)).toBe(400n);
 });

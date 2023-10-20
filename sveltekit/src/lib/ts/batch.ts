@@ -10,7 +10,7 @@ const batchBzzToNBal = (bzz: bigint, depth: number): bigint => {
 const batchSizeBatch = (depth: number | undefined): bigint => {
 	if (depth === undefined) return 0n;
 
-	return 2n ** BigInt(depth) * BUCKET_SIZE;
+	return 2n ** BigInt(depth) * BigInt(BUCKET_SIZE);
 };
 
 const batchSizeBucket = (): bigint => batchSizeBatch(BUCKET_DEPTH);

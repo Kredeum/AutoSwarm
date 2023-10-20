@@ -1,4 +1,12 @@
-import type { Address, Block, Hex, PublicClient } from 'viem';
+import {
+	http,
+	type Chain,
+	type Address,
+	type Block,
+	type Hex,
+	type PublicClient,
+	createPublicClient
+} from 'viem';
 import {
 	bzzTokenAbi,
 	postageStampAbi,
@@ -7,39 +15,59 @@ import {
 	erc721Abi
 } from './abis';
 import { getJson } from '$lib/ts/get';
-import { SALT, SWARM_GATEWAY, type NftMetadata } from '$lib/ts/constants';
+import { SALT, SWARM_GATEWAY, type NftMetadata, SEPOLIA_RPC } from '$lib/ts/constants';
 import type { ChainIdInJson } from '$lib/ts/get';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const readBlock = async (publicClient: PublicClient, blockNumber?: bigint): Promise<Block> => {
-	let param = {};
-	if (blockNumber) param = { blockNumber };
+// publicClients Map
+const _publicClients: Map<number, PublicClient> = new Map();
+
+const readPublicClient = async (chain: Chain): Promise<PublicClient> => {
+	const publicClient = _publicClients.get(chain.id);
+	if (publicClient) return publicClient;
+
+	console.info('readPublicClient', chain.id);
+	const transport = chain.id == 11155111 ? http(SEPOLIA_RPC) : http();
+
+	return createPublicClient({ chain, transport });
+};
+
+const readBlock = async (chain: Chain, blockNumber?: bigint): Promise<Block> => {
+	const publicClient = await readPublicClient(chain);
+
+	const param = blockNumber ? { blockNumber } : {};
 
 	return await publicClient.getBlock(param);
 };
 
-const readIsContract = async (publicClient: PublicClient, address: Address): Promise<boolean> => {
+const readIsContract = async (chain: Chain, address: Address): Promise<boolean> => {
 	if (address == '0x0') return false;
+	const publicClient = await readPublicClient(chain);
 
 	const bytecode = await publicClient.getBytecode({ address });
 
 	return Number(bytecode?.length || 0n) > 0;
 };
 
-const readChainId = async (publicClient: PublicClient) => {
+const readChainId = async (chain: Chain) => {
+	const publicClient = await readPublicClient(chain);
+
 	return await publicClient.getChainId();
 };
 
-const readJson = async (publicClient: PublicClient) => {
-	const chainId: ChainIdInJson = await readChainId(publicClient);
+const readJson = async (chain: Chain) => {
+	const chainId: ChainIdInJson = await readChainId(chain);
+
 	return getJson(chainId);
 };
 
-const readLastPrice = async (publicClient: PublicClient): Promise<bigint> => {
-	const json = await readJson(publicClient);
+const readLastPrice = async (chain: Chain): Promise<bigint> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
 
 	return await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -48,10 +76,11 @@ const readLastPrice = async (publicClient: PublicClient): Promise<bigint> => {
 	});
 };
 
-const readBzzBalance = async (publicClient: PublicClient, address: Address): Promise<bigint> => {
+const readBzzBalance = async (chain: Chain, address: Address): Promise<bigint> => {
 	if (address == '0x0') return 0n;
+	const publicClient = await readPublicClient(chain);
 
-	const json = await readJson(publicClient);
+	const json = await readJson(chain);
 
 	return await publicClient.readContract({
 		address: json.BzzToken as Address,
@@ -61,9 +90,11 @@ const readBzzBalance = async (publicClient: PublicClient, address: Address): Pro
 	});
 };
 
-const readNftOwner = async (publicClient: PublicClient): Promise<Address> => {
-	const json = await readJson(publicClient);
-	const tokenId = await readLastTokenId(publicClient);
+const readNftOwner = async (chain: Chain): Promise<Address> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	const tokenId = await readLastTokenId(chain);
 
 	return await publicClient.readContract({
 		address: json.NFTCollection as Address,
@@ -73,9 +104,11 @@ const readNftOwner = async (publicClient: PublicClient): Promise<Address> => {
 	});
 };
 
-const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata> => {
-	const json = await readJson(publicClient);
-	const tokenId = await readLastTokenId(publicClient);
+const readNftMetadata = async (chain: Chain): Promise<NftMetadata> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	const tokenId = await readLastTokenId(chain);
 
 	const tokenURI = await publicClient.readContract({
 		address: json.NFTCollection as Address,
@@ -96,10 +129,12 @@ const readNftMetadata = async (publicClient: PublicClient): Promise<NftMetadata>
 	};
 };
 
-const readAccount = async (publicClient: PublicClient): Promise<Address> => {
-	const chainId = await readChainId(publicClient);
-	const json = await readJson(publicClient);
-	const tokenId = await readLastTokenId(publicClient);
+const readAccount = async (chain: Chain): Promise<Address> => {
+	const publicClient = await readPublicClient(chain);
+
+	const chainId = await readChainId(chain);
+	const json = await readJson(chain);
+	const tokenId = await readLastTokenId(chain);
 
 	const args: [`0x${string}`, bigint, `0x${string}`, bigint, bigint] = [
 		json.AutoSwarmAccount as Address,
@@ -117,10 +152,11 @@ const readAccount = async (publicClient: PublicClient): Promise<Address> => {
 	});
 };
 
-const readBatchLegacy = async (publicClient: PublicClient): Promise<[Address, number, bigint]> => {
-	const json = await readJson(publicClient);
-	if (!('batchId' in json))
-		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+const readBatchLegacy = async (chain: Chain): Promise<[Address, number, bigint]> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const [owner, depth, , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -132,10 +168,11 @@ const readBatchLegacy = async (publicClient: PublicClient): Promise<[Address, nu
 	return [owner, depth, rBal];
 };
 
-const readBatchNew = async (publicClient: PublicClient): Promise<[Address, number, bigint]> => {
-	const json = await readJson(publicClient);
-	if (!('batchId' in json))
-		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+const readBatchNew = async (chain: Chain): Promise<[Address, number, bigint]> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const [owner, depth, , , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -147,10 +184,11 @@ const readBatchNew = async (publicClient: PublicClient): Promise<[Address, numbe
 	return [owner, depth, rBal];
 };
 
-const readLastTokenId = async (publicClient: PublicClient): Promise<bigint> => {
-	const json = await readJson(publicClient);
-	if (!('batchId' in json))
-		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+const readLastTokenId = async (chain: Chain): Promise<bigint> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const data = await publicClient.readContract({
 		address: json.NFTCollection as Address,
@@ -161,10 +199,11 @@ const readLastTokenId = async (publicClient: PublicClient): Promise<bigint> => {
 	return data;
 };
 
-const readRemainingBalance = async (publicClient: PublicClient): Promise<bigint> => {
-	const json = await readJson(publicClient);
-	if (!('batchId' in json))
-		throw Error(`No batchId in json ${String(await readChainId(publicClient))})`);
+const readRemainingBalance = async (chain: Chain): Promise<bigint> => {
+	const publicClient = await readPublicClient(chain);
+
+	const json = await readJson(chain);
+	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const data = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -177,6 +216,7 @@ const readRemainingBalance = async (publicClient: PublicClient): Promise<bigint>
 };
 
 export {
+	readPublicClient,
 	readJson,
 	readChainId,
 	readAccount,

@@ -3,7 +3,6 @@ import {
 	createWalletClient,
 	type Address,
 	type Chain,
-	type PublicClient,
 	type WalletClient,
 	custom,
 	BaseError,
@@ -11,12 +10,29 @@ import {
 	encodeFunctionData
 } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
-import { readJson, readChainId, readIsContract, readAccount, readLastTokenId } from '$lib/ts/read';
+import {
+	readJson,
+	readChainId,
+	readIsContract,
+	readAccount,
+	readLastTokenId,
+	readPublicClient
+} from '$lib/ts/read';
 import { SALT } from './constants';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+const _writeWalletAddress = async (walletClient: WalletClient): Promise<Address> => {
+	return (await walletClient.getAddresses())[0];
+};
+
+const writeWalletAddress = async (chain: Chain): Promise<Address> => {
+	const walletClient = await writeWalletClient(chain);
+
+	return await _writeWalletAddress(walletClient);
+};
 
 const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
 	if (!window?.ethereum) {
@@ -29,27 +45,24 @@ const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
 		chain,
 		transport: custom(window.ethereum!)
 	});
-	if ((await walletClient.getChainId()) !== chain.id) {
+	if (chain.id > 0 && (await walletClient.getChainId()) !== chain.id) {
 		await walletClient.switchChain({ id: chain.id });
 	}
 
 	return walletClient;
 };
 
-const writeWalletAddress = async (walletClient: WalletClient): Promise<Address> => {
-	return (await walletClient.requestAddresses())[0];
-};
+const writeCreateAccount = async (chain: Chain): Promise<Address> => {
+	const autoSwarmAddress = await readAccount(chain);
+	if (await readIsContract(chain, autoSwarmAddress)) return autoSwarmAddress;
 
-const writeCreateAccount = async (chain: Chain, publicClient: PublicClient): Promise<Address> => {
-	const autoSwarmAddress = await readAccount(publicClient);
-	if (await readIsContract(publicClient, autoSwarmAddress)) return autoSwarmAddress;
+	const chainId = await readChainId(chain);
+	const json = await readJson(chain);
+	const tokenId = await readLastTokenId(chain);
 
-	const chainId = await readChainId(publicClient);
-	const json = await readJson(publicClient);
-	const tokenId = await readLastTokenId(publicClient);
-
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
+	const walletAddress = await _writeWalletAddress(walletClient);
 
 	try {
 		const data = encodeFunctionData({
@@ -84,15 +97,17 @@ const writeCreateAccount = async (chain: Chain, publicClient: PublicClient): Pro
 		}
 	}
 
-	if (!(await readIsContract(publicClient, autoSwarmAddress))) throw Error('Create failed');
+	if (!(await readIsContract(chain, autoSwarmAddress))) throw Error('Create failed');
 
 	return autoSwarmAddress;
 };
 
-const writeApproveBzz = async (chain: Chain, publicClient: PublicClient, bzzAmount: bigint) => {
-	const json = await readJson(publicClient);
+const writeApproveBzz = async (chain: Chain, bzzAmount: bigint) => {
+	const json = await readJson(chain);
+
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
+	const walletAddress = await _writeWalletAddress(walletClient);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

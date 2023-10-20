@@ -18,15 +18,15 @@ import { batchSizeBatch } from './batch';
 // DISPLAY : offline functions returns [html] string to display
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const displayDate = (timestamp: number): string => {
+const displayDate = (timestamp: bigint | number | undefined): string => {
 	let date = new Date();
 	if (timestamp !== undefined) date = new Date(Number(timestamp) * 1000);
 
 	return date.toLocaleString();
 };
 
-const displayAddress = (addr: string): string => {
-	if (!isAddress(addr)) return UNDEFINED_ADDRESS;
+const displayAddress = (addr: Address | undefined): string => {
+	if (addr === undefined) return UNDEFINED_ADDRESS;
 
 	return addr;
 };
@@ -57,39 +57,40 @@ const displayBatchDepthWithSize = (depth: number | undefined): string => {
 	return `depth ${depth} (${displayBatchSize(depth)})`;
 };
 
-const displayBatchSize = (depth: number): string => displaySize(batchSizeBatch(depth));
+const displayBatchSize = (depth: number | undefined): string => displaySize(batchSizeBatch(depth));
 
-const displaySize = (size: bigint | undefined): string => {
-	const nsize = Number(size);
-	if (nsize < 1024) return `${nsize} B`;
+const displaySize = (size: bigint | number | undefined): string => {
+	if (size === undefined) return UNDEFINED_DATA;
 
-	const kbytes = nsize / 1024;
-	if (kbytes < 1024) return `${nsize} KB`;
+	if (size < 1024) return `${size} B`;
 
-	const mbytes = nsize / 1024 ** 2;
+	const kbytes = Number(size) / 1024;
+	if (kbytes < 1024) return `${size} KB`;
+
+	const mbytes = Number(size) / 1024 ** 2;
 	if (mbytes < 1024) return `${mbytes} MB`;
 
-	const gbytes = nsize / 1024 ** 3;
+	const gbytes = Number(size) / 1024 ** 3;
 	return `${gbytes} GB`;
 };
 
-const displayDuration = (seconds: bigint | undefined): string => {
+const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} weeks`;
 
 	const hours = Number(seconds) / ONE_HOUR;
-	if (hours < 24) return `${hours.toFixed(2)} hour${hours > 1 ? 's' : ''}`;
+	if (hours < 24) return `${Number(hours)}.toFixed(2)} hour${hours > 1 ? 's' : ''}`;
 
 	const days = Number(seconds) / ONE_DAY;
-	if (days < 7) return `${days.toFixed(2)} day${days > 1 ? 's' : ''}`;
+	if (days < 7) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;
 
 	const weeks = Number(seconds) / ONE_WEEK;
-	if (weeks < 5) return `${weeks.toFixed(2)} week${weeks > 1 ? 's' : ''}`;
+	if (weeks < 5) return `${Number(weeks).toFixed(2)} week${weeks > 1 ? 's' : ''}`;
 
 	const months = Number(seconds) / ONE_MONTH;
-	if (days < 365) return `${months.toFixed(2)} month${months > 1 ? 's' : ''}`;
+	if (days < 365) return `${Number(months).toFixed(2)} month${months > 1 ? 's' : ''}`;
 
 	const years = Number(seconds) / ONE_YEAR;
-	return `${years.toFixed(2)} year${years > 1 ? 's' : ''}`;
+	return `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
 };
 
 const displayExplorerLink = (chain: Chain, addr?: string): string => {
@@ -114,12 +115,12 @@ const displayBalance = (
 ): string => {
 	if (balance === undefined) return UNDEFINED_DATA;
 
-	const str = formatUnits(balance, decimals);
+	const str = Number(formatUnits(balance, Number(decimals)));
 
-	return Number(str).toFixed(toFixed);
+	return str.toFixed(Number(toFixed));
 };
 
-const displayNftLink = (chain: Chain, collection: string, tokenId: number): string => {
+const displayNftLink = (chain: Chain, collection: string, tokenId: bigint): string => {
 	if (!isAddress(collection)) return UNDEFINED_DATA;
 
 	const url = `https://app.kredeum.com/#/${chain.id}/${collection}/${tokenId}`;

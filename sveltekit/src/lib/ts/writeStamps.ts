@@ -1,7 +1,7 @@
 import 'viem/window';
-import type { Address, Chain, Hex, PublicClient } from 'viem';
+import type { Address, Chain, Hex } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/abis';
-import { readJson, readAccount, readLastPrice } from '$lib/ts/read';
+import { readJson, readAccount, readLastPrice, readPublicClient } from '$lib/ts/read';
 import { DEFAULT_PRICE, ONE_MONTH } from './constants';
 import { writeCreateAccount, writeWalletAddress, writeWalletClient } from './write';
 import { utilsTtlToNBal } from './utils';
@@ -10,13 +10,15 @@ import { utilsTtlToNBal } from './utils';
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const writeStampsTopUp = async (chain: Chain, publicClient: PublicClient, topUpAmount: bigint) => {
-	await writeCreateAccount(chain, publicClient);
+const writeStampsTopUp = async (chain: Chain, topUpAmount: bigint) => {
+	await writeCreateAccount(chain);
 
-	const json = await readJson(publicClient);
+	const json = await readJson(chain);
+
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
+	const walletAddress = await writeWalletAddress(chain);
+	const autoSwarmAddress = await readAccount(chain);
 	if (!('batchId' in json)) throw Error('No batchId in json');
 
 	const { request } = await publicClient.simulateContract({
@@ -30,17 +32,15 @@ const writeStampsTopUp = async (chain: Chain, publicClient: PublicClient, topUpA
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeStampsIncreaseDepth = async (
-	chain: Chain,
-	publicClient: PublicClient,
-	newDepth = 23
-) => {
-	await writeCreateAccount(chain, publicClient);
+const writeStampsIncreaseDepth = async (chain: Chain, newDepth = 23) => {
+	await writeCreateAccount(chain);
 
-	const json = await readJson(publicClient);
+	const json = await readJson(chain);
+
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
+	const walletAddress = await writeWalletAddress(chain);
+	const autoSwarmAddress = await readAccount(chain);
 	if (!('batchId' in json)) throw Error('No batchId in json');
 
 	const { request } = await publicClient.simulateContract({
@@ -54,14 +54,16 @@ const writeStampsIncreaseDepth = async (
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeStampsBuy = async (chain: Chain, publicClient: PublicClient) => {
-	await writeCreateAccount(chain, publicClient);
+const writeStampsBuy = async (chain: Chain) => {
+	await writeCreateAccount(chain);
 
-	const autoSwarmAddress = await readAccount(publicClient);
+	const autoSwarmAddress = await readAccount(chain);
+
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const lastPrice = (await readLastPrice(publicClient)) || DEFAULT_PRICE;
-	const buyTtl = utilsTtlToNBal(BigInt(ONE_MONTH), lastPrice);
+	const walletAddress = await writeWalletAddress(chain);
+	const lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
+	const buyTtl = utilsTtlToNBal(ONE_MONTH, lastPrice);
 	const depth = 17;
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -74,11 +76,13 @@ const writeStampsBuy = async (chain: Chain, publicClient: PublicClient) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeStampsDeposit = async (chain: Chain, publicClient: PublicClient) => {
-	const json = await readJson(publicClient);
+const writeStampsDeposit = async (chain: Chain) => {
+	const json = await readJson(chain);
+
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
+	const walletAddress = await writeWalletAddress(chain);
+	const autoSwarmAddress = await readAccount(chain);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -91,12 +95,13 @@ const writeStampsDeposit = async (chain: Chain, publicClient: PublicClient) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const writeStampsWithdraw = async (chain: Chain, publicClient: PublicClient) => {
-	await writeCreateAccount(chain, publicClient);
+const writeStampsWithdraw = async (chain: Chain) => {
+	await writeCreateAccount(chain);
 
+	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient);
-	const autoSwarmAddress = await readAccount(publicClient);
+	const walletAddress = await writeWalletAddress(chain);
+	const autoSwarmAddress = await readAccount(chain);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

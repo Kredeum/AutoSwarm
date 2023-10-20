@@ -58,8 +58,16 @@
     {
       "filePath": "contracts/foundry.toml",
       "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/ts",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/routes/+page.svelte",
+      "group": "Default"
     }
   ],
   "favorites.sortOrder": "ASC",
-  "workbench.colorTheme": "Default Light+"
+  "workbench.colorTheme": "One Dark Pro Flat"
 }
