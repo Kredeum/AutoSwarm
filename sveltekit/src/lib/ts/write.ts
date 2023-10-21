@@ -4,6 +4,7 @@ import {
 	type Address,
 	type Chain,
 	type WalletClient,
+	type EIP1193Provider,
 	custom,
 	BaseError,
 	ContractFunctionRevertedError,
@@ -19,33 +20,49 @@ import {
 	readPublicClient
 } from '$lib/ts/read';
 import { SALT } from './constants';
+import { gnosis } from 'viem/chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const _writeWalletAddress = async (walletClient: WalletClient): Promise<Address> => {
-	return (await walletClient.getAddresses())[0];
-};
-
-const writeWalletAddress = async (chain: Chain): Promise<Address> => {
-	const walletClient = await writeWalletClient(chain);
-
-	return await _writeWalletAddress(walletClient);
-};
-
-const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
+const _writeWindowEthereum = (): EIP1193Provider => {
 	if (!window?.ethereum) {
 		const message = 'Install Web3 extension like Rabby or Metamask';
 		alert(message);
 		throw new Error(message);
 	}
 
+	return window.ethereum;
+};
+
+const _writeWalletEthereum = (): WalletClient => {
+	return createWalletClient({
+		transport: custom(_writeWindowEthereum())
+	});
+};
+
+const writeWalletAddress = async (
+	walletClient = _writeWalletEthereum(),
+	force = false,
+	n = 0
+): Promise<Address> => {
+	return force
+		? (await walletClient.requestAddresses())[n]
+		: (await walletClient.getAddresses())[n];
+};
+
+const writeWalletClient = async (chain: Chain): Promise<WalletClient> => {
+	const ethereum = _writeWindowEthereum();
+
 	const walletClient = createWalletClient({
 		chain,
-		transport: custom(window.ethereum!)
+		transport: custom(ethereum)
 	});
-	if (chain.id > 0 && (await walletClient.getChainId()) !== chain.id) {
+
+	const chainId = await walletClient.getChainId();
+	if (chain.id > 0 && chainId !== chain.id) {
+		console.log('writeWalletClient switchChain', chainId, chain.id);
 		await walletClient.switchChain({ id: chain.id });
 	}
 
@@ -62,7 +79,7 @@ const writeCreateAccount = async (chain: Chain): Promise<Address> => {
 
 	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await _writeWalletAddress(walletClient);
+	const walletAddress = await writeWalletAddress(walletClient, true);
 
 	try {
 		const data = encodeFunctionData({
@@ -107,7 +124,7 @@ const writeApproveBzz = async (chain: Chain, bzzAmount: bigint) => {
 
 	const publicClient = await readPublicClient(chain);
 	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await _writeWalletAddress(walletClient);
+	const walletAddress = await writeWalletAddress(walletClient, true);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

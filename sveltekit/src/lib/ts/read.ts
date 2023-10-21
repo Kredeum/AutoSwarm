@@ -29,7 +29,6 @@ const readPublicClient = async (chain: Chain): Promise<PublicClient> => {
 	const publicClient = _publicClients.get(chain.id);
 	if (publicClient) return publicClient;
 
-	console.info('readPublicClient', chain.id);
 	const transport = chain.id == 11155111 ? http(SEPOLIA_RPC) : http();
 
 	return createPublicClient({ chain, transport });
@@ -77,7 +76,7 @@ const readLastPrice = async (chain: Chain): Promise<bigint> => {
 };
 
 const readBzzBalance = async (chain: Chain, address: Address): Promise<bigint> => {
-	if (address == '0x0') return 0n;
+	if (address === undefined) return 0n;
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);

@@ -16,10 +16,12 @@ const writeStampsTopUp = async (chain: Chain, topUpAmount: bigint) => {
 	const json = await readJson(chain);
 
 	const publicClient = await readPublicClient(chain);
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(chain);
-	const autoSwarmAddress = await readAccount(chain);
-	if (!('batchId' in json)) throw Error('No batchId in json');
+  const walletClient = await writeWalletClient(chain);
+  const walletAddress = await writeWalletAddress(walletClient, true);
+  const autoSwarmAddress = await readAccount(chain);
+
+
+  if (!('batchId' in json)) throw Error('No batchId in json');
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
