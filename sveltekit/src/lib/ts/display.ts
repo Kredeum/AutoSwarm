@@ -19,10 +19,9 @@ import { batchSizeBatch } from './batch';
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const displayDate = (timestamp: bigint | number | undefined): string => {
-	let date = new Date();
-	if (timestamp !== undefined) date = new Date(Number(timestamp) * 1000);
+	if (timestamp === undefined) return UNDEFINED_DATA;
 
-	return date.toLocaleString();
+	return new Date(Number(timestamp) * 1000).toLocaleDateString();
 };
 
 const displayAddress = (addr: Address | undefined): string => {
@@ -90,7 +89,10 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (days < 365) return `${Number(months).toFixed(2)} month${months > 1 ? 's' : ''}`;
 
 	const years = Number(seconds) / ONE_YEAR;
-	return `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
+
+	const ret = `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
+	console.log('ret:', ret);
+	return ret;
 };
 
 const displayExplorerLink = (chain: Chain, addr?: string): string => {

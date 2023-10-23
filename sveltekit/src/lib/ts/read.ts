@@ -17,6 +17,7 @@ import {
 import { getJson } from '$lib/ts/get';
 import { SALT, SWARM_GATEWAY, type NftMetadata, SEPOLIA_RPC } from '$lib/ts/constants';
 import type { ChainIdInJson } from '$lib/ts/get';
+import { utilsError } from './utils';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -75,8 +76,8 @@ const readLastPrice = async (chain: Chain): Promise<bigint> => {
 	});
 };
 
-const readBzzBalance = async (chain: Chain, address: Address): Promise<bigint> => {
-	if (address === undefined) return 0n;
+const readBzzBalance = async (chain: Chain, address: Address): Promise<bigint | undefined> => {
+	if (address === undefined) return;
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
@@ -155,7 +156,7 @@ const readBatchLegacy = async (chain: Chain): Promise<[Address, number, bigint]>
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
-	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
+	if (!('batchId' in json)) utilsError(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const [owner, depth, , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -171,7 +172,7 @@ const readBatchNew = async (chain: Chain): Promise<[Address, number, bigint]> =>
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
-	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
+	if (!('batchId' in json)) utilsError(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const [owner, depth, , , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -187,7 +188,7 @@ const readLastTokenId = async (chain: Chain): Promise<bigint> => {
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
-	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
+	if (!('batchId' in json))  utilsError(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const data = await publicClient.readContract({
 		address: json.NFTCollection as Address,
@@ -202,7 +203,7 @@ const readRemainingBalance = async (chain: Chain): Promise<bigint> => {
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
-	if (!('batchId' in json)) throw Error(`No batchId in json ${String(await readChainId(chain))})`);
+	if (!('batchId' in json)) utilsError(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const data = await publicClient.readContract({
 		address: json.PostageStamp as Address,

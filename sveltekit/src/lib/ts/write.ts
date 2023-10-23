@@ -21,19 +21,16 @@ import {
 } from '$lib/ts/read';
 import { SALT } from './constants';
 import { gnosis } from 'viem/chains';
+import { utilsError } from './utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const _writeWindowEthereum = (): EIP1193Provider => {
-	if (!window?.ethereum) {
-		const message = 'Install Web3 extension like Rabby or Metamask';
-		alert(message);
-		throw new Error(message);
-	}
+	if (!window?.ethereum) utilsError('Install Web3 extension like Rabby or Metamask');
 
-	return window.ethereum;
+	return window.ethereum!;
 };
 
 const _writeWalletEthereum = (): WalletClient => {
@@ -114,7 +111,7 @@ const writeCreateAccount = async (chain: Chain): Promise<Address> => {
 		}
 	}
 
-	if (!(await readIsContract(chain, autoSwarmAddress))) throw Error('Create failed');
+	if (!(await readIsContract(chain, autoSwarmAddress))) utilsError('Create failed');
 
 	return autoSwarmAddress;
 };

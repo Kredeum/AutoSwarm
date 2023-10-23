@@ -1,18 +1,24 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+	branch = v1
 [submodule "contracts/lib/openzeppelin-contracts"]
 	path = contracts/lib/openzeppelin-contracts
 	url = https://github.com/openzeppelin/openzeppelin-contracts
+	branch = release-v4.8
 [submodule "contracts/lib/forge-deploy-lite"]
 	path = contracts/lib/forge-deploy-lite
 	url = https://github.com/zapaz/forge-deploy-lite
+	branch = dev
 [submodule "contracts/lib/storage-incentives"]
 	path = contracts/lib/storage-incentives
 	url = https://github.com/ethersphere/storage-incentives
+	branch = master
 [submodule "contracts/lib/tokenbound"]
 	path = contracts/lib/tokenbound
 	url = https://github.com/tokenbound/contracts
+	branch = main
 [submodule "contracts/lib/erc6551"]
 	path = contracts/lib/erc6551
-	url = https://github.com/erc6551/reference
+	url = https://github.com/zapaz/erc6551-reference
+	branch = fixSubmoduleBranch

@@ -4,7 +4,7 @@ import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/abis';
 import { readJson, readAccount, readLastPrice, readPublicClient } from '$lib/ts/read';
 import { DEFAULT_PRICE, ONE_MONTH } from './constants';
 import { writeCreateAccount, writeWalletAddress, writeWalletClient } from './write';
-import { utilsTtlToNBal } from './utils';
+import { utilsError, utilsTtlToNBal } from './utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
@@ -16,12 +16,11 @@ const writeStampsTopUp = async (chain: Chain, topUpAmount: bigint) => {
 	const json = await readJson(chain);
 
 	const publicClient = await readPublicClient(chain);
-  const walletClient = await writeWalletClient(chain);
-  const walletAddress = await writeWalletAddress(walletClient, true);
-  const autoSwarmAddress = await readAccount(chain);
+	const walletClient = await writeWalletClient(chain);
+	const walletAddress = await writeWalletAddress(walletClient, true);
+	const autoSwarmAddress = await readAccount(chain);
 
-
-  if (!('batchId' in json)) throw Error('No batchId in json');
+	if (!('batchId' in json)) utilsError('No batchId in json');
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -30,8 +29,8 @@ const writeStampsTopUp = async (chain: Chain, topUpAmount: bigint) => {
 		functionName: 'stampsTopUp',
 		args: [json.batchId as Hex, topUpAmount]
 	});
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash });
+	// const hash = await walletClient.writeContract(request);
+	// await publicClient.waitForTransactionReceipt({ hash });
 };
 
 const writeStampsIncreaseDepth = async (chain: Chain, newDepth = 23) => {
@@ -43,7 +42,7 @@ const writeStampsIncreaseDepth = async (chain: Chain, newDepth = 23) => {
 	const walletClient = await writeWalletClient(chain);
 	const walletAddress = await writeWalletAddress(chain);
 	const autoSwarmAddress = await readAccount(chain);
-	if (!('batchId' in json)) throw Error('No batchId in json');
+	if (!('batchId' in json)) utilsError('No batchId in json');
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

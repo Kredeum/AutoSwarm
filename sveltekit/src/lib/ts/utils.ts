@@ -24,4 +24,9 @@ const utilsNBalToTtl = (nBal: bigint, lastPrice: bigint): bigint => {
 const utilsTtlToNBal = (ttl: number, lastPrice: bigint): bigint =>
 	(BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
 
-export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal };
+const utilsError = (message: string) => {
+	console.error(message);
+	alert(message);
+};
+
+export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal, utilsError };

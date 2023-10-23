@@ -6,20 +6,24 @@
 		type NftMetadata,
 		ONE_YEAR,
 		SECONDS_PER_BLOCK,
-		AUTOSWARM_UNIT_PRICE
+		AUTOSWARM_UNIT_PRICE,
+		DEFAULT_PRICE
 	} from '$lib/ts/constants.js';
 	import { writeWalletAddress } from '$lib/ts/write';
 	import { writeStampsTopUp } from '$lib/ts/writeStamps.js';
 	import {
 		readAccount,
 		readBatchLegacy,
+		readBatchNew,
+		readBlock,
 		readBzzBalance,
 		readLastPrice,
 		readNftMetadata,
 		readRemainingBalance
 	} from '$lib/ts/read.js';
 	import { getBatchId } from '$lib/ts/get';
-	import { displayBalance, displayDuration, displayTxt } from '$lib/ts/display';
+	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display';
+	import { utilsError } from '$lib/ts/utils.js';
 
 	export let data;
 	const { chain } = data;
@@ -27,33 +31,52 @@
 	let nftMetadataJson: NftMetadata;
 
 	let batchId = getBatchId(100);
-	let autoSwarmAddress: Address;
-	let autoSwarmBalance: bigint;
-	let remainingBalance: bigint;
-	let lastPrice = 0n;
-	let duration: bigint;
 	let topping = false;
-	let walletAddress: Address;
-	let walletBalance: bigint;
+
+	let walletAddress: Address | undefined;
+	let autoSwarmAddress: Address | undefined;
+	let walletBalance: bigint | undefined;
+	let autoSwarmBalance: bigint | undefined;
+	let remainingBalance: bigint | undefined;
+	let lastPrice: bigint | undefined;
+	let duration: number | undefined;
+	let until: number | undefined;
+	let blockTimestamp: number | undefined;
 
 	const refreshDisplay = async () => {
-    console.log("refreshDisplay");
-    
+		console.log('refreshDisplay');
+
+		// const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const timeZone = Intl.DateTimeFormat().resolvedOptions();
+		console.log(timeZone); // output: "America/New_York"
+
+		const block = await readBlock(chain);
+		blockTimestamp = Number(block.timestamp) || 0;
+		console.log('refreshDisplay ~ blockTimestamp:', blockTimestamp);
+
 		walletAddress = await writeWalletAddress();
 		walletBalance = await readBzzBalance(chain, walletAddress);
-
 		autoSwarmAddress = await readAccount(chain);
 		autoSwarmBalance = await readBzzBalance(chain, autoSwarmAddress);
-
 		remainingBalance = await readRemainingBalance(chain);
-		lastPrice = await readLastPrice(chain);
-		await readBatchLegacy(chain);
+		lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
 
-		if (lastPrice > 0) duration = (remainingBalance * BigInt(SECONDS_PER_BLOCK)) / lastPrice;
+		if (lastPrice > 0n) {
+			duration = Number((remainingBalance * BigInt(SECONDS_PER_BLOCK)) / lastPrice);
+			until = blockTimestamp + duration;
+			console.log('refreshDisplay ~ duration:', duration);
+			console.log('refreshDisplay ~ until:', until);
+		}
+
+		chain.id == 100 ? await readBatchLegacy(chain) : await readBatchNew(chain);
 	};
 
 	const topUp = async () => {
 		if (topping) return;
+		if (lastPrice === undefined) {
+			utilsError('No price found');
+			return;
+		}
 		console.info('topUp');
 
 		await writeStampsTopUp(chain, (BigInt(ONE_YEAR) * lastPrice) / BigInt(SECONDS_PER_BLOCK));
@@ -91,9 +114,14 @@
 		</p> -->
 		</section>
 		<div class="batch-topUp">
+			<p class="batch-topUp-title">Swarm Storage Guaranteed</p>
 			<div class="batch-topUp-infos">
-				<p title="batchId {batchId}">Swarm Storage ends in</p>
-				<p title="{displayTxt(remainingBalance)} seconds">{displayDuration(duration)}</p>
+				<p>for</p>
+				<p title="{displayTxt(remainingBalance)} seconds">
+					{displayDuration(duration)}
+				</p>
+				<p>until</p>
+				<p>{displayDate(until)}</p>
 			</div>
 			<button class="btn btn-topup" on:click={topUp}>
 				TopUp 1 Year
@@ -104,8 +132,7 @@
 			<div class="batch-topUp-below">
 				<p>Price: {displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</p>
 				<p>
-					{walletAddress}
-					<!-- {#if walletBalance}Your Balance: {displayBalance(walletBalance, 16)} Bzz{/if} -->
+					{#if walletBalance}Your Balance: {displayBalance(walletBalance, 16)} Bzz{/if}
 				</p>
 			</div>
 		</div>
