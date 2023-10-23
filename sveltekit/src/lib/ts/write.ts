@@ -8,7 +8,8 @@ import {
 	custom,
 	BaseError,
 	ContractFunctionRevertedError,
-	encodeFunctionData
+	encodeFunctionData,
+	type PublicClient
 } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
 import {
@@ -37,6 +38,14 @@ const _writeWalletEthereum = (): WalletClient => {
 	return createWalletClient({
 		transport: custom(_writeWindowEthereum())
 	});
+};
+
+const writeWallet = async (chain: Chain): Promise<[PublicClient, WalletClient, Address]> => {
+	const publicClient = await readPublicClient(chain);
+	const walletClient = await writeWalletClient(chain);
+	const walletAddress = await writeWalletAddress(walletClient, true);
+
+	return [publicClient, walletClient, walletAddress];
 };
 
 const writeWalletAddress = async (
@@ -74,9 +83,7 @@ const writeCreateAccount = async (chain: Chain): Promise<Address> => {
 	const json = await readJson(chain);
 	const tokenId = await readLastTokenId(chain);
 
-	const publicClient = await readPublicClient(chain);
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient, true);
+	const [publicClient, walletClient, walletAddress] = await writeWallet(chain);
 
 	try {
 		const data = encodeFunctionData({
@@ -119,9 +126,7 @@ const writeCreateAccount = async (chain: Chain): Promise<Address> => {
 const writeApproveBzz = async (chain: Chain, bzzAmount: bigint) => {
 	const json = await readJson(chain);
 
-	const publicClient = await readPublicClient(chain);
-	const walletClient = await writeWalletClient(chain);
-	const walletAddress = await writeWalletAddress(walletClient, true);
+	const [publicClient, walletClient, walletAddress] = await writeWallet(chain);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -135,4 +140,28 @@ const writeApproveBzz = async (chain: Chain, bzzAmount: bigint) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-export { writeCreateAccount, writeApproveBzz, writeWalletClient, writeWalletAddress };
+const writeTransferBzz = async (chain: Chain, to: Address, bzzAmount: bigint) => {
+	const json = await readJson(chain);
+
+	const [publicClient, walletClient, walletAddress] = await writeWallet(chain);
+
+	const { request } = await publicClient.simulateContract({
+		account: walletAddress,
+		address: json.BzzToken as Address,
+		abi: bzzTokenAbi,
+		functionName: 'transfer',
+		args: [to as Address, bzzAmount]
+	});
+
+	const hash = await walletClient.writeContract(request);
+	await publicClient.waitForTransactionReceipt({ hash });
+};
+
+export {
+  writeWallet,
+	writeWalletClient,
+	writeWalletAddress,
+	writeCreateAccount,
+	writeApproveBzz,
+	writeTransferBzz
+};

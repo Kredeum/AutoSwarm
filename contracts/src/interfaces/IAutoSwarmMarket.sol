@@ -31,13 +31,13 @@ interface IAutoSwarmMarket {
     /**
      * @dev Emitted when a stamp is bought.
      */
+    // The ID of the batch the stamp belongs to.
+    // The year the stamp was created.
+    // The size of the stamp.
+    // The hash of the stamp.
+    // The time the stamp was created.
+    // The price of the stamp.
     event BuyStamp( // The ID of the bought stamp.
-        // The ID of the batch the stamp belongs to.
-        // The year the stamp was created.
-        // The size of the stamp.
-        // The hash of the stamp.
-        // The time the stamp was created.
-        // The price of the stamp.
         bytes32 indexed stampId,
         bytes32 indexed batchId,
         uint256 indexed year,

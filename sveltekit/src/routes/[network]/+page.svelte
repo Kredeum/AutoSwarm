@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Address } from 'viem';
+	import { zeroAddress, type Address } from 'viem';
 
 	import {
 		type NftMetadata,
 		ONE_YEAR,
 		SECONDS_PER_BLOCK,
 		AUTOSWARM_UNIT_PRICE,
-		DEFAULT_PRICE
+		DEFAULT_PRICE,
+		ZERO_ADDRESS
 	} from '$lib/ts/constants.js';
-	import { writeWalletAddress } from '$lib/ts/write';
+	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/write';
 	import { writeStampsTopUp } from '$lib/ts/writeStamps.js';
 	import {
 		readAccount,
@@ -37,7 +38,6 @@
 	let autoSwarmAddress: Address | undefined;
 	let walletBalance: bigint | undefined;
 	let autoSwarmBalance: bigint | undefined;
-	let remainingBalance: bigint | undefined;
 	let lastPrice: bigint | undefined;
 	let duration: number | undefined;
 	let until: number | undefined;
@@ -58,11 +58,10 @@
 		walletBalance = await readBzzBalance(chain, walletAddress);
 		autoSwarmAddress = await readAccount(chain);
 		autoSwarmBalance = await readBzzBalance(chain, autoSwarmAddress);
-		remainingBalance = await readRemainingBalance(chain);
 		lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
 
-		if (lastPrice > 0n) {
-			duration = Number((remainingBalance * BigInt(SECONDS_PER_BLOCK)) / lastPrice);
+		if (autoSwarmBalance !== undefined && lastPrice > 0n) {
+			duration = Number((autoSwarmBalance * BigInt(ONE_YEAR)) / AUTOSWARM_UNIT_PRICE);
 			until = blockTimestamp + duration;
 			console.log('refreshDisplay ~ duration:', duration);
 			console.log('refreshDisplay ~ until:', until);
@@ -77,9 +76,13 @@
 			utilsError('No price found');
 			return;
 		}
+		if (autoSwarmAddress === undefined || autoSwarmAddress == ZERO_ADDRESS) {
+			utilsError('Bad TBA address');
+			return;
+		}
 		console.info('topUp');
 
-		await writeStampsTopUp(chain, (BigInt(ONE_YEAR) * lastPrice) / BigInt(SECONDS_PER_BLOCK));
+		await writeTransferBzz(chain, autoSwarmAddress, AUTOSWARM_UNIT_PRICE);
 
 		topping = false;
 		refreshDisplay();
@@ -107,19 +110,12 @@
 		<section class="user-config">
 			<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
 			Chain {data.chain.name}
-			<!-- <p>
-      <a class="details-link" href="gnosis/details">gnosis</a> -
-			<a class="details-link" href="sepolia/details">sepolia</a> -
-			<a class="details-link" href="anvil/details">anvil</a>
-		</p> -->
 		</section>
 		<div class="batch-topUp">
 			<p class="batch-topUp-title">Swarm Storage Guaranteed</p>
 			<div class="batch-topUp-infos">
 				<p>for</p>
-				<p title="{displayTxt(remainingBalance)} seconds">
-					{displayDuration(duration)}
-				</p>
+				<p>{displayDuration(duration)}</p>
 				<p>until</p>
 				<p>{displayDate(until)}</p>
 			</div>
@@ -133,6 +129,9 @@
 				<p>Price: {displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</p>
 				<p>
 					{#if walletBalance}Your Balance: {displayBalance(walletBalance, 16)} Bzz{/if}
+				</p>
+				<p>
+					{#if autoSwarmBalance}TBA Balance: {displayBalance(autoSwarmBalance, 16)} Bzz{/if}
 				</p>
 			</div>
 		</div>
