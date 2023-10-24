@@ -157,7 +157,7 @@ contract AutoSwarmMarket is IAutoSwarmMarket, Ownable {
         emit UpdateBatch(year, getBatchDepth(year) + deltaDepth, getBatchTtl(year));
     }
 
-    function getOneYearAmount(uint256 year) public view override(IAutoSwarmMarket) returns (uint256) {    }
+    // function getOneYearAmount(uint256 year) public view override(IAutoSwarmMarket) returns (uint256) {}
 
     function getBatchSizeLimit(uint256 year) public view override(IAutoSwarmMarket) returns (uint256) {
         return (BUCKET_SIZE << getBatchDepth(year)) / RATIO;

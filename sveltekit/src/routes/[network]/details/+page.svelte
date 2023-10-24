@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
 	import {
@@ -9,6 +10,7 @@
 		ONE_MONTH,
 		ONE_DAY,
 		SEPOLIA_RPC,
+		AUTOSWARM_UNIT,
 		AUTOSWARM_UNIT_PRICE,
 		AUTOSWARM_PERIOD
 	} from '$lib/ts/constants';
@@ -46,41 +48,41 @@
 		displayTxt
 	} from '$lib/ts/display';
 	import { stampBzzToTtl } from '$lib/ts/stamp.js';
-	import type { ChainInJson } from '$lib/ts/types.js';
-	import { anvil } from '$lib/ts/anvil.js';
-	import type { Address, PublicClient } from 'viem';
+	import type { Address } from 'viem';
+	import { writeWalletAddress } from '$lib/ts/write.js';
 
 	export let data;
-
 	const { json, chain } = data;
 
-	let blockNumber: number = 0;
 	let blockTimestamp: number = 0;
+	let blockNumber: number = 0;
 
-	let publicClient: PublicClient;
+	let tokenId = 1n;
+	let nftOwner: Address | undefined;
+
+	let walletAddress: Address | undefined;
+	let walletBalance: bigint | undefined;
 
 	let autoSwarmAddress: Address | undefined;
+	let autoSwarmBalance: bigint | undefined;
+
+	let lastPrice: bigint | undefined;
+	let duration: number | undefined;
+	let until: number | undefined;
+
 	let owner: Address | undefined;
-	let nftOwner: Address | undefined;
-	const nftSize = 1024 ** 2;
 	let depth: number;
 	let unwatch: () => void;
 
-	let lastPrice: bigint = DEFAULT_PRICE;
 	let remainingBalance: bigint | undefined;
 	let normalisedBalance: bigint | undefined;
-	let bzzNftBalance: bigint | undefined;
-	let bzzNftOwnerBalance: bigint | undefined;
 	let oneDayNBal: bigint | undefined;
 	let tbaDeployed: boolean | undefined;
-	let tokenId = 1n;
 
 	const reset = () => {
-		lastPrice = DEFAULT_PRICE;
 		remainingBalance = undefined;
 		normalisedBalance = undefined;
-		bzzNftBalance = undefined;
-		bzzNftOwnerBalance = undefined;
+		autoSwarmBalance = undefined;
 		oneDayNBal = undefined;
 		autoSwarmAddress = undefined;
 		owner = undefined;
@@ -90,42 +92,46 @@
 
 	const refreshDisplay = async () => {
 		console.info('refreshDisplay');
-		if (!publicClient) return;
+		if (!chain) return;
 		reset();
 
-		const block = await readBlock(publicClient);
+		const block = await readBlock(chain);
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
-		tokenId = await readLastTokenId(publicClient);
-		nftOwner = await readNftOwner(publicClient);
-		bzzNftOwnerBalance = await readBzzBalance(publicClient, nftOwner);
-		autoSwarmAddress = await readAccount(publicClient);
-		bzzNftBalance = await readBzzBalance(publicClient, autoSwarmAddress);
+		tokenId = await readLastTokenId(chain);
+		nftOwner = await readNftOwner(chain);
 
-		remainingBalance = await readRemainingBalance(publicClient);
+		walletAddress = await writeWalletAddress();
+		walletBalance = await readBzzBalance(chain, walletAddress);
+
+		autoSwarmAddress = await readAccount(chain);
+		autoSwarmBalance = await readBzzBalance(chain, autoSwarmAddress);
+		lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
+
+		if (autoSwarmBalance !== undefined && lastPrice > 0n) {
+			duration = Number((autoSwarmBalance * BigInt(ONE_YEAR)) / AUTOSWARM_UNIT_PRICE);
+			until = blockTimestamp + duration;
+		}
+
+		remainingBalance = await readRemainingBalance(chain);
 		[owner, depth, normalisedBalance] =
-			chain.id == 100 ? await readBatchLegacy(publicClient) : await readBatchNew(publicClient);
+			chain.id == 100 ? await readBatchLegacy(chain) : await readBatchNew(chain);
 
-		const lastPriceRead = await readLastPrice(publicClient);
-		if (lastPriceRead > 0) lastPrice = lastPriceRead;
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 
-		tbaDeployed = await readIsContract(publicClient, autoSwarmAddress as Address);
-		console.log('refreshDisplay ~ tbaDeployed:', tbaDeployed);
+		tbaDeployed = await readIsContract(chain, autoSwarmAddress as Address);
 	};
 
-	const buy = () => writeStampsBuy(chain, publicClient).then(refreshDisplay);
-	const withdraw = () => writeStampsWithdraw(chain, publicClient).then(refreshDisplay);
-	const deposit = () => writeStampsDeposit(chain, publicClient).then(refreshDisplay);
-	const dilute = () =>
-		writeStampsIncreaseDepth(chain, publicClient, depth + 2).then(refreshDisplay);
+	const buy = () => writeStampsBuy(chain).then(refreshDisplay);
+	const withdraw = () => writeStampsWithdraw(chain).then(refreshDisplay);
+	const deposit = () => writeStampsDeposit(chain).then(refreshDisplay);
+	const dilute = () => writeStampsIncreaseDepth(chain, depth + 2).then(refreshDisplay);
 
 	const topUp = (months: number) =>
 		writeStampsTopUp(
 			chain,
-			publicClient,
-			(BigInt(months * ONE_DAY) * lastPrice) / BigInt(SECONDS_PER_BLOCK)
+			(BigInt(months * ONE_DAY) * (lastPrice || 0n)) / BigInt(SECONDS_PER_BLOCK)
 		).then(refreshDisplay);
 
 	const onChainChanged = (chainId: string): void => {
@@ -139,7 +145,7 @@
 	onMount(async () => {
 		console.info('onMount');
 
-		await readInit(chain);
+		refreshDisplay();
 	});
 </script>
 
@@ -148,9 +154,9 @@
 		{chain.name} network (chainId #{chain.id})
 		<span>{displayDate(blockTimestamp)} | block #{blockNumber}</span>
 	</p>
-	<p>AutoSwarm Price<span>{displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</span></p>
+	<p>AutoSwarm Price<span>{displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Year * Mb</span></p>
 	<p>
-		<button><a href="/">back</a></button> &nbsp;
+		<button><a href=".">back</a></button> &nbsp;
 		<button on:click={refreshDisplay}>refresh</button> &nbsp;
 		<span>
 			<button on:click={() => onChainChanged('100')}>go gnosis</button>
@@ -161,7 +167,7 @@
 	<hr />
 	<p>
 		NFT <span
-			>{displaySize(nftSize)} |
+			>{displaySize(AUTOSWARM_UNIT)} |
 			{@html displayExplorerLink(chain)} /
 			{@html displayExplorerLink(chain, json.NFTCollection)} /
 			{@html displayNftLink(chain, json.NFTCollection, tokenId)}
@@ -173,7 +179,7 @@
 	<p>
 		NFT AutoSwarm TBA ({displayTbaDisplayed(tbaDeployed)})
 		<span
-			>{displayBalance(bzzNftBalance, 16, 4)} Bzz | {@html displayExplorerLink(
+			>{displayBalance(autoSwarmBalance, 16, 4)} Bzz | {@html displayExplorerLink(
 				chain,
 				autoSwarmAddress
 			)}</span
@@ -195,7 +201,7 @@
 		<span
 			>{displayDate(
 				BigInt(blockTimestamp) +
-					((bzzNftBalance || 0n) * BigInt(AUTOSWARM_PERIOD)) / BigInt(AUTOSWARM_UNIT_PRICE)
+					((autoSwarmBalance || 0n) * BigInt(AUTOSWARM_PERIOD)) / BigInt(AUTOSWARM_UNIT_PRICE)
 			)}</span
 		>
 	</p>
@@ -204,8 +210,8 @@
 	<p>
 		TBA Ttl
 		<span
-			>{displayBalance(bzzNftBalance, 16, 4)} Bzz => {displayDuration(
-				stampBzzToTtl(bzzNftBalance || 0n, nftSize, lastPrice)
+			>{displayBalance(autoSwarmBalance, 16, 4)} Bzz => {displayDuration(
+				stampBzzToTtl(autoSwarmBalance, AUTOSWARM_UNIT, lastPrice)
 			)}</span
 		>
 	</p>

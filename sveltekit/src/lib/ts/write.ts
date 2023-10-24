@@ -158,7 +158,7 @@ const writeTransferBzz = async (chain: Chain, to: Address, bzzAmount: bigint) =>
 };
 
 export {
-  writeWallet,
+	writeWallet,
 	writeWalletClient,
 	writeWalletAddress,
 	writeCreateAccount,

@@ -61,7 +61,7 @@ const writeStampsBuy = async (chain: Chain) => {
 	const [publicClient, walletClient, walletAddress] = await writeWallet(chain);
 
 	const lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
-	const buyTtl = utilsTtlToNBal(ONE_MONTH, lastPrice);
+	const buyTtl = utilsTtlToNBal(ONE_MONTH, lastPrice)!;
 	const depth = 17;
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

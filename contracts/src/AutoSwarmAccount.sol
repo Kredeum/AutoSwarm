@@ -30,10 +30,12 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
         ok = owner() == msg.sender;
     }
 
+    // Initializes the contract by setting the autoSwarmMarket and bzzToken state variables
+    // Can only be called once
     function initialize(address autoSwarmMarket_) external override(IAutoSwarmAccount) {
-        require(_nonce == 0x0, "Already initialized");
+        require(_nonce == 0x0, "Contract has already been initialized");
 
-        _newNonce();
+        _nonce = _newNonce();
 
         autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
         bzzToken = IERC20(autoSwarmMarket.bzzToken());
@@ -51,7 +53,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
         stamp[year][n] = stampId;
     }
 
-    function _newNonce() internal returns (bytes32) {
-        return _nonce = keccak256(abi.encode(address(this), _nonce));
+    function _newNonce() internal view returns (bytes32) {
+        return keccak256(abi.encode(address(this), _nonce));
     }
 }

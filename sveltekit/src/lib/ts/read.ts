@@ -188,7 +188,7 @@ const readLastTokenId = async (chain: Chain): Promise<bigint> => {
 	const publicClient = await readPublicClient(chain);
 
 	const json = await readJson(chain);
-	if (!('batchId' in json))  utilsError(`No batchId in json ${String(await readChainId(chain))})`);
+	if (!('batchId' in json)) utilsError(`No batchId in json ${String(await readChainId(chain))})`);
 
 	const data = await publicClient.readContract({
 		address: json.NFTCollection as Address,

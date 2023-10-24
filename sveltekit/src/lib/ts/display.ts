@@ -77,7 +77,7 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} weeks`;
 
 	const hours = Number(seconds) / ONE_HOUR;
-	if (hours < 24) return `${Number(hours)}.toFixed(2)} hour${hours > 1 ? 's' : ''}`;
+	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours > 1 ? 's' : ''}`;
 
 	const days = Number(seconds) / ONE_DAY;
 	if (days < 7) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;

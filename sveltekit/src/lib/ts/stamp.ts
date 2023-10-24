@@ -1,5 +1,4 @@
-import { batchBzzToNBal } from './batch';
-import { BUCKET_DEPTH, BUCKET_SIZE } from './constants';
+import { BUCKET_SIZE } from './constants';
 import { utilsNBalToTtl } from './utils';
 
 // const batchBzzToNBal = (bzz: bigint, depth: bigint): bigint => {
@@ -8,16 +7,23 @@ import { utilsNBalToTtl } from './utils';
 // 	return bzz / 2n ** BigInt(depth - BUCKET_DEPTH);
 // };
 
-const stampBzzToNBal = (bzz: bigint, size: number): bigint => {
+const stampBzzToNBal = (bzz: bigint | undefined, size: number | undefined): bigint | undefined => {
+	if (bzz === undefined || size === undefined) return undefined;
 	if (size === 0) return 0n;
 
 	return (bzz * BigInt(BUCKET_SIZE)) / BigInt(size);
 };
 
-const stampNBalToBzz = (nBal: bigint, size: number): bigint =>
-	(nBal * BigInt(size)) / BigInt(BUCKET_SIZE);
+const stampNBalToBzz = (nBal: bigint | undefined, size: number | undefined): bigint | undefined => {
+	if (nBal === undefined || size === undefined) return undefined;
 
-const stampBzzToTtl = (bzz: bigint, size: number, lastPrice: bigint): bigint =>
-	utilsNBalToTtl(stampBzzToNBal(bzz, size), lastPrice);
+	return (nBal * BigInt(size)) / BigInt(BUCKET_SIZE);
+};
+
+const stampBzzToTtl = (
+	bzz: bigint | undefined,
+	size: number | undefined,
+	lastPrice: bigint | undefined
+): bigint | undefined => utilsNBalToTtl(stampBzzToNBal(bzz, size), lastPrice);
 
 export { stampNBalToBzz, stampBzzToNBal, stampBzzToTtl };

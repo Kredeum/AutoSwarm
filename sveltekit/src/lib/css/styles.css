@@ -175,7 +175,7 @@ article p {
 .batch-topUp-title {
 	padding-bottom: 10px;
 	font-weight: bold;
-  color: var(--color-link);
+	color: var(--color-link);
 }
 
 .batch-topUp-infos {
