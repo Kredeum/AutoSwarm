@@ -25,7 +25,8 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         autoSwarmAccount =
             AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
         if (address(autoSwarmAccount).code.length == 0) {
-            bytes memory initData = abi.encodeWithSignature("initialize(address)", address(autoSwarmMarket));
+            // bytes memory initData = abi.encodeWithSignature("initialize(address)", address(autoSwarmMarket));
+            bytes memory initData = "";
             vm.prank(nftOwner);
             registry.createAccount(address(implementation), chainId, collection, tokenId, salt, initData);
         }

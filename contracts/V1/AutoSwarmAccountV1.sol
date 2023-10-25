@@ -7,17 +7,17 @@ import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
 
 import {IPostageStampLegacy} from "../interfaces/IPostageStampLegacy.sol";
-import {IAutoSwarmAccount} from "../interfaces/IAutoSwarmAccountV1.sol";
-import {Stamp, IAutoSwarmMarket} from "../interfaces/IAutoSwarmMarket.sol";
+import {IAutoSwarmAccountV1} from "../interfaces/IAutoSwarmAccountV1.sol";
+import {IAutoSwarmMarketV1} from "../interfaces/IAutoSwarmMarketV1.sol";
 
-contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
+contract AutoSwarmAccountV1 is IAutoSwarmAccountV1, SimpleERC6551Account {
     bytes32 public metadataHash;
     bytes32 public contentHash;
 
     // Stamp mapping
     mapping(uint256 => bytes32[2]) public stamp;
 
-    IAutoSwarmMarket public autoSwarmMarket;
+    IAutoSwarmMarketV1 public autoSwarmMarket;
     bytes32 internal _nonce;
 
     modifier initialized() {
@@ -25,23 +25,23 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
         _;
     }
 
-    function initialize(address autoSwarmMarket_) external override(IAutoSwarmAccount) {
+    function initialize(address autoSwarmMarket_) external override(IAutoSwarmAccountV1) {
         require(_nonce == 0x0, "Already initialized");
         _newNonce();
 
-        autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
+        autoSwarmMarket = IAutoSwarmMarketV1(payable(autoSwarmMarket_));
     }
 
     function buyYearStamp(uint256 year, bytes32 hash, uint256 size, uint8 tp)
         public
-        override(IAutoSwarmAccount)
+        override(IAutoSwarmAccountV1)
         returns (bytes32 stampId)
     {
         stampId = autoSwarmMarket.buyStamp(year, hash, size, tp);
         stamp[year][tp] = stampId;
     }
 
-    function withdraw(address token) external override(IAutoSwarmAccount) {
+    function withdraw(address token) external override(IAutoSwarmAccountV1) {
         require(_isValidSigner(msg.sender), "Not authorized");
 
         if (token == address(0)) {

@@ -1,17 +1,4 @@
 {
-  "31337": {
-    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
-    "AutoSwarmAccount": "0xD718d5A27a29FF1cD22403426084bA0d479869a0",
-    "AutoSwarmMarket": "0xDEb1E9a6Be7Baf84208BB6E10aC9F9bbE1D70809",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "ERC6551Registry": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "Oracle": "0x0000000000000000000000000000000000000020",
-    "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "batchId": "0x0000000000000000000000000000000000000020",
-    "chainName": "anvil",
-    "tokenId": "0x0000000000000000000000000000000000000020"
-  },
   "1": {
     "chainName": "mainnet",
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb"
@@ -41,17 +28,5 @@
     "batchId": "0x49042fac7d898d51cff1b5724bc394fa97a0256bf6d74ace62e35ec2c48110bd",
     "NFTCollection": "0x7A6002B7Cd1fb3D28E9942529da919FCAd831f9A",
     "tokenId": "2"
-  },
-  "1337": {
-    "chainName": "localhost",
-    "AutoSwarmAccount": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "ERC6551Registry": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "PostageStamp": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
-    "Admin": "0x1c4083413Cf0051f90584908ee304F96FcF9128d",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "Oracle": "",
-    "batchId": "",
-    "tokenId": "0"
   }
 }

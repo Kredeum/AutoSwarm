@@ -10,7 +10,7 @@ contract DeployAutoSwarmAccount is DeployLite {
 
         vm.startBroadcast(deployer);
         AutoSwarmAccount autoSwarmAccount = new AutoSwarmAccount();
-        autoSwarmAccount.initialize(payable(autoSwarmMarket));
+        // autoSwarmAccount.initialize(payable(autoSwarmMarket));
         vm.stopBroadcast();
 
         autoSwarmAccountAddress = address(autoSwarmAccount);

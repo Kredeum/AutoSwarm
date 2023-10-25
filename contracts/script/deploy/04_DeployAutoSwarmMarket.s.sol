@@ -10,7 +10,8 @@ contract DeployAutoSwarmMarket is DeployLite {
         address postageStamp = deploy("PostageStamp", false);
 
         vm.startBroadcast(deployer);
-        AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);
+        AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket();
+        // AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);
         vm.stopBroadcast();
 
         autoSwarmMarketAddress = address(autoSwarmMarket);
