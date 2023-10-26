@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/Test.sol";
@@ -22,11 +22,18 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         address nftOwner = IERC721(collection).ownerOf(tokenId);
         require(nftOwner != address(0), "No NFT here!");
 
+        uint256 bzzAmount = autoSwarmMarket.getYearPrice(1);
+
         autoSwarmAccount =
             AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+        deal(address(bzzToken), address(autoSwarmAccount), bzzAmount);
+
         if (address(autoSwarmAccount).code.length == 0) {
-            // bytes memory initData = abi.encodeWithSignature("initialize(address)", address(autoSwarmMarket));
-            bytes memory initData = "";
+            // function initialize(address, bytes32, uint256, uint256) external;
+
+            bytes memory initData = abi.encodeWithSignature(
+                "initialize(address,bytes32,uint256,uint256)", address(autoSwarmMarket), bytes32("1"), 85_000, bzzAmount
+            );
             vm.prank(nftOwner);
             registry.createAccount(address(implementation), chainId, collection, tokenId, salt, initData);
         }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
@@ -10,8 +10,7 @@ contract DeployAutoSwarmMarket is DeployLite {
         address postageStamp = deploy("PostageStamp", false);
 
         vm.startBroadcast(deployer);
-        AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket();
-        // AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);
+        AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);
         vm.stopBroadcast();
 
         autoSwarmMarketAddress = address(autoSwarmMarket);

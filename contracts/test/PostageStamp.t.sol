@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@autoswarm/test/SetUpSwarm.t.sol";
 
@@ -23,7 +23,7 @@ contract PostageStampTest is SetUpSwarm {
     // function test_PostageStamp_amount(uint256 ttl, uint8 depth) public view {
     //     vm.assume(depth <= 128);
     //     vm.assume(ttl <=  type(uint128).max);
-    function test_PostageStamp_amount() public view {
+    function test_PostageStamp_amount() public pure {
         uint256 ttl = 10 weeks;
         uint8 depth = 20;
         assert((ttl << depth) == ttl * (1 << depth));

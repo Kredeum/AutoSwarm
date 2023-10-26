@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import {IERC721Enumerable} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";

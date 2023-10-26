@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@autoswarm/test/SetUpSwarm.t.sol";
 

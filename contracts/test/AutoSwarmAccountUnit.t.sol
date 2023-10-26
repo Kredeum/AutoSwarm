@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import {console} from "forge-std/Test.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
@@ -7,54 +7,11 @@ import {Address} from "@openzeppelin/contracts/utils/address.sol";
 
 import "@autoswarm/test/SetUpAutoSwarmAccount.t.sol";
 
-contract AutoSwarmHelper {
-    using Address for address;
-
-    function isOwnerHelper(AutoSwarmAccount autoSwarmAccount) public returns (bool ok) {
-        console.log(tx.origin, "AutoSwarmHelper tx.origin", ok);
-        console.log(msg.sender, "AutoSwarmHelper msg.sender", ok);
-        console.log(address(this), "AutoSwarmHelper this");
-
-        console.log(address(autoSwarmAccount), "autoSwarmAccount");
-
-        ok = autoSwarmAccount.isOwner();
-        console.log("AutoSwarmHelper isOwnerHelper", ok);
-
-        // bytes memory data = abi.encodeWithSignature("isOwner()");
-        // bytes memory res = address(autoSwarmAccount).functionDelegateCall(data);
-        // ok = abi.decode(res, (bool));
-        // console.log("AutoSwarmHelper isOwnerHelper", ok);
-    }
-}
-
 contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
-    function test_AutoSwarmAccountUnit_OK() public view {
-        console.log("test_AutoSwarmAccountUnit_stampsBuy ~ autoSwarmAccount:", address(autoSwarmAccount));
+    uint256 constant BLOCKS_PER_YEAR = 365 * 24 * 3600 / 5;
+
+    function test_AutoSwarmAccountUnit_OK() public pure {
         assert(true);
-    }
-
-    function test_AutoSwarmAccount_isOwner() public {
-        bool ok;
-        address owner = autoSwarmAccount.owner();
-        console.log(owner, "owner");
-
-        vm.prank(nftOwner);
-        ok = autoSwarmAccount.isOwner();
-        assert(ok);
-
-        vm.prank(address(1));
-        ok = autoSwarmAccount.isOwner();
-        assert(!ok);
-    }
-
-    function test_AutoSwarmAccount_ownerHelper() public {
-        address owner = autoSwarmAccount.owner();
-        console.log(owner, "owner");
-
-        AutoSwarmHelper autoSwarmHelper = new AutoSwarmHelper();
-        vm.prank(nftOwner, nftOwner);
-        bool ok = autoSwarmHelper.isOwnerHelper(autoSwarmAccount);
-        assert(!ok);
     }
 
     function test_AutoSwarmAccountUnit_Create() public {
@@ -66,15 +23,79 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(account.code.length != 0);
     }
 
-    // function test_AutoSwarmAccount_nonce() public {
-    //     bytes32 salt1 = autoSwarmAccount._newNonce();
-    //     assert(salt1 != "");
-    //     bytes32 salt2 = autoSwarmAccount._newNonce();
-    //     assert(salt2 != salt1);
-    // }
+    function test_AutoSwarmAccount_initialize1() public {
+        uint256 salt = 1;
+
+        autoSwarmAccount =
+            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+
+        registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+        assert(address(autoSwarmAccount).code.length != 0);
+
+        vm.expectRevert("Not enough Bzz price");
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
+
+        vm.expectRevert("Not enough Bzz balance");
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 2e15);
+
+        deal(address(bzzToken), address(autoSwarmAccount), 2e8 * BLOCKS_PER_YEAR);
+
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 2e8 * BLOCKS_PER_YEAR);
+        console.log(
+            "test_AutoSwarmAccount_initialize1 ~ autoSwarmAccount.getTopUpYearPrice():",
+            autoSwarmAccount.getTopUpYearPrice()
+        );
+        assert(autoSwarmAccount.swarmHash() == bytes32("1"));
+        assert(autoSwarmAccount.swarmSize() == 85_000);
+        assert(autoSwarmAccount.getBzzAllowance() == 2e8 * BLOCKS_PER_YEAR);
+        assert(autoSwarmAccount.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+
+        vm.expectRevert("Already initialized");
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
+    }
+
+    function test_AutoSwarmAccount_initialize2() public {
+        uint256 salt = 2;
+
+        autoSwarmAccount =
+            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+        deal(address(bzzToken), address(autoSwarmAccount), 4e8 * BLOCKS_PER_YEAR);
+
+        registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 1_200_000,  4e8 * BLOCKS_PER_YEAR);
+        console.log(
+            "test_AutoSwarmAccount_initialize2 ~ autoSwarmAccount.getTopUpYearPrice():",
+            autoSwarmAccount.getTopUpYearPrice()
+        );
+        assert(autoSwarmAccount.swarmHash() == bytes32("1"));
+        assert(autoSwarmAccount.swarmSize() == 1_200_000);
+        assert(autoSwarmAccount.getBzzAllowance() == 4e8 * BLOCKS_PER_YEAR);
+        assert(autoSwarmAccount.getTopUpYearPrice() == 4e8 * BLOCKS_PER_YEAR);
+    }
+
+    function test_AutoSwarmAccount_swarhHash() public view {
+        assert(autoSwarmAccount.swarmHash() == bytes32("1"));
+    }
+
+    function test_AutoSwarmAccount_swarmSize() public view {
+        assert(autoSwarmAccount.swarmSize() == 85_000);
+    }
+
+    function test_AutoSwarmAccount_getTopUpYearPrice() public view {
+        assert(autoSwarmAccount.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+    }
+
+    function test_AutoSwarmAccount_getBzzBalance() public view {
+        assert(autoSwarmAccount.getBzzBalance() ==  2e8 * BLOCKS_PER_YEAR);
+    }
+
+    function test_AutoSwarmAccount_getBzzAllowance() public view {
+        assert(autoSwarmAccount.getBzzAllowance() ==  2e8 * BLOCKS_PER_YEAR);
+    }
 
     function test_AutoSwarmAccount_token() public view {
-        (uint256 chId, address coll, uint256 tokId) = AutoSwarmAccount(payable(autoSwarmAccount)).token();
+        (uint256 chId, address coll, uint256 tokId) = autoSwarmAccount.token();
 
         assert(chId == chainId);
         assert(coll == collection);
