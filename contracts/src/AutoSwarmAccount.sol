@@ -45,7 +45,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
     }
 
     function topUp(uint256 bzzAmount) public override(IAutoSwarmAccount) onlyWhenInitialized {
-        require(bzzAmount >= getTopUpYearPrice(), "Not enough Bzz price");
+        require(bzzAmount >= getTopUpYearPrice(), "Not enough Bzz amount");
 
         uint256 bzzAmountToApprove = getBzzAllowance() + bzzAmount;
         require(bzzAmountToApprove <= getBzzBalance(), "Not enough Bzz balance");

@@ -32,7 +32,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
         assert(address(autoSwarmAccount).code.length != 0);
 
-        vm.expectRevert("Not enough Bzz price");
+        vm.expectRevert("Not enough Bzz amount");
         autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
 
         vm.expectRevert("Not enough Bzz balance");

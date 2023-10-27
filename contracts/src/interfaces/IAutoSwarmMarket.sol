@@ -9,11 +9,6 @@ interface IAutoSwarmMarket {
     event UpdateBatch(bytes32 indexed index, uint8 indexed depth, uint256 indexed ttl);
     event UpdateStampsUnitPrice(uint256 unitPrice);
 
-    struct Stamp {
-        address owner;
-        bytes32 hash;
-        uint256 size;
-    }
 
     function buyBatch() external returns (bytes32 batchId);
     function extendsBatch(bytes32, uint8) external;
