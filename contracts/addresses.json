@@ -3,6 +3,12 @@
     "chainName": "mainnet",
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb"
   },
+  "5": {
+    "chainName": "goerli",
+    "PostageStamp": "0xacC8b5bd78C5D9157bC663476A895dbc61dc128e",
+    "PriceOracle": "0x7A6fE37781235FBbaf79205AF7F3546F3869d0B2",
+    "BzzToken": "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335"
+  },
   "100": {
     "chainName": "gnosis",
     "ERC6551Registry": "0xAc1d836f3D8884d95AAfbddC568677d14f1729e6",
