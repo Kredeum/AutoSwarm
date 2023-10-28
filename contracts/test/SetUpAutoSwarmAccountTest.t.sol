@@ -8,6 +8,12 @@ contract SetUpAutoSwarmAccountTest is SetUpAutoSwarmAccount {
         assert(true);
     }
 
+    function test_SetUpAutoSwarmAccount_newBatch() public  {
+        autoSwarmMarket.newBatch();
+        assert(true);
+    }
+
+
     function test_SetUpAutoSwarmAccount_AutoSwarmAccount() public view {
         bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccount");
         require(isSameRunCode(address(implementation).code, codeToDeploy), "AutoSwarmAccount code differs");

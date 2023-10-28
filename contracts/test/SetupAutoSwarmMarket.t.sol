@@ -6,23 +6,17 @@ import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
 
 contract SetUpAutoSwarmMarket is SetUpSwarm {
     AutoSwarmMarket public autoSwarmMarket;
-    // uint256 initYear;
-    // uint256 initTtl;
-    // uint8 initDepth;
+
+    uint256 internal constant _INITIAL_TTL = 30 days;
+    uint8 internal constant _INITIAL_DEPTH = 23;
 
     function setUpAutoSwarmMarket() public {
         autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
 
-        // initYear = autoSwarmMarket.FIRST_YEAR();
-        // initTtl = autoSwarmMarket.INITIAL_TTL();
-        // initDepth = autoSwarmMarket.INITIAL_DEPTH();
+        deal(address(bzzToken), address(autoSwarmMarket), _INITIAL_TTL << _INITIAL_DEPTH);
 
-        // uint256 amount = initTtl << initDepth;
-
-        // deal(address(bzzToken), address(autoSwarmMarket), amount);
-
-        // vm.prank(deployer);
-        // autoSwarmMarket.buyBatch(initYear);
+        vm.prank(deployer);
+        autoSwarmMarket.newBatch();
     }
 
     function setUp() public virtual {

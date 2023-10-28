@@ -11,6 +11,8 @@ interface IPostageStamp {
         uint256 lastUpdatedBlockNumber;
     }
 
+    function lastPrice() external view returns (uint64);
+
     function createBatch(address, uint256, uint8, uint8, bytes32, bool) external;
     function increaseDepth(bytes32, uint8) external;
     function topUp(bytes32, uint256) external;
