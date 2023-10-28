@@ -22,7 +22,7 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         address nftOwner = IERC721(collection).ownerOf(tokenId);
         require(nftOwner != address(0), "No NFT here!");
 
-        uint256 bzzAmount = autoSwarmMarket.getYearPrice(1);
+        uint256 bzzAmount = autoSwarmMarket.getStampPriceOneYear(1);
 
         autoSwarmAccount =
             AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));

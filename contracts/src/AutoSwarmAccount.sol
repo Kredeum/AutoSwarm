@@ -9,6 +9,7 @@ import {console} from "forge-std/console.sol";
 contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
     bytes32 public swarmHash;
     uint256 public swarmSize;
+    bytes32 public myStampId;
 
     IAutoSwarmMarket internal _autoSwarmMarket;
     IERC20 internal _bzzToken;
@@ -41,22 +42,24 @@ contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
 
         require(address(_bzzToken) != address(0), "Bad BzzToken");
 
-        topUp(bzzAmount);
+        bzzApproveMore(bzzAmount);
+        myStampId = _autoSwarmMarket.createStamp(swarmHash, swarmSize, bzzAmount);
     }
 
-    function topUp(uint256 bzzAmount) public override(IAutoSwarmAccount) onlyWhenInitialized {
-        require(bzzAmount >= getTopUpYearPrice(), "Not enough Bzz amount");
-
+    function bzzApproveMore(uint256 bzzAmount) public onlyWhenInitialized {
         uint256 bzzAmountToApprove = getBzzAllowance() + bzzAmount;
         require(bzzAmountToApprove <= getBzzBalance(), "Not enough Bzz balance");
 
         _bzzToken.approve(address(_autoSwarmMarket), bzzAmountToApprove);
+    }
 
-        _autoSwarmMarket.sync();
+    function topUp(uint256 bzzAmount) public override(IAutoSwarmAccount) onlyWhenInitialized {
+        bzzApproveMore(bzzAmount);
+        _autoSwarmMarket.topUpStamp(myStampId, bzzAmount);
     }
 
     function getTopUpYearPrice() public view override(IAutoSwarmAccount) onlyWhenInitialized returns (uint256) {
-        return _autoSwarmMarket.getYearPrice(swarmSize);
+        return _autoSwarmMarket.getStampPriceOneYear(swarmSize);
     }
 
     function getBzzBalance() public view override(IAutoSwarmAccount) returns (uint256) {

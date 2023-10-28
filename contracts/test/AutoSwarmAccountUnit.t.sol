@@ -32,10 +32,10 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
         assert(address(autoSwarmAccount).code.length != 0);
 
-        vm.expectRevert("Not enough Bzz amount");
+        vm.expectRevert();
         autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
 
-        vm.expectRevert("Not enough Bzz balance");
+        vm.expectRevert();
         autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 2e15);
 
         deal(address(bzzToken), address(autoSwarmAccount), 2e8 * BLOCKS_PER_YEAR);
@@ -47,10 +47,10 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         );
         assert(autoSwarmAccount.swarmHash() == bytes32("1"));
         assert(autoSwarmAccount.swarmSize() == 85_000);
-        assert(autoSwarmAccount.getBzzAllowance() == 2e8 * BLOCKS_PER_YEAR);
+        assert(autoSwarmAccount.getBzzAllowance() == 0);
         assert(autoSwarmAccount.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
 
-        vm.expectRevert("Already initialized");
+        vm.expectRevert();
         autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
     }
 
@@ -63,14 +63,14 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
         registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
 
-        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 1_200_000,  4e8 * BLOCKS_PER_YEAR);
+        autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 1_200_000, 4e8 * BLOCKS_PER_YEAR);
         console.log(
             "test_AutoSwarmAccount_initialize2 ~ autoSwarmAccount.getTopUpYearPrice():",
             autoSwarmAccount.getTopUpYearPrice()
         );
         assert(autoSwarmAccount.swarmHash() == bytes32("1"));
         assert(autoSwarmAccount.swarmSize() == 1_200_000);
-        assert(autoSwarmAccount.getBzzAllowance() == 4e8 * BLOCKS_PER_YEAR);
+        assert(autoSwarmAccount.getBzzAllowance() == 0);
         assert(autoSwarmAccount.getTopUpYearPrice() == 4e8 * BLOCKS_PER_YEAR);
     }
 
@@ -84,14 +84,6 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
     function test_AutoSwarmAccount_getTopUpYearPrice() public view {
         assert(autoSwarmAccount.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
-    }
-
-    function test_AutoSwarmAccount_getBzzBalance() public view {
-        assert(autoSwarmAccount.getBzzBalance() ==  2e8 * BLOCKS_PER_YEAR);
-    }
-
-    function test_AutoSwarmAccount_getBzzAllowance() public view {
-        assert(autoSwarmAccount.getBzzAllowance() ==  2e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_token() public view {

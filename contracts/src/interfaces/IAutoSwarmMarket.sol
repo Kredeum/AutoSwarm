@@ -9,6 +9,8 @@ interface IAutoSwarmMarket {
     event UpdateBatch(bytes32 indexed index, uint8 indexed depth, uint256 indexed ttl);
     event UpdateStampsUnitPrice(uint256 unitPrice);
 
+    function createStamp(bytes32 hash, uint256 size, uint256 bzzAmount) external returns (bytes32 stampId);
+    function topUpStamp(bytes32 stampId, uint256 bzzAmount) external;
 
     function buyBatch() external returns (bytes32 batchId);
     function extendsBatch(bytes32, uint8) external;
@@ -17,7 +19,7 @@ interface IAutoSwarmMarket {
     function setUnitPrice(uint256) external;
 
     function bzzToken() external view returns (IERC20);
-    function getUnitYearPrice() external view returns (uint256);
-    function getYearPrice(uint256) external view returns (uint256);
+    function getStampUnitPriceOneYear() external view returns (uint256);
+    function getStampPriceOneYear(uint256) external view returns (uint256);
     function getMbSize(uint256) external pure returns (uint256);
 }
