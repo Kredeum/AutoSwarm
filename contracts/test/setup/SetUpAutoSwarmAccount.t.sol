@@ -6,9 +6,9 @@ import {console} from "forge-std/Test.sol";
 
 import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 
-import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
-import {SetUpAutoSwarmMarket} from "@autoswarm/test/SetUpAutoSwarmMarket.t.sol";
-import {SetUpERC6551} from "@autoswarm/test/SetUpERC6551.t.sol";
+import {SetUpSwarm} from "@autoswarm/test/setup/SetUpSwarm.t.sol";
+import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t.sol";
+import {SetUpERC6551} from "@autoswarm/test/setup/SetUpERC6551.t.sol";
 
 contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
     AutoSwarmAccount public autoSwarmAccount;
@@ -25,17 +25,14 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         uint256 bzzAmount = autoSwarmMarket.getStampPriceOneYear(1);
 
         autoSwarmAccount =
-            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+            AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
         deal(address(bzzToken), address(autoSwarmAccount), bzzAmount);
 
         if (address(autoSwarmAccount).code.length == 0) {
-            // function initialize(address, bytes32, uint256, uint256) external;
-
-            bytes memory initData = abi.encodeWithSignature(
-                "initialize(address,bytes32,uint256,uint256)", address(autoSwarmMarket), bytes32("1"), 85_000, bzzAmount
-            );
-            vm.prank(nftOwner);
-            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, initData);
+            vm.startPrank(nftOwner);
+            registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
+            autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, bzzAmount);
+            vm.stopPrank();
         }
         assert(address(autoSwarmAccount).code.length != 0);
     }

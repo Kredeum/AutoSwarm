@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MITs
 pragma solidity ^0.8.4;
 
-import "@autoswarm/test/SetUpSwarm.t.sol";
+import "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
 contract StorageIncentivesTest is SetUpSwarm {
     function setUp() public {

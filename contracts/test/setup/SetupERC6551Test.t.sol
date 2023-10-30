@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {IERC721Enumerable} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
 
-import "@autoswarm/test/SetUpERC6551.t.sol";
+import "@autoswarm/test/setup/SetUpERC6551.t.sol";
 
 contract SetUpERC6551Test is SetUpERC6551 {
     function setUp() public {

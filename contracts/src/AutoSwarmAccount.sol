@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {SimpleERC6551Account} from "@erc6551/examples/simple/SimpleERC6551Account.sol";
+import {ERC6551Account} from "@erc6551/examples/simple/ERC6551Account.sol";
 import {IAutoSwarmAccount, IAutoSwarmMarket, IERC20} from "./interfaces/IAutoSwarmAccount.sol";
 
 import {console} from "forge-std/console.sol";
 
-contract AutoSwarmAccount is IAutoSwarmAccount, SimpleERC6551Account {
+contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     bytes32 public swarmHash;
     uint256 public swarmSize;
     bytes32 public myStampId;

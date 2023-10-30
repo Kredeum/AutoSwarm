@@ -5,7 +5,7 @@ import {console} from "forge-std/Test.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {Address} from "@openzeppelin/contracts/utils/address.sol";
 
-import "@autoswarm/test/SetUpAutoSwarmAccount.t.sol";
+import "@autoswarm/test/setup/SetUpAutoSwarmAccount.t.sol";
 
 contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
     uint256 constant BLOCKS_PER_YEAR = 365 * 24 * 3600 / 5;
@@ -15,21 +15,21 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
     }
 
     function test_AutoSwarmAccountUnit_Create() public {
-        address account = registry.account(address(implementation), chainId, collection, tokenId, salt);
+        address account = registry.account(address(implementation), salt, chainId, collection, tokenId);
 
         if (account.code.length == 0) {
-            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+            registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
         }
         assert(account.code.length != 0);
     }
 
     function test_AutoSwarmAccount_initialize1() public {
-        uint256 salt = 1;
+        bytes32 salt = "1";
 
         autoSwarmAccount =
-            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+            AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
 
-        registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+        registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
         assert(address(autoSwarmAccount).code.length != 0);
 
         vm.expectRevert();
@@ -55,13 +55,13 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
     }
 
     function test_AutoSwarmAccount_initialize2() public {
-        uint256 salt = 2;
+        bytes32 salt = "2";
 
         autoSwarmAccount =
-            AutoSwarmAccount(payable(registry.account(address(implementation), chainId, collection, tokenId, salt)));
+            AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
         deal(address(bzzToken), address(autoSwarmAccount), 4e8 * BLOCKS_PER_YEAR);
 
-        registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+        registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
 
         autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 1_200_000, 4e8 * BLOCKS_PER_YEAR);
         console.log(

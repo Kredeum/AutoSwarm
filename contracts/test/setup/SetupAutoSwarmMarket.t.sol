@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
-import {SetUpSwarm} from "@autoswarm/test/SetUpSwarm.t.sol";
+import {SetUpSwarm} from "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
 contract SetUpAutoSwarmMarket is SetUpSwarm {
     AutoSwarmMarket public autoSwarmMarket;

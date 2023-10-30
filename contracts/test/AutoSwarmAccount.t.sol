@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 
-import {SetUpAutoSwarmAccount} from "@autoswarm/test/SetUpAutoSwarmAccount.t.sol";
+import {SetUpAutoSwarmAccount} from "@autoswarm/test/setup/SetUpAutoSwarmAccount.t.sol";
 
 contract AutoSwarmAccountTest is SetUpAutoSwarmAccount {
     function test_AutoSwarmAccount_OK() public pure {
@@ -12,7 +12,7 @@ contract AutoSwarmAccountTest is SetUpAutoSwarmAccount {
     }
 
     function test_AutoSwarmAccount_topUp_NFT() public {
-        address accountAddress = registry.account(address(implementation), chainId, collection, tokenId, salt);
+        address accountAddress = registry.account(address(implementation), salt, chainId, collection, tokenId);
         console.log(accountAddress, "NFT Account");
 
         // DISPLAY NFT owner
@@ -24,7 +24,7 @@ contract AutoSwarmAccountTest is SetUpAutoSwarmAccount {
 
         // CREATE NFT Account if not already exists
         if (accountAddress.code.length == 0) {
-            registry.createAccount(address(implementation), chainId, collection, tokenId, salt, "");
+            registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
         }
         assert(accountAddress.code.length != 0);
 
