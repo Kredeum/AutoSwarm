@@ -20,8 +20,8 @@ contract AutoSwarmMarket is Ownable {
     event UpdateStampUnitPrice(uint256 indexed stampUnitPrice);
 
     bytes32[] public batchIds;
-    bytes32 currentBatchId;
-    uint256 currentBatchFilling;
+    bytes32 public currentBatchId;
+    uint256 public currentBatchFilling;
 
     bytes32[] public stampIds;
     mapping(bytes32 => Stamp) public stamps;
@@ -62,8 +62,8 @@ contract AutoSwarmMarket is Ownable {
             owner: msg.sender,
             swarmHash: hash,
             swarmSize: size,
-            batchId: currentBatchId,
-            unitBalance: _stampUnitPaid() + bzzAmount
+            batchId: "",
+            unitBalance: currentStampUnitPaid()
         });
         stampId = keccak256(abi.encode(msg.sender, hash, size));
 
@@ -99,7 +99,7 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function setStampUnitPrice(uint256 unitPrice) public {
-        stampUnitPaid = _stampUnitPaid();
+        stampUnitPaid = currentStampUnitPaid();
         stampUnitPrice = unitPrice;
         stampBlockUpdate = block.number;
 
@@ -121,16 +121,14 @@ contract AutoSwarmMarket is Ownable {
     function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {
         require(stamp.owner != address(0), "Stamp not exists");
 
-        return _subPos(stamp.unitBalance, _stampUnitPaid()) * getMbSize(stamp.swarmSize);
+        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.swarmSize);
     }
 
     function isStampActive(bytes32 stampId) public view returns (bool) {
         return _getStampBzzRemaining(stamps[stampId]) > 0;
     }
 
-    function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public {
-        require(batchId != currentBatchId, "Not current batchId");
-
+    function setStampsAttached(bytes32[] memory stampIdsAttached) public {
         uint256 len = stampIdsAttached.length;
 
         for (uint256 index; index < len; index++) {
@@ -149,12 +147,17 @@ contract AutoSwarmMarket is Ownable {
             Stamp storage stamp = stamps[stampId];
 
             // test Stamp is active AND not already attached to current batch
-            bool stampIsActive = stamp.unitBalance > _stampUnitPaid();
+            bool stampIsActive = stamp.unitBalance >= currentStampUnitPaid();
             bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
-            if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
-                stampsToAttach[toAttachIndex++] = stamp;
-            }
+
+            if (stampIsActive && stampIsNotAttachedToCurrentBatch) stampsToAttach[toAttachIndex++] = stamp;
         }
+    }
+
+    function currentStampUnitPaid() public view returns (uint256) {
+        uint256 blocks = block.number - stampBlockUpdate;
+        uint256 stampUnitPaidIncrease = stampUnitPrice * blocks;
+        return stampUnitPaid + stampUnitPaidIncrease;
     }
 
     function sync() public {
@@ -209,12 +212,6 @@ contract AutoSwarmMarket is Ownable {
     function _topUpBatch(bytes32 batchId, uint256 ttl) internal {
         bzzToken.approve(address(_postageStamp), ttl << _postageStamp.batchDepth(batchId));
         _postageStamp.topUp(batchId, ttl);
-    }
-
-    function _stampUnitPaid() internal view returns (uint256) {
-        uint256 blocks = block.number - stampBlockUpdate;
-        uint256 stampUnitPaidIncrease = stampUnitPrice * blocks;
-        return stampUnitPaid + stampUnitPaidIncrease;
     }
 
     // _ceilDiv: ceiled integer div (instead of floored)
