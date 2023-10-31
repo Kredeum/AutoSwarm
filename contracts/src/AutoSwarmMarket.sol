@@ -128,29 +128,44 @@ contract AutoSwarmMarket is Ownable {
         return _getStampBzzRemaining(stamps[stampId]) > 0;
     }
 
-    function setStampsAttached(bytes32[] memory stampIdsAttached) public {
+    function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public {
         uint256 len = stampIdsAttached.length;
 
         for (uint256 index; index < len; index++) {
-            stamps[stampIdsAttached[index]].batchId = currentBatchId;
+            stamps[stampIdsAttached[index]].batchId = batchId;
         }
     }
 
-    function getStampsToAttach(uint256 skip, uint256 limit) public view returns (Stamp[] memory stampsToAttach) {
+    function getStamp(bytes32 stampId) public view returns (Stamp memory) {
+        bytes32[] memory stampIdsOne = new bytes32[](1);
+        stampIdsOne[0] = stampId;
+        return getStamps(stampIdsOne)[0];
+    }
+
+    function getStamps(bytes32[] memory stampIdsList) public view returns (Stamp[] memory stampsList) {
+        uint256 len = stampIdsList.length;
+        stampsList = new Stamp[](len);
+
+        for (uint256 index; index < len; index++) {
+            stampsList[index] = stamps[stampIdsList[index]];
+        }
+    }
+
+    function getStampIdsToAttach(uint256 skip, uint256 limit) public view returns (bytes32[] memory stampIdsToAttach) {
         require(skip + limit <= stampIds.length, "Out of bounds");
 
         uint256 toAttachIndex;
-        stampsToAttach = new Stamp[](limit);
+        stampIdsToAttach = new bytes32[](limit);
 
         for (uint256 index = skip; index < (skip + limit); index++) {
             bytes32 stampId = stampIds[index];
-            Stamp storage stamp = stamps[stampId];
+            Stamp memory stamp = stamps[stampId];
 
             // test Stamp is active AND not already attached to current batch
             bool stampIsActive = stamp.unitBalance >= currentStampUnitPaid();
             bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
 
-            if (stampIsActive && stampIsNotAttachedToCurrentBatch) stampsToAttach[toAttachIndex++] = stamp;
+            if (stampIsActive && stampIsNotAttachedToCurrentBatch) stampIdsToAttach[toAttachIndex++] = stampId;
         }
     }
 
