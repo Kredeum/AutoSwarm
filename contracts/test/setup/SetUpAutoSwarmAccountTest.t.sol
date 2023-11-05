@@ -8,11 +8,10 @@ contract SetUpAutoSwarmAccountTest is SetUpAutoSwarmAccount {
         assert(true);
     }
 
-    function test_SetUpAutoSwarmAccount_newBatch() public  {
+    function test_SetUpAutoSwarmAccount_newBatch() public {
         autoSwarmMarket.newBatch();
         assert(true);
     }
-
 
     function test_SetUpAutoSwarmAccount_AutoSwarmAccount() public view {
         bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccount");

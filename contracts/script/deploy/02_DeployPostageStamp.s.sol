@@ -7,10 +7,9 @@ import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 contract DeployPostageStamp is DeployLite {
     function deployPostageStamp() public returns (address postageStamp) {
         address bzzToken = deploy("BzzToken", false);
-        address admin = getAddress("Admin");
 
         vm.startBroadcast(deployer);
-        postageStamp = address(new PostageStamp(bzzToken, 16, admin));
+        postageStamp = address(new PostageStamp(bzzToken, 16));
         vm.stopBroadcast();
     }
 

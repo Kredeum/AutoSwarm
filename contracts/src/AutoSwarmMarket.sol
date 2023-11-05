@@ -17,8 +17,6 @@ contract AutoSwarmMarket is Ownable {
         uint256 unitBalance;
     }
 
-    event UpdateStampUnitPrice(uint256 indexed stampUnitPrice);
-
     bytes32[] public batchIds;
     bytes32 public currentBatchId;
     uint256 public currentBatchFilling;
@@ -46,11 +44,29 @@ contract AutoSwarmMarket is Ownable {
     uint256 internal constant _SECOND_PER_YEAR = 365 * 24 * 3600;
     uint256 internal constant _BLOCKS_PER_YEAR = _SECOND_PER_YEAR / _SECONDS_PER_BLOCK;
 
+    event UpdateStampUnitPrice(uint256 indexed stampUnitPrice);
+
     constructor(address postageStamp_) {
         _postageStamp = IPostageStamp(payable(postageStamp_));
         bzzToken = IERC20(_postageStamp.bzzToken());
         stampBlockUpdate = block.number;
         setStampUnitPrice(2e8);
+    }
+
+    function extendsBatch(bytes32 batchId, uint8 deltaDepth) external {
+        uint256 ttl = _postageStamp.remainingBalance(batchId);
+        require(ttl > 0, "Batch not valid");
+
+        uint8 newDepth = _postageStamp.batchDepth(batchId) + deltaDepth;
+
+        _diluteBatch(batchId, newDepth);
+        assert(_postageStamp.batchDepth(batchId) == newDepth);
+
+        uint256 mul = 1 << deltaDepth;
+        uint256 newTtl = (ttl * (mul - 1)) / mul;
+
+        _topUpBatch(batchId, newTtl);
+        assert(_postageStamp.remainingBalance(batchId) == ttl);
     }
 
     function createStamp(bytes32 hash, uint256 size, uint256 bzzAmount) public returns (bytes32 stampId) {
@@ -77,33 +93,49 @@ contract AutoSwarmMarket is Ownable {
         _topUpStamp(stamps[stampId], bzzAmount);
     }
 
-    function _topUpStamp(Stamp storage stamp, uint256 bzzAmount) internal {
-        require(stamp.swarmSize > 0, "Bad Swarm size");
-
-        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.swarmSize);
-
-        currentBatchFilling += stamp.swarmSize;
-
-        uint256 unitBalance = stamp.unitBalance;
-        unitBalance += bzzAmountUnit;
-        stamp.unitBalance = unitBalance;
-
-        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.swarmSize);
-
-        // bzzAmountTotranfer slightly less than bzzAmount due to div rounding
-        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.swarmSize)));
-
-        require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountTotranfer), "Transfer failed");
-
-        sync();
-    }
-
     function setStampUnitPrice(uint256 unitPrice) public {
         stampUnitPaid = currentStampUnitPaid();
         stampUnitPrice = unitPrice;
         stampBlockUpdate = block.number;
 
         emit UpdateStampUnitPrice(stampUnitPrice);
+    }
+
+    function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public {
+        uint256 len = stampIdsAttached.length;
+
+        for (uint256 index; index < len; index++) {
+            stamps[stampIdsAttached[index]].batchId = batchId;
+        }
+    }
+
+    function sync() public {
+        // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
+        uint256 remainingBalance = _postageStamp.remainingBalance(currentBatchId);
+        uint256 neededBalance = (_postageStamp.lastPrice() * 7 days) / _SECONDS_PER_BLOCK;
+        bool aboutToExpire = remainingBalance <= neededBalance;
+
+        // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
+        // if dilute is used, use real batch depth instead od _INITIAL_DEPTH
+        bool aboutToBeSemiFull = currentBatchFilling * 2 >= (1 << _INITIAL_DEPTH);
+
+        // 3/ If batch expires or semi full: Create new batch
+        // another solution for semi fulla ction would be to extends batch...
+        if (aboutToExpire || aboutToBeSemiFull) newBatch();
+    }
+
+    function newBatch() public returns (bytes32 batchId) {
+        uint256 index = batchIds.length;
+        bytes32 nonce = keccak256(abi.encode("Batch #index", index));
+
+        batchId = keccak256(abi.encode(address(this), nonce));
+        currentBatchFilling = 0;
+        currentBatchId = batchId;
+
+        bzzToken.approve(address(_postageStamp), _INITIAL_TTL << _INITIAL_DEPTH);
+        _postageStamp.createBatch(address(this), _INITIAL_TTL, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
+
+        batchIds.push(currentBatchId);
     }
 
     function getStampUnitPriceOneYear() public view returns (uint256) {
@@ -114,26 +146,8 @@ contract AutoSwarmMarket is Ownable {
         return getStampUnitPriceOneYear() * getMbSize(size);
     }
 
-    function getMbSize(uint256 size) public pure returns (uint256) {
-        return _ceilDiv(size, STAMP_UNIT_SIZE);
-    }
-
-    function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {
-        require(stamp.owner != address(0), "Stamp not exists");
-
-        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.swarmSize);
-    }
-
     function isStampActive(bytes32 stampId) public view returns (bool) {
         return _getStampBzzRemaining(stamps[stampId]) > 0;
-    }
-
-    function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public {
-        uint256 len = stampIdsAttached.length;
-
-        for (uint256 index; index < len; index++) {
-            stamps[stampIdsAttached[index]].batchId = batchId;
-        }
     }
 
     function getStamp(bytes32 stampId) public view returns (Stamp memory) {
@@ -175,49 +189,29 @@ contract AutoSwarmMarket is Ownable {
         return stampUnitPaid + stampUnitPaidIncrease;
     }
 
-    function sync() public {
-        // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
-        uint256 remainingBalance = _postageStamp.remainingBalance(currentBatchId);
-        uint256 neededBalance = (_postageStamp.lastPrice() * 7 days) / _SECONDS_PER_BLOCK;
-        bool aboutToExpire = remainingBalance <= neededBalance;
-
-        // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
-        // if dilute is used, use real batch depth instead od _INITIAL_DEPTH
-        bool aboutToBeSemiFull = currentBatchFilling * 2 >= (1 << _INITIAL_DEPTH);
-
-        // 3/ If batch expires or semi full: Create new batch
-        // another solution for semi fulla ction would be to extends batch...
-        if (aboutToExpire || aboutToBeSemiFull) newBatch();
+    function getMbSize(uint256 size) public pure returns (uint256) {
+        return _ceilDiv(size, STAMP_UNIT_SIZE);
     }
 
-    function newBatch() public returns (bytes32 batchId) {
-        uint256 index = batchIds.length;
-        bytes32 nonce = keccak256(abi.encode("Batch #index", index));
+    function _topUpStamp(Stamp storage stamp, uint256 bzzAmount) internal {
+        require(stamp.swarmSize > 0, "Bad Swarm size");
 
-        batchId = keccak256(abi.encode(address(this), nonce));
-        currentBatchFilling = 0;
-        currentBatchId = batchId;
+        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.swarmSize);
 
-        bzzToken.approve(address(_postageStamp), _INITIAL_TTL << _INITIAL_DEPTH);
-        _postageStamp.createBatch(address(this), _INITIAL_TTL, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
+        currentBatchFilling += stamp.swarmSize;
 
-        batchIds.push(currentBatchId);
-    }
+        uint256 unitBalance = stamp.unitBalance;
+        unitBalance += bzzAmountUnit;
+        stamp.unitBalance = unitBalance;
 
-    function extendsBatch(bytes32 batchId, uint8 deltaDepth) external {
-        uint256 ttl = _postageStamp.remainingBalance(batchId);
-        require(ttl > 0, "Batch not valid");
+        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.swarmSize);
 
-        uint8 newDepth = _postageStamp.batchDepth(batchId) + deltaDepth;
+        // bzzAmountTotranfer slightly less than bzzAmount due to div rounding
+        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.swarmSize)));
 
-        _diluteBatch(batchId, newDepth);
-        assert(_postageStamp.batchDepth(batchId) == newDepth);
+        require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountTotranfer), "Transfer failed");
 
-        uint256 mul = 1 << deltaDepth;
-        uint256 newTtl = (ttl * (mul - 1)) / mul;
-
-        _topUpBatch(batchId, newTtl);
-        assert(_postageStamp.remainingBalance(batchId) == ttl);
+        sync();
     }
 
     function _diluteBatch(bytes32 batchId, uint8 depth) internal {
@@ -227,6 +221,12 @@ contract AutoSwarmMarket is Ownable {
     function _topUpBatch(bytes32 batchId, uint256 ttl) internal {
         bzzToken.approve(address(_postageStamp), ttl << _postageStamp.batchDepth(batchId));
         _postageStamp.topUp(batchId, ttl);
+    }
+
+    function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {
+        require(stamp.owner != address(0), "Stamp not exists");
+
+        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.swarmSize);
     }
 
     // _ceilDiv: ceiled integer div (instead of floored)

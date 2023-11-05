@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 
-import {AutoSwarmMarket } from "@autoswarm/src/AutoSwarmMarket.sol";
+import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t.sol";
 
 contract PostageStampMock {
@@ -27,7 +27,7 @@ contract AutoSwarmMarketHarness is AutoSwarmMarket {
     }
 }
 
-contract AutoSwarmMarketHarnessTest   {
+contract AutoSwarmMarketHarnessTest {
     AutoSwarmMarketHarness autoSwarmMarketHarness;
     PostageStampMock postageStampMock;
 
@@ -53,5 +53,4 @@ contract AutoSwarmMarketHarnessTest   {
         assert(autoSwarmMarketHarness.subPos(10, 12) == 0);
         assert(autoSwarmMarketHarness.subPos(23, 5) == 18);
     }
-
 }

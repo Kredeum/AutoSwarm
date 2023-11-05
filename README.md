@@ -27,7 +27,7 @@ The TopUp is made on the Batch of Stamps that includes the storage of this NFT.
 
 A detailed page, gives more technical info on all smartcontracts involved and token exchanges during the TopUp.
 
-## Setup
+## SetUp
 
 To clone this demo, you have to manage 3 types of components:
 1. SmarContracts with solidity/foundry

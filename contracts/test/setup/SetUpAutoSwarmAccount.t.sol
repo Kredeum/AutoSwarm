@@ -38,7 +38,9 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
     }
 
     function setUp() public override {
-        super.setUp();
+        setRecording(false);
+        setUpSwarm();
+        setUpAutoSwarmMarket();
         setUpERC6551();
         setUpAutoSwarmAccount();
     }

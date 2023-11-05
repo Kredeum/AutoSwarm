@@ -21,7 +21,7 @@ contract SetUpSwarm is Test, DeployAll {
         log3(msg.sender, "MsgSender", "SetUpSwarm");
         log3(address(this), "This", "SetUpSwarm");
 
-        admin = getAddress("Admin");
+        admin = msg.sender;
         oracle = getAddress("Oracle");
 
         postageStamp = PostageStamp(deploy("PostageStamp", false));
