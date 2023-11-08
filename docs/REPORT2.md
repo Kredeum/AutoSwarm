@@ -32,6 +32,60 @@ PoC prooved the need to manage Stamps one by one, this is the purpose of this de
 To be able to manage -- to AutoSwarm -- whatever NFTs, this means re-store on Swarm any existing NFTs, to be able then  to ToPup them
 
 ---
+
+# AutoSwarm Architecture
+<!-- _footer: "" -->
+![](./architecture.png)
+
+---
+<style scoped>h2 { color: rgb(17,142,255);  }</style>
+
+# AutoSwarm Market
+
+### PostageStamp : _manage Batch of Stamps with depth and ttl_
+
+### AutoSwarm Market : _manage Stamps with size and ttl_
+
+
+## _Stamps created are attached to current batch<br/> then re-attach on new batches (if not expired)_
+
+---
+<!-- _footer: "" -->
+#  AutoSwarm Stamps & Batch Timeline
+![](./timeline.png)
+
+---
+
+#  Onchain : AutoSwarm Market Smartcontract
+
+## Done
+- 3 versions to get the final working one, with Architecture decisions
+- similar mechanism than PostageStamp
+
+
+## ToDo _during next grant_
+- use same sorted list structure than PostageStamp
+_not mandatory in testing phase, but needed to scale number of stamps_
+
+---
+
+# Offchain : AutoSwarm cron jobs
+
+## Done
+- One time manual attachment of Stamp
+
+## ToDo :
+- offchain attachment of Stamps to batches : to be done within AutoSwarm Re-Saver : same scripts to develop
+- cron jobs :
+  - one each day to trigger attachement on new Stamps,
+  - one each month (on new Batch creation) to trigger re-attachement on new Batch
+
+---
+
+# Annexes
+
+---
+
 # Architecture decisions :
 
 - One Stamp per NFT, containing NFT metadata and content and maybe other assets
@@ -57,9 +111,15 @@ To be able to manage -- to AutoSwarm -- whatever NFTs, this means re-store on Sw
 
 ---
 
-# AutoSwarm Architecture
-<!-- _footer: "" -->
-![](./architecture.png)
+#  AutoSwarm Stamps & Batch Timeline
+
+1. Offchain : **Create new Batch** on a Swarm node
+2. Onchain : **Register Batch** on AutoSwarm Market
+3. Onchain : **Export Stamps** to attach from AutoSwarm Market
+4. Offchain : **Attach Stamps** (not expiring) Stamps  to the new Batch on a Swarm node
+5. Onchain : **Register Stamps** on this Batchid after attachement
+6. Offchain : **Wait** one month
+7. Offchain : **Back to 1.**
 
 ---
 
@@ -74,43 +134,5 @@ To be able to manage -- to AutoSwarm -- whatever NFTs, this means re-store on Sw
 
 ---
 
-#  AutoSwarm Stamps & Batch Timeline (1/2)
+#  Grant Proposals
 
-1. Offchain : **Create new Batch** on a Swarm node
-2. Onchain : **Register Batch** on AutoSwarm Market
-3. Onchain : **Export Stamps** to attach from AutoSwarm Market
-4. Offchain : **Attach Stamps** (not expiring) Stamps  to the new Batch on a Swarm node
-5. Onchain : **Register Stamps** on this Batchid after attachement
-6. Offchain : **Wait** one month
-7. Offchain : **Back to 1.**
-
----
-<!-- _footer: "" -->
-#  AutoSwarm Stamps & Batch Timeline (2/2)
-![](./timeline.png)
-
----
-
-#  Onchain : AutoSwarm Market Smartcontract
-
-## Done
-- 3 versions to get the final working one, with Architecture decisions
-- similar mechanism than PostageStamp
-
-## ToDo
-- use same sorted list mechanism
-- security audits
-- tests with real users (on testnet)
-
----
-
-# Offchain : AutoSwarm scripts and cron
-
-## Done
-- One time manual attachment of Stamp
-
-## ToDo :
-- offchain attachment of Stamps to batches : to be done within AutoSwarm Re-Saver : same scripts to develop
-- cron jobs :
-  - one each day to trigger attachement on new Stamps,
-  - one each month to trigger re-attachement on new Batch

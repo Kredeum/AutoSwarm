@@ -1,12 +1,14 @@
 {
   "1": {
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb",
+    "batchId": "",
     "chainName": "mainnet"
   },
   "5": {
     "BzzToken": "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335",
     "PostageStamp": "0xacC8b5bd78C5D9157bC663476A895dbc61dc128e",
     "PriceOracle": "0x7A6fE37781235FBbaf79205AF7F3546F3869d0B2",
+    "batchId": "",
     "chainName": "goerli"
   },
   "100": {
@@ -18,9 +20,11 @@
     "NFTCollection": "0x7dD24ACB40AeE48c79358009ed86CC292e8f9991",
     "Oracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
     "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
+    "batchId": "",
     "chainName": "gnosis"
   },
   "1337": {
+    "batchId": "",
     "chainName": "local"
   },
   "31337": {
@@ -30,6 +34,7 @@
     "ERC6551Registry": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
     "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
     "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
+    "batchId": "",
     "chainName": "anvil"
   },
   "11155111": {
@@ -40,6 +45,7 @@
     "NFTCollection": "0x7A6002B7Cd1fb3D28E9942529da919FCAd831f9A",
     "Oracle": "0x38Db6e0fb64bf05f3c8d02F3E03a697c72ed397C",
     "PostageStamp": "0x6b8Fa21F9F262345c8Ebeb19adD9381EdB72367c",
+    "batchId": "",
     "chainName": "sepolia"
   }
 }
