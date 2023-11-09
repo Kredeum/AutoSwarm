@@ -13,6 +13,7 @@ import {
 } from '$lib/ts/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from './utils';
 import { batchSizeBatch } from './batch';
+import { chainGet } from './chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -95,13 +96,14 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	return ret;
 };
 
-const displayExplorerLink = (chain: Chain, addr?: string): string => {
+const displayExplorerLink = (chainId: number, addr?: string): string => {
+	const chain = chainGet(chainId);
 	const explorer =
 		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
 
 	return addr && isAddress(addr)
 		? `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`
-		: `<a href="${explorer}" target="_blank">${chain.id}</a>`;
+		: `<a href="${explorer}" target="_blank">${chainId}</a>`;
 };
 
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
@@ -122,10 +124,10 @@ const displayBalance = (
 	return str.toFixed(Number(toFixed));
 };
 
-const displayNftLink = (chain: Chain, collection: string, tokenId: bigint): string => {
+const displayNftLink = (chainId: number, collection: string, tokenId: bigint): string => {
 	if (!isAddress(collection)) return UNDEFINED_DATA;
 
-	const url = `https://app.kredeum.com/#/${chain.id}/${collection}/${tokenId}`;
+	const url = `https://app.kredeum.com/#/${chainId}/${collection}/${tokenId}`;
 	return `<a href="${url}" target="_blank"> #${tokenId}</a>`;
 };
 

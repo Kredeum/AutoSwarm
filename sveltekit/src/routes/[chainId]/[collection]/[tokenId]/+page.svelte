@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, getContext } from 'svelte';
 	import { page } from '$app/stores';
 
 	import { zeroAddress, type Address } from 'viem';
+	import { bzzChainId } from '$lib/ts/bzz';
 
 	import {
 		type NftMetadata,
@@ -11,18 +12,21 @@
 		DEFAULT_PRICE
 	} from '$lib/ts/constants.js';
 	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/write';
-	import {
-		readAccount,
-		readBlock,
-		readBzzBalance,
-		readLastPrice,
-		readNftMetadata
-	} from '$lib/ts/read.js';
+	import { readBlock, readBzzBalance, readLastPrice } from '$lib/ts/read.js';
 	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display';
 	import { utilsError } from '$lib/ts/utils.js';
+	import { readNftMetadata, readNftTBAccount } from '$lib/ts/readNft.js';
 
-	export let data;
-	const { chain } = data;
+	// const $bzzChainId = $page.data.chain.id;
+	const chainId = Number($page.params.chainId);
+	const collection = $page.params.collection as Address;
+	const tokenId = BigInt($page.params.tokenId);
+
+	console.log('+page.svelte $page:', $page);
+	console.log('$bzzChainId:', $bzzChainId);
+	console.log('chainId:', chainId);
+	console.log('collection:', collection);
+	console.log('tokenId:', tokenId);
 
 	let blockTimestamp: number | undefined;
 
@@ -42,17 +46,17 @@
 
 	const refreshDisplay = async () => {
 		console.log('refreshDisplay');
-		if (!chain) return;
+		if (!($bzzChainId > 0)) return;
 
-		const block = await readBlock(chain);
+		const block = await readBlock($bzzChainId);
 		blockTimestamp = Number(block.timestamp) || 0;
 
 		walletAddress = await writeWalletAddress();
-		walletBalance = await readBzzBalance(chain, walletAddress);
+		walletBalance = await readBzzBalance($bzzChainId, walletAddress);
 
-		autoSwarmAddress = await readAccount(chain);
-		autoSwarmBalance = await readBzzBalance(chain, autoSwarmAddress);
-		lastPrice = (await readLastPrice(chain)) || DEFAULT_PRICE;
+		autoSwarmAddress = await readNftTBAccount($bzzChainId, collection, tokenId);
+		autoSwarmBalance = await readBzzBalance($bzzChainId, autoSwarmAddress);
+		lastPrice = (await readLastPrice($bzzChainId)) || DEFAULT_PRICE;
 
 		if (autoSwarmBalance !== undefined && lastPrice > 0n) {
 			duration = Number((autoSwarmBalance * BigInt(ONE_YEAR)) / AUTOSWARM_UNIT_PRICE);
@@ -72,24 +76,17 @@
 			return;
 		}
 
-		await writeTransferBzz(chain, autoSwarmAddress, AUTOSWARM_UNIT_PRICE);
+		await writeTransferBzz($bzzChainId, autoSwarmAddress, AUTOSWARM_UNIT_PRICE);
 
 		topping = false;
 		refreshDisplay();
 	};
 
 	onMount(async () => {
-		nftMetadataJson = await readNftMetadata(chain);
+		nftMetadataJson = await readNftMetadata(chainId, collection, tokenId);
 		refreshDisplay();
 	});
 </script>
-
-<p>
-	Chain {data.chain.name}
-</p>
-<p>
-	<a class="details-link" href="{$page.url.pathname}/details">details</a>
-</p>
 
 <section>
 	{#if nftMetadataJson}
@@ -127,3 +124,7 @@
 		</div>
 	{/if}
 </section>
+
+<p>
+	<a class="details-link" href="{$page.url.pathname}/details">details</a>
+</p>
