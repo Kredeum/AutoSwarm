@@ -46,6 +46,9 @@ importers:
       eslint-plugin-svelte:
         specifier: ^2.35.0
         version: 2.35.0(eslint@8.53.0)(svelte@4.2.2)(ts-node@10.9.1)
+      postcss:
+        specifier: ^8.4.31
+        version: 8.4.31
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -70,6 +73,9 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+      undici:
+        specifier: ^5.27.2
+        version: 5.27.2
       viem:
         specifier: ^1.18.9
         version: 1.18.9(typescript@5.2.2)
@@ -5597,6 +5603,13 @@ packages:
 
   /undici@5.26.5:
     resolution: {integrity: sha512-cSb4bPFd5qgR7qr2jYAi0hlX9n5YKK2ONKkLFkxl+v/9BvC0sOpZjBHDBSXc5lWAf5ty9oZdRXytBIHzgUcerw==}
+    engines: {node: '>=14.0'}
+    dependencies:
+      '@fastify/busboy': 2.0.0
+    dev: true
+
+  /undici@5.27.2:
+    resolution: {integrity: sha512-iS857PdOEy/y3wlM3yRp+6SNQQ6xU0mmZcwRSriqk+et/cwWAtwmIGf6WkoDN2EK/AMdCO/dfXzIwi+rFMrjjQ==}
     engines: {node: '>=14.0'}
     dependencies:
       '@fastify/busboy': 2.0.0
