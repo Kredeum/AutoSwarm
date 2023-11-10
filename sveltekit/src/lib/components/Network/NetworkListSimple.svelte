@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { chainsId } from '$lib/ts/chains';
+	import { bzzChainsId } from '$lib/ts/chains';
 
 	import NetworkSimple from './NetworkSimple.svelte';
 
@@ -8,6 +8,6 @@
 	/////////////////////////////////////////////////
 </script>
 
-{#each chainsId as chainId}
+{#each bzzChainsId as chainId}
 	<NetworkSimple {chainId} />
 {/each}

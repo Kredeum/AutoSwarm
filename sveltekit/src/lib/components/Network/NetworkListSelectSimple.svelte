@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { chainsId } from '$lib/ts/chains';
+	import { bzzChainsId } from '$lib/ts/chains';
 
 	import NetworkSimple from './NetworkSimple.svelte';
 
@@ -18,9 +18,9 @@
 </script>
 
 <select on:change={_switchChainEvt}>
-	{#each chainsId as id}
-		<option value={id} selected={id == chainId}>
-			<NetworkSimple chainId={id} />
+	{#each bzzChainsId as bzzChainId}
+		<option value={bzzChainId} selected={bzzChainId == chainId}>
+			<NetworkSimple chainId={bzzChainId} />
 		</option>
 	{/each}
 </select>

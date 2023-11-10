@@ -1,9 +1,7 @@
 <script lang="ts">
+	import { zeroAddress, type Address } from 'viem';
 	import { onMount, getContext } from 'svelte';
 	import { page } from '$app/stores';
-
-	import { zeroAddress, type Address } from 'viem';
-	import { bzzChainId } from '$lib/ts/bzz';
 
 	import {
 		type NftMetadata,
@@ -16,17 +14,12 @@
 	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display';
 	import { utilsError } from '$lib/ts/utils.js';
 	import { readNftMetadata, readNftTBAccount } from '$lib/ts/readNft.js';
+	import { bzzChainId } from '$lib/ts/bzz';
 
-	// const $bzzChainId = $page.data.chain.id;
-	const chainId = Number($page.params.chainId);
+	// NFT reference
+	const nftChainId = Number($page.params.chainId);
 	const collection = $page.params.collection as Address;
 	const tokenId = BigInt($page.params.tokenId);
-
-	console.log('+page.svelte $page:', $page);
-	console.log('$bzzChainId:', $bzzChainId);
-	console.log('chainId:', chainId);
-	console.log('collection:', collection);
-	console.log('tokenId:', tokenId);
 
 	let blockTimestamp: number | undefined;
 
@@ -67,6 +60,7 @@
 	const topUp = async () => {
 		console.info('topUp');
 		if (topping) return;
+
 		if (lastPrice === undefined) {
 			utilsError('No price found');
 			return;
@@ -83,15 +77,15 @@
 	};
 
 	onMount(async () => {
-		nftMetadataJson = await readNftMetadata(chainId, collection, tokenId);
+		nftMetadataJson = await readNftMetadata(nftChainId, collection, tokenId);
 		refreshDisplay();
 	});
 </script>
 
 <section>
-	{#if nftMetadataJson}
-		<div class="nfts-grid">
-			<article>
+	<div class="nfts-grid">
+		<article>
+			{#if nftMetadataJson}
 				<div
 					title="NFT Collection Address  @{nftMetadataJson.address}"
 					class="nft-img"
@@ -99,30 +93,33 @@
 					aria-label={nftMetadataJson.description}
 				/>
 				<p class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
-			</article>
+			{:else}
+				<div class="nft-img" />
+				<p class="nft-title">*** <span>#*</span></p>
+			{/if}
+		</article>
+	</div>
+	<section class="user-config">
+		<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
+	</section>
+	<div class="batch-topUp">
+		<p class="batch-topUp-title">Swarm Storage Guaranteed</p>
+		<div class="batch-topUp-infos">
+			<p>for</p>
+			<p>{displayDuration(duration)}</p>
+			<p>until</p>
+			<p>{displayDate(until)}</p>
 		</div>
-		<section class="user-config">
-			<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
-		</section>
-		<div class="batch-topUp">
-			<p class="batch-topUp-title">Swarm Storage Guaranteed</p>
-			<div class="batch-topUp-infos">
-				<p>for</p>
-				<p>{displayDuration(duration)}</p>
-				<p>until</p>
-				<p>{displayDate(until)}</p>
-			</div>
-			<button class="btn btn-topup" on:click={topUp}>
-				TopUp 1 Year
-				{#if topping}
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
-				{/if}
-			</button>
-			<div class="batch-topUp-below">
-				<p>Price: {displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</p>
-			</div>
+		<button class="btn btn-topup" on:click={topUp}>
+			TopUp 1 Year
+			{#if topping}
+				<i class="fa-solid fa-spinner fa-spin-pulse" />
+			{/if}
+		</button>
+		<div class="batch-topUp-below">
+			<p>Price: {displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Mo</p>
 		</div>
-	{/if}
+	</div>
 </section>
 
 <p>

@@ -1,11 +1,11 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation';
+
 	import Header from '$lib/svelte/Header.svelte';
 	import Footer from '$lib/svelte/Footer.svelte';
-	import { invalidateAll } from '$app/navigation';
-
 	import NetworkListSelectSimple from '$lib/components/Network/NetworkListSelectSimple.svelte';
 	import AccountConnectSimple from '$lib/components/Account/AccountConnectSimple.svelte';
-	import '$lib/css/styles.css';
+  import '$lib/css/styles.css';
 
 	import { bzzChainId } from '$lib/ts/bzz';
 

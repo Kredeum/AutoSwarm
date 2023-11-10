@@ -53,7 +53,7 @@
 	export let data;
 	const { json, chain } = data;
 
-	// const $bzzChainId = $page.data.chain.id;
+	// NFT reference
 	const nftChainId = Number($page.params.chainId);
 	const collection = $page.params.collection as Address;
 	const tokenId = BigInt($page.params.tokenId);
@@ -105,20 +105,20 @@
 		nftOwner = await readNftOwner(nftChainId, collection, tokenId);
 
 		walletAddress = await writeWalletAddress();
-		// walletBalance = await readBzzBalance($bzzChainId, walletAddress);
+		walletBalance = await readBzzBalance($bzzChainId, walletAddress);
 
 		autoSwarmAddress = await readNftTBAccount(nftChainId, collection, tokenId);
-		// autoSwarmBalance = await readBzzBalance($bzzChainId, autoSwarmAddress);
-		// lastPrice = (await readLastPrice($bzzChainId)) || DEFAULT_PRICE;
+		autoSwarmBalance = await readBzzBalance($bzzChainId, autoSwarmAddress);
+		lastPrice = (await readLastPrice($bzzChainId)) || DEFAULT_PRICE;
 
 		if (autoSwarmBalance !== undefined && lastPrice > 0n) {
 			duration = Number((autoSwarmBalance * BigInt(ONE_YEAR)) / AUTOSWARM_UNIT_PRICE);
 			until = blockTimestamp + duration;
 		}
 
-		// remainingBalance = await readRemainingBalance($bzzChainId);
+		remainingBalance = await readRemainingBalance($bzzChainId);
 		[owner, depth, normalisedBalance] =
-			// // chain.id == 100 ? await readBatchLegacy($bzzChainId) : await readBatchNew($bzzChainId);
+			chain.id == 100 ? await readBatchLegacy($bzzChainId) : await readBatchNew($bzzChainId);
 
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 
@@ -126,27 +126,27 @@
 	};
 
 	const buy = () =>
-		// autoSwarmAddress && writeStampsBuy($bzzChainId, autoSwarmAddress).then(refreshDisplay);
+		autoSwarmAddress && writeStampsBuy($bzzChainId, autoSwarmAddress).then(refreshDisplay);
 	const withdraw = () =>
-		// autoSwarmAddress && writeStampsWithdraw($bzzChainId, autoSwarmAddress).then(refreshDisplay);
+		autoSwarmAddress && writeStampsWithdraw($bzzChainId, autoSwarmAddress).then(refreshDisplay);
 	const deposit = () =>
-		// autoSwarmAddress && writeStampsDeposit($bzzChainId, autoSwarmAddress).then(refreshDisplay);
+		autoSwarmAddress && writeStampsDeposit($bzzChainId, autoSwarmAddress).then(refreshDisplay);
 	const dilute = () =>
 		autoSwarmAddress &&
-		// writeStampsIncreaseDepth($bzzChainId, autoSwarmAddress, depth + 2).then(refreshDisplay);
+		writeStampsIncreaseDepth($bzzChainId, autoSwarmAddress, depth + 2).then(refreshDisplay);
 
 	const topUp = (months: number) =>
 		autoSwarmAddress &&
 		writeStampsTopUp(
-			// $bzzChainId,
+			$bzzChainId,
 			autoSwarmAddress,
 			(BigInt(months * ONE_DAY) * (lastPrice || 0n)) / BigInt(SECONDS_PER_BLOCK)
 		).then(refreshDisplay);
 
-	// const onChainChanged = ($bzzChainId: string): void => {
+	const onChainChanged = ($bzzChainId: string): void => {
 		let next = 'gnosis';
-		// if ($bzzChainId == '11155111') next = 'sepolia';
-		// else if ($bzzChainId == '31337') next = 'anvil';
+		if ($bzzChainId == '11155111') next = 'sepolia';
+		else if ($bzzChainId == '31337') next = 'anvil';
 
 		goto(next);
 	};
@@ -160,7 +160,7 @@
 
 <section>
 	<p>
-		<!-- {chain.name} network ($bzzChainId #{chain.id}) -->
+		{chain.name} network ($bzzChainId #{chain.id})
 		<span>{displayDate(blockTimestamp)} | block #{blockNumber}</span>
 	</p>
 	<p>AutoSwarm Price<span>{displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Year * Mb</span></p>
@@ -177,19 +177,19 @@
 	<p>
 		NFT <span
 			>{displaySize(AUTOSWARM_UNIT)} |
-			<!-- {@html displayExplorerLink($bzzChainId)} / -->
-			<!-- {@html displayExplorerLink($bzzChainId, collection)} / -->
-			<!-- {@html displayNftLink($bzzChainId, collection, tokenId)} -->
+			{@html displayExplorerLink($bzzChainId)} /
+			{@html displayExplorerLink($bzzChainId, collection)} /
+			{@html displayNftLink($bzzChainId, collection, tokenId)}
 		</span>
 	</p>
 	<p>
-		<!-- NFT Owner<span> {@html displayExplorerLink($bzzChainId, nftOwner)}</span> -->
+		NFT Owner<span> {@html displayExplorerLink($bzzChainId, nftOwner)}</span>
 	</p>
 	<p>
 		NFT AutoSwarm TBA ({displayTbaDisplayed(tbaDeployed)})
 		<span
 			>{displayBalance(autoSwarmBalance, 16, 4)} Bzz | {@html displayExplorerLink(
-				// $bzzChainId,
+				$bzzChainId,
 				autoSwarmAddress
 			)}</span
 		>
@@ -229,7 +229,7 @@
 
 	<p>
 		Batch <span
-			<!-- >[{@html displayExplorerLink($bzzChainId, owner)}, {displayTxt(depth)}, {displayTxt( -->
+			>[{@html displayExplorerLink($bzzChainId, owner)}, {displayTxt(depth)}, {displayTxt(
 				remainingBalance
 			)}, {displayTxt(normalisedBalance)}]</span
 		>
@@ -275,20 +275,20 @@
 	</p>
 	<hr />
 	<p>
-		<!-- BzzToken <span>{@html displayExplorerLink($bzzChainId, json.BzzToken)}</span> -->
+		BzzToken <span>{@html displayExplorerLink($bzzChainId, json.BzzToken)}</span>
 	</p>
 	<p>
-		<!-- PostageStamp <span>{@html displayExplorerLink($bzzChainId, json.PostageStamp)}</span> -->
+		PostageStamp <span>{@html displayExplorerLink($bzzChainId, json.PostageStamp)}</span>
 	</p>
 	<p>
-		<!-- Price Oracle <span>{@html displayExplorerLink($bzzChainId, json.Oracle)}</span> -->
+		Price Oracle <span>{@html displayExplorerLink($bzzChainId, json.Oracle)}</span>
 	</p>
 	<p>
-		<!-- ERC6551 Registry <span>{@html displayExplorerLink($bzzChainId, json.ERC6551Registry)}</span> -->
+		ERC6551 Registry <span>{@html displayExplorerLink($bzzChainId, json.ERC6551Registry)}</span>
 	</p>
 	<p>
 		AutoSwarm implementation <span
-			<!-- >{@html displayExplorerLink($bzzChainId, json.AutoSwarmAccount)}</span -->
+			>{@html displayExplorerLink($bzzChainId, json.AutoSwarmAccount)}</span
 		>
 	</p>
 </section>

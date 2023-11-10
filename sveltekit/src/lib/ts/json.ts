@@ -1,4 +1,4 @@
-import type { ChainIdType } from './chains';
+import type { BzzChainIdType } from './chains';
 
 import jsonFile from '$addresses';
 
@@ -7,11 +7,11 @@ import jsonFile from '$addresses';
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const jsonGet = (chainId: number) => {
-	return jsonFile[chainId as ChainIdType];
+	return jsonFile[chainId as BzzChainIdType];
 };
 
 const jsonGetBatchId = (chainId: number): string => {
-	const json = jsonGet(chainId as ChainIdType);
+	const json = jsonGet(chainId as BzzChainIdType);
 	return 'batchId' in json ? json.batchId : '';
 };
 
