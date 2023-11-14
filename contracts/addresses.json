@@ -2,7 +2,7 @@
   "1": {
     "BzzToken": "0x19062190B1925b5b6689D7073fDfC8c2976EF8Cb",
     "batchId": "",
-    "Oracle": "",
+    "PriceOracle": "",
     "chainName": "mainnet"
   },
   "5": {
@@ -10,7 +10,6 @@
     "PostageStamp": "0xacC8b5bd78C5D9157bC663476A895dbc61dc128e",
     "PriceOracle": "0x7A6fE37781235FBbaf79205AF7F3546F3869d0B2",
     "batchId": "",
-    "Oracle": "",
     "chainName": "goerli"
   },
   "100": {
@@ -18,8 +17,9 @@
     "AutoSwarmAccount": "0xD0F4c6E06D7EBFc1f78Abb2a2f4E42D3920123BE",
     "BzzToken": "0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da",
     "ERC6551Registry": "0xAc1d836f3D8884d95AAfbddC568677d14f1729e6",
-    "Oracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
+    "NFTCollection": "0x7dD24ACB40AeE48c79358009ed86CC292e8f9991",
     "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
+    "PriceOracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
     "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
     "chainName": "gnosis"
   },
@@ -27,23 +27,22 @@
     "chainName": "local"
   },
   "31337": {
-    "AutoSwarmAccount": "0xDEb1E9a6Be7Baf84208BB6E10aC9F9bbE1D70809",
-    "AutoSwarmMarket": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "ERC6551Registry": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "Oracle": "",
-    "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-    "batchId": "",
+    "AutoSwarmAccount": "0x8aBb8E62Bd73f4c73b2CE7a02631B2dC911Ab720",
+    "AutoSwarmMarket": "0xd771D7C0e1EBE89C9E9F663824851BB89b926d1a",
+    "BzzToken": "0x1Eb835EB7BEEEE9E6bbFe08F16a2d2eF668204bd",
+    "ERC6551Registry": "0x993F00eb9C73e3E4eAe3d6Afb4Ba65A6b8B5E597",
+    "NFTCollection": "0x0116686E2291dbd5e317F47faDBFb43B599786Ef",
+    "PostageStamp": "0x2706A171ECb68E0038378D40Dd1d136361d0cB7d",
     "chainName": "anvil"
   },
   "11155111": {
     "AutoSwarmAccount": "0x96C1Da9389F91237782033ac3fbEd21cE5B46406",
     "AutoSwarmMarket": "0xa73575d4EF845db85Bd79045A8a50aaCB707Ffb8",
-    "BzzToken": "0x2A0c72063Ff6ad79c94A4109155DDe59e0909a22",
+    "BzzToken": "0x543dDb01Ba47acB11de34891cD86B675F04840db",
     "ERC6551Registry": "0xf48F331AeB5ADF4e76b86fab06ec4a12d937dd8e",
-    "Oracle": "0x38Db6e0fb64bf05f3c8d02F3E03a697c72ed397C",
-    "PostageStamp": "0x6b8Fa21F9F262345c8Ebeb19adD9381EdB72367c",
+    "NFTCollection": "0xB45Bf1c2969F26413465DD8ae814b5cd9C8DAA6F",
+    "PostageStamp": "0x794532C50c6EfA070Cd206b82178E98433046996",
+    "PriceOracle": "0x201dcde5c2D14CE03Fa74b0158488122FcA673B8",
     "batchId": "0x49042fac7d898d51cff1b5724bc394fa97a0256bf6d74ace62e35ec2c48110bd",
     "chainName": "sepolia"
   }

@@ -22,7 +22,7 @@ contract SetUpSwarm is Test, DeployAll {
         log3(address(this), "This", "SetUpSwarm");
 
         admin = msg.sender;
-        oracle = getAddress("Oracle");
+        oracle = getAddress("PriceOracle");
 
         postageStamp = PostageStamp(deploy("PostageStamp", false));
 
@@ -31,7 +31,7 @@ contract SetUpSwarm is Test, DeployAll {
         if (!postageStamp.hasRole(oracleRole, oracle)) {
             vm.prank(admin);
             postageStamp.grantRole(oracleRole, oracle);
-            log3(oracle, "Oracle", "Grant role");
+            log3(oracle, "PriceOracle", "Grant role");
         }
 
         bzzToken = IERC20(postageStamp.bzzToken());

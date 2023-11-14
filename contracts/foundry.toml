@@ -19,7 +19,7 @@ eth_rpc_url = "gnosis"
 fork_block_number = 30066829
 
 [profile.anvil]
-eth_rpc_url = "local"
+eth_rpc_url = "anvil"
 
 [profile.incentives]
 src = 'lib/storage-incentives'
@@ -36,7 +36,7 @@ gnosis = "https://rpc.ankr.com/gnosis"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 sepolia2 = "https://rpc.ankr.com/eth_sepolia"
 
-local = "http://127.0.0.1:8545"
+anvil = "http://127.0.0.1:8545"
 
 [etherscan]
 gnosis = { key = "${ETHERSCAN_API_KEY_GNOSIS}" }
