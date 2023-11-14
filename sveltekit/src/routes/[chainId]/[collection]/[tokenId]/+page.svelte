@@ -11,10 +11,16 @@
 	} from '$lib/ts/constants/constants.js';
 	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/onchain/write';
 	import { readBlock, readBzzBalance, readLastPrice } from '$lib/ts/onchain/read.js';
-	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display/display';
+	import {
+		displayBalance,
+		displayDate,
+		displayDuration,
+		displayTxt
+	} from '$lib/ts/display/display';
 	import { utilsError } from '$lib/ts/swarm/utils.js';
-	import { readNftMetadata, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
+	import { readNftMetadata, readNftImage, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import type { Url } from 'url';
 
 	// NFT reference
 	const nftChainId = Number($page.params.chainId);
@@ -23,7 +29,8 @@
 
 	let blockTimestamp: number | undefined;
 
-	let nftMetadataJson: NftMetadata;
+	let nftMetadata: NftMetadata;
+	let nftImage: string;
 
 	let walletAddress: Address | undefined;
 	let walletBalance: bigint | undefined;
@@ -77,7 +84,8 @@
 	};
 
 	onMount(async () => {
-		nftMetadataJson = await readNftMetadata(nftChainId, collection, tokenId);
+		nftMetadata = await readNftMetadata(nftChainId, collection, tokenId);
+		nftImage = await readNftImage(nftMetadata);
 		refreshDisplay();
 	});
 </script>
@@ -85,14 +93,14 @@
 <section>
 	<div class="nfts-grid">
 		<article>
-			{#if nftMetadataJson}
+			{#if nftMetadata}
 				<div
-					title="NFT Collection Address  @{nftMetadataJson.address}"
+					title="NFT Collection Address  @{nftMetadata.address}"
 					class="nft-img"
-					style="background-image: url({nftMetadataJson.image});"
-					aria-label={nftMetadataJson.description}
+					style="background-image: url({nftImage});"
+					aria-label={nftMetadata.description}
 				/>
-				<p class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
+				<p class="nft-title">{nftMetadata.name} <span># {nftMetadata.tokenId}</span></p>
 			{:else}
 				<div class="nft-img" />
 				<p class="nft-title">*** <span>#*</span></p>

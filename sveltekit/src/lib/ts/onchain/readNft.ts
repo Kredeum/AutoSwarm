@@ -1,9 +1,10 @@
 import type { Address } from 'viem';
 import { erc6551RegistryAbi, erc721Abi } from '../constants/abis';
-import { SWARM_GATEWAY, type NftMetadata, SALT } from '$lib/ts/constants/constants';
+import { type NftMetadata, SALT } from '$lib/ts/constants/constants';
 import { utilsError } from '../swarm/utils';
 import { readPublicClient } from './read';
 import { jsonGet } from '../constants/json';
+import { fetchJson, fetchUrlAlt } from '../offchain/fetch';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -37,9 +38,8 @@ const readNftMetadata = async (
 		functionName: 'tokenURI',
 		args: [tokenId]
 	});
-	const urlHash = tokenURI.replace('swarm://', SWARM_GATEWAY);
-	const data = await fetch(urlHash as string);
-	const nftMetadataJson = await data.json();
+	const tokenURIAlt = await fetchUrlAlt(tokenURI);
+	const nftMetadataJson = (await fetchJson(tokenURIAlt)) as unknown as NftMetadata;
 
 	return {
 		name: nftMetadataJson.name,
@@ -49,6 +49,9 @@ const readNftMetadata = async (
 		address: collection
 	};
 };
+
+const readNftImage = async (nftMetadataJson: NftMetadata): Promise<string> =>
+	await fetchUrlAlt(nftMetadataJson.image);
 
 const readNftTotalSupply = async (chainId: number, collection: Address): Promise<bigint> => {
 	const publicClient = await readPublicClient(chainId);
@@ -90,4 +93,4 @@ const readNftTBAccount = async (
 	});
 };
 
-export { readNftOwner, readNftTBAccount, readNftTotalSupply, readNftMetadata };
+export { readNftOwner, readNftTBAccount, readNftTotalSupply, readNftMetadata, readNftImage };

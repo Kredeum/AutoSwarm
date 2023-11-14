@@ -7,6 +7,7 @@ type NftMetadata = {
 };
 
 const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz/';
+const IPFS_GATEWAY = 'https://ipfs.io/ipfs/';
 
 const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
 // const SEPOLIA_RPC = "https://rpc.ankr.com/eth_sepolia";
@@ -52,8 +53,9 @@ export {
 	DIVISION_BY_ZERO,
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
-	SWARM_GATEWAY,
 	SEPOLIA_RPC,
+	IPFS_GATEWAY,
+	SWARM_GATEWAY,
 	AUTOSWARM_PERIOD,
 	AUTOSWARM_UNIT,
 	AUTOSWARM_UNIT_PRICE

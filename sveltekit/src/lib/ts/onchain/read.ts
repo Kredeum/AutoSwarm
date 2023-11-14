@@ -7,12 +7,7 @@ import {
 	type PublicClient,
 	createPublicClient
 } from 'viem';
-import {
-	bzzTokenAbi,
-	postageStampAbi,
-	postageStampAbiBatcheslegacy,
-	erc6551RegistryAbi
-} from '../constants/abis';
+import { bzzTokenAbi, postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis';
 import { SEPOLIA_RPC } from '$lib/ts/constants/constants';
 import { utilsError } from '../swarm/utils';
 import { chainGet } from '../constants/chains';
