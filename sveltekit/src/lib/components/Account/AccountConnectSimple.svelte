@@ -2,7 +2,7 @@
 	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
 
-	import { writeWalletAddress } from '$lib/ts/write';
+	import { writeWalletAddress } from '$lib/ts/onchain/write';
 	import AccountSimple from './AccountSimple.svelte';
 
 	/////////////////////////////////////////////////

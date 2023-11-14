@@ -30,4 +30,4 @@ for (const chain of bzzChains) chainsMap.set(chain.id, chain);
 const chainGet = (id: number): Chain => chainsMap.get(id) || mainnet;
 
 export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet };
-export type { ChainMapType, BzzChainIdType , NftChainIdType};
+export type { ChainMapType, BzzChainIdType, NftChainIdType };

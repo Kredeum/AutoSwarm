@@ -1,9 +1,9 @@
 import type { Address } from 'viem';
-import { erc6551RegistryAbi, erc721Abi } from './abis';
-import { SWARM_GATEWAY, type NftMetadata, SALT } from '$lib/ts/constants';
-import { utilsError } from './utils';
+import { erc6551RegistryAbi, erc721Abi } from '../constants/abis';
+import { SWARM_GATEWAY, type NftMetadata, SALT } from '$lib/ts/constants/constants';
+import { utilsError } from '../swarm/utils';
 import { readPublicClient } from './read';
-import { jsonGet } from './json';
+import { jsonGet } from '../constants/json';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter

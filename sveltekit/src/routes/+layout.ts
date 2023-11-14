@@ -1,6 +1,6 @@
 import type { Load } from '@sveltejs/kit';
 
-import { bzzChain, bzzJson } from '$lib/ts/bzz';
+import { bzzChain, bzzJson } from '$lib/ts/swarm/bzz';
 
 const prerender = false;
 const ssr = false;

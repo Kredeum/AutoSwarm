@@ -1,11 +1,11 @@
 import 'viem/window';
 import type { Address, Hex } from 'viem';
-import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/abis';
-import { readLastPrice } from '$lib/ts/read';
-import { DEFAULT_PRICE, ONE_MONTH } from './constants';
+import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/constants/abis';
+import { readLastPrice } from '$lib/ts/onchain/read';
+import { DEFAULT_PRICE, ONE_MONTH } from '../constants/constants';
 import { writeWallet } from './write';
-import { utilsError, utilsTtlToNBal } from './utils';
-import { jsonGet } from './json';
+import { utilsError, utilsTtlToNBal } from '../swarm/utils';
+import { jsonGet } from '../constants/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient

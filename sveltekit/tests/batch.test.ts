@@ -1,5 +1,10 @@
-import { batchSizeBatch, batchSizeBucket, batchBzzToNBal, batchNBalToBzz } from '$lib/ts/batch';
-import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants';
+import {
+	batchSizeBatch,
+	batchSizeBucket,
+	batchBzzToNBal,
+	batchNBalToBzz
+} from '$lib/ts/swarm/batch';
+import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants/constants';
 import { expect, test } from 'vitest';
 
 test('BUCKET_DEPTH and BUCKET_SIZE', () => {

@@ -10,12 +10,12 @@ import {
 	encodeFunctionData,
 	type PublicClient
 } from 'viem';
-import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/abis';
-import { readIsContract, readPublicClient } from '$lib/ts/read';
-import { SALT } from './constants';
-import { utilsError } from './utils';
-import { jsonGet } from './json';
-import { chainGet } from './chains';
+import { autoSwarmAbi, bzzTokenAbi, erc6551RegistryAbi } from '$lib/ts/constants/abis';
+import { readIsContract, readPublicClient } from '$lib/ts/onchain/read';
+import { SALT } from '../constants/constants';
+import { utilsError } from '../swarm/utils';
+import { jsonGet } from '../constants/json';
+import { chainGet } from '../constants/chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient

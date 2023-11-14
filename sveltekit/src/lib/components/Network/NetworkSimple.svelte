@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { chainGet } from '$lib/ts/chains';
+	import { chainGet } from '$lib/ts/constants/chains';
 	export let chainId: number;
 
 	const chain = chainGet(chainId);

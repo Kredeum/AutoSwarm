@@ -10,10 +10,10 @@ import {
 	ONE_YEAR,
 	BZZ_DECIMALS,
 	BUCKET_DEPTH
-} from '$lib/ts/constants';
-import { utilsNBalToBzz, utilsNBalToTtl } from './utils';
-import { batchSizeBatch } from './batch';
-import { chainGet } from './chains';
+} from '$lib/ts/constants/constants';
+import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
+import { batchSizeBatch } from '../swarm/batch';
+import { chainGet } from '../constants/chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display

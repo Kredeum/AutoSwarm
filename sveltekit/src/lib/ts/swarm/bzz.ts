@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 
-import { jsonGet } from './json';
-import { chainGet, type BzzChainIdType } from './chains';
+import { jsonGet } from '../constants/json';
+import { chainGet, type BzzChainIdType } from '../constants/chains';
 
 const bzzChainId = writable<number>();
 

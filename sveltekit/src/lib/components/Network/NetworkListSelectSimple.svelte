@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { bzzChainsId } from '$lib/ts/chains';
+	import { bzzChainsId } from '$lib/ts/constants/chains';
 
 	import NetworkSimple from './NetworkSimple.svelte';
 

@@ -6,8 +6,8 @@ import {
 	utilsBzzToTtl,
 	utilsNBalToTtl,
 	utilsTtlToNBal
-} from '$lib/ts/utils';
-import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants';
+} from '$lib/ts/swarm/utils';
+import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants/constants';
 
 test('BUCKET_DEPTH and BUCKET_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);

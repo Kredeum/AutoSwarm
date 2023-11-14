@@ -1,4 +1,4 @@
-import { BUCKET_DEPTH, BUCKET_SIZE } from './constants';
+import { BUCKET_DEPTH, BUCKET_SIZE } from '../constants/constants';
 import { utilsNBalToTtl } from './utils';
 
 const batchBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): bigint | undefined => {

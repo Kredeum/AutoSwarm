@@ -8,13 +8,13 @@
 		ONE_YEAR,
 		AUTOSWARM_UNIT_PRICE,
 		DEFAULT_PRICE
-	} from '$lib/ts/constants.js';
-	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/write';
-	import { readBlock, readBzzBalance, readLastPrice } from '$lib/ts/read.js';
-	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display';
-	import { utilsError } from '$lib/ts/utils.js';
-	import { readNftMetadata, readNftTBAccount } from '$lib/ts/readNft.js';
-	import { bzzChainId } from '$lib/ts/bzz';
+	} from '$lib/ts/constants/constants.js';
+	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/onchain/write';
+	import { readBlock, readBzzBalance, readLastPrice } from '$lib/ts/onchain/read.js';
+	import { displayBalance, displayDate, displayDuration, displayTxt } from '$lib/ts/display/display';
+	import { utilsError } from '$lib/ts/swarm/utils.js';
+	import { readNftMetadata, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
 	// NFT reference
 	const nftChainId = Number($page.params.chainId);

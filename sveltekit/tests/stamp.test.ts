@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 
-import { stampBzzToNBal, stampNBalToBzz, stampBzzToTtl } from '$lib/ts/stamp';
-import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants';
-import { utilsNBalToTtl } from '$lib/ts/utils';
+import { stampBzzToNBal, stampNBalToBzz, stampBzzToTtl } from '$lib/ts/swarm/stamp';
+import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants/constants';
+import { utilsNBalToTtl } from '$lib/ts/swarm/utils';
 
 test('BUCKET_DEPTH and BUCKET_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);

@@ -13,14 +13,14 @@
 		AUTOSWARM_UNIT,
 		AUTOSWARM_UNIT_PRICE,
 		AUTOSWARM_PERIOD
-	} from '$lib/ts/constants';
+	} from '$lib/ts/constants/constants.js';
 	import {
 		writeStampsBuy,
 		writeStampsDeposit,
 		writeStampsIncreaseDepth,
 		writeStampsTopUp,
 		writeStampsWithdraw
-	} from '$lib/ts/writeStamps.js';
+	} from '$lib/ts/onchain/writeStamps.js';
 	import {
 		readBatchLegacy,
 		readBatchNew,
@@ -29,7 +29,7 @@
 		readIsContract,
 		readLastPrice,
 		readRemainingBalance
-	} from '$lib/ts/read';
+	} from '$lib/ts/onchain/read.js';
 	import {
 		displayBalance,
 		displayBatchDepthWithSize,
@@ -43,12 +43,12 @@
 		displayTbaDisplayed,
 		displayTtl,
 		displayTxt
-	} from '$lib/ts/display';
-	import { stampBzzToTtl } from '$lib/ts/stamp.js';
+	} from '$lib/ts/display/display.js';
+	import { stampBzzToTtl } from '$lib/ts/swarm/stamp.js';
 	import type { Address } from 'viem';
-	import { writeWalletAddress } from '$lib/ts/write.js';
-	import { readNftOwner, readNftTBAccount } from '$lib/ts/readNft.js';
-	import { bzzChainId } from '$lib/ts/bzz';
+	import { writeWalletAddress } from '$lib/ts/onchain/write.js';
+	import { readNftOwner, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
+	import { bzzChainId } from '$lib/ts/swarm/bzz.js';
 
 	export let data;
 	const { json, chain } = data;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { readEnsName } from '$lib/ts/read';
+	import { readEnsName } from '$lib/ts/onchain/read';
 	import type { Address } from 'viem';
 
 	export let account: Address;

@@ -12,11 +12,11 @@ import {
 	postageStampAbi,
 	postageStampAbiBatcheslegacy,
 	erc6551RegistryAbi
-} from './abis';
-import { SEPOLIA_RPC } from '$lib/ts/constants';
-import { utilsError } from './utils';
-import { chainGet } from './chains';
-import { jsonGet } from './json';
+} from '../constants/abis';
+import { SEPOLIA_RPC } from '$lib/ts/constants/constants';
+import { utilsError } from '../swarm/utils';
+import { chainGet } from '../constants/chains';
+import { jsonGet } from '../constants/json';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter

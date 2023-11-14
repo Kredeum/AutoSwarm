@@ -7,7 +7,7 @@
 	import AccountConnectSimple from '$lib/components/Account/AccountConnectSimple.svelte';
   import '$lib/css/styles.css';
 
-	import { bzzChainId } from '$lib/ts/bzz';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
 	let chainId: number = 11155111; // 100
 	$: chainId, onChainChange();

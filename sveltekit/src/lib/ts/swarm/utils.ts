@@ -1,4 +1,4 @@
-import { BUCKET_DEPTH, SECONDS_PER_BLOCK } from './constants';
+import { BUCKET_DEPTH, SECONDS_PER_BLOCK } from '../constants/constants';
 
 const utilsBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): bigint | undefined => {
 	if (bzz === undefined || depth === undefined) return undefined;
