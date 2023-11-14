@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "main": "",
   "scripts": {
-    "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy",
+    "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy-test",
     "clean": "forge clean",
     "format": "forge fmt",
     "check": "solhint src/*.sol -q",

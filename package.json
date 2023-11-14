@@ -4,12 +4,12 @@
   "main": "index.js",
   "scripts": {
     "all": "pnpm -r all",
+    "update-all": "pnpm -r update",
     "clean": "pnpm -r clean",
     "format": "pnpm -r format",
     "check": "pnpm -r check",
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "deploy": "pnpm -r deploy"
+    "test": "pnpm -r test"
   },
   "keywords": [],
   "author": "",

@@ -11,15 +11,11 @@
 	} from '$lib/ts/constants/constants.js';
 	import { writeTransferBzz, writeWalletAddress } from '$lib/ts/onchain/write';
 	import { readBlock, readBzzBalance, readLastPrice } from '$lib/ts/onchain/read.js';
-	import {
-		displayBalance,
-		displayDate,
-		displayDuration
-	} from '$lib/ts/display/display';
+	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
 	import { utilsError } from '$lib/ts/swarm/utils.js';
 	import { readNftMetadata, readNftImage, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
- 
+
 	// NFT reference
 	const nftChainId = Number($page.params.chainId);
 	const collection = $page.params.collection as Address;
