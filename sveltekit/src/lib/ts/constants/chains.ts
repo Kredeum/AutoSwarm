@@ -24,8 +24,10 @@ const nftChains = [arbitrum, base, bsc, gnosis, linea, mainnet, optimism, polygo
 const nftChainsId = nftChains.map((chain) => chain.id);
 type NftChainIdType = (typeof nftChainsId)[number];
 
+const allChains = [...new Set([...bzzChains, ...nftChains])];
+
 const chainsMap: ChainMapType = new Map();
-for (const chain of bzzChains) chainsMap.set(chain.id, chain);
+for (const chain of allChains) chainsMap.set(chain.id, chain);
 
 const chainGet = (id: number): Chain => chainsMap.get(id) || mainnet;
 

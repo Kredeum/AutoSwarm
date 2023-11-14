@@ -14,14 +14,12 @@
 	import {
 		displayBalance,
 		displayDate,
-		displayDuration,
-		displayTxt
+		displayDuration
 	} from '$lib/ts/display/display';
 	import { utilsError } from '$lib/ts/swarm/utils.js';
 	import { readNftMetadata, readNftImage, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import type { Url } from 'url';
-
+ 
 	// NFT reference
 	const nftChainId = Number($page.params.chainId);
 	const collection = $page.params.collection as Address;

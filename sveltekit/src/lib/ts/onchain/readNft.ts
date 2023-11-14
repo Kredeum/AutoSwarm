@@ -30,6 +30,8 @@ const readNftMetadata = async (
 	collection: Address,
 	tokenId: bigint
 ): Promise<NftMetadata> => {
+	// console.info('readNftMetadata:', chainId, collection, tokenId);
+
 	const publicClient = await readPublicClient(chainId);
 
 	const tokenURI = await publicClient.readContract({
