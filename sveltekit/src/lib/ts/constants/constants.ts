@@ -1,13 +1,21 @@
 type NftMetadata = {
+	image: string;
 	name: string;
 	description: string;
-	image: string;
-	tokenId: string;
-	address: string;
+	tokenUri?: string;
+	tokenUriAlt?: string;
+	tokenUriType?: string;
+	tokenUriResave?: string;
+	imageAlt?: string;
+	imageType?: string;
+	imageResave?: string;
+	tokenId?: string;
+	address?: string;
 };
 
 const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz/';
 const IPFS_GATEWAY = 'https://ipfs.io/ipfs/';
+const ARWEAVE_GATEWAY = 'https://arweave.net/';
 
 const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
 // const SEPOLIA_RPC = "https://rpc.ankr.com/eth_sepolia";
@@ -54,8 +62,9 @@ export {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
 	SEPOLIA_RPC,
-	IPFS_GATEWAY,
 	SWARM_GATEWAY,
+	IPFS_GATEWAY,
+	ARWEAVE_GATEWAY,
 	AUTOSWARM_PERIOD,
 	AUTOSWARM_UNIT,
 	AUTOSWARM_UNIT_PRICE

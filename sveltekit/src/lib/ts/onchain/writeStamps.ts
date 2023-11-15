@@ -1,14 +1,14 @@
 import 'viem/window';
 import type { Address, Hex } from 'viem';
 import { autoSwarmAbi, bzzTokenAbi } from '$lib/ts/constants/abis';
-import { readLastPrice } from '$lib/ts/onchain/read';
+import { readPostageLastPrice } from '$lib/ts/onchain/readPostage';
 import { DEFAULT_PRICE, ONE_MONTH } from '../constants/constants';
 import { writeWallet } from './write';
 import { utilsError, utilsTtlToNBal } from '../swarm/utils';
 import { jsonGet } from '../constants/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// WRITE : onchain write functions via rpc, i.e. functions with walletClient
+// WRITE STAMPS : onchain write functions, related to PostageStamp, via rpc, i.e. functions with walletClient
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const writeStampsTopUp = async (chainId: number, tba: Address, topUpAmount: bigint) => {
@@ -56,7 +56,7 @@ const writeStampsBuy = async (chainId: number, tba: Address) => {
 
 	const [publicClient, walletClient, walletAddress] = await writeWallet(chainId);
 
-	const lastPrice = (await readLastPrice(chainId)) || DEFAULT_PRICE;
+	const lastPrice = (await readPostageLastPrice(chainId)) || DEFAULT_PRICE;
 	const buyTtl = utilsTtlToNBal(ONE_MONTH, lastPrice)!;
 	const depth = 17;
 	const { request } = await publicClient.simulateContract({

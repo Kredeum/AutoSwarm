@@ -22,13 +22,13 @@
 		writeStampsWithdraw
 	} from '$lib/ts/onchain/writeStamps.js';
 	import {
-		readBatchLegacy,
-		readBatchNew,
+		readPostageBatchesLegacy,
+		readPostageBatches,
 		readBlock,
 		readBzzBalance,
 		readIsContract,
-		readLastPrice,
-		readRemainingBalance
+		readPostageLastPrice,
+		readPostageRemainingBalance
 	} from '$lib/ts/onchain/read.js';
 	import {
 		displayBalance,
@@ -50,7 +50,7 @@
 	import { readNftOwner, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz.js';
 
-	export let data;
+	export let data../../src/routes/[chainId]/[collection]/[tokenId]/details/$types.js;
 	const { json, chain } = data;
 
 	// NFT reference
@@ -75,7 +75,6 @@
 
 	let owner: Address | undefined;
 	let depth: number;
-	let unwatch: () => void;
 
 	let remainingBalance: bigint | undefined;
 	let normalisedBalance: bigint | undefined;
@@ -109,16 +108,16 @@
 
 		autoSwarmAddress = await readNftTBAccount(nftChainId, collection, tokenId);
 		autoSwarmBalance = await readBzzBalance($bzzChainId, autoSwarmAddress);
-		lastPrice = (await readLastPrice($bzzChainId)) || DEFAULT_PRICE;
+		lastPrice = (await readPostageLastPrice($bzzChainId)) || DEFAULT_PRICE;
 
 		if (autoSwarmBalance !== undefined && lastPrice > 0n) {
 			duration = Number((autoSwarmBalance * BigInt(ONE_YEAR)) / AUTOSWARM_UNIT_PRICE);
 			until = blockTimestamp + duration;
 		}
 
-		remainingBalance = await readRemainingBalance($bzzChainId);
+		remainingBalance = await readPostageRemainingBalance($bzzChainId);
 		[owner, depth, normalisedBalance] =
-			chain.id == 100 ? await readBatchLegacy($bzzChainId) : await readBatchNew($bzzChainId);
+			chain.id == 100 ? await readPostageBatchesLegacy($bzzChainId) : await readPostageBatches($bzzChainId);
 
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 
@@ -160,7 +159,7 @@
 
 <section>
 	<p>
-		{chain.name} network ($bzzChainId #{chain.id})
+		{chain.name} network (#{chain.id})
 		<span>{displayDate(blockTimestamp)} | block #{blockNumber}</span>
 	</p>
 	<p>AutoSwarm Price<span>{displayBalance(AUTOSWARM_UNIT_PRICE, 16)} Bzz / Year * Mb</span></p>

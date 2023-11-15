@@ -7,11 +7,8 @@ import {
 	type PublicClient,
 	createPublicClient
 } from 'viem';
-import { bzzTokenAbi, postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis';
 import { SEPOLIA_RPC } from '$lib/ts/constants/constants';
-import { utilsError } from '../swarm/utils';
 import { chainGet } from '../constants/chains';
-import { jsonGet } from '../constants/json';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -53,95 +50,10 @@ const readIsContract = async (chainId: number, address: Address): Promise<boolea
 	return Number(bytecode?.length || 0n) > 0;
 };
 
-const readLastPrice = async (chainId: number): Promise<bigint> => {
-	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-
-	return await publicClient.readContract({
-		address: json.PostageStamp as Address,
-		abi: postageStampAbi,
-		functionName: 'lastPrice'
-	});
-};
-
-const readBzzBalance = async (chainId: number, address: Address): Promise<bigint | undefined> => {
-	if (address === undefined) return;
-	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-
-	return await publicClient.readContract({
-		address: json.BzzToken as Address,
-		abi: bzzTokenAbi,
-		functionName: 'balanceOf',
-		args: [address]
-	});
-};
-
-const readBatchLegacy = async (chainId: number): Promise<[Address, number, bigint]> => {
-	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
-
-	const [owner, depth, , rBal] = await publicClient.readContract({
-		address: json.PostageStamp as Address,
-		abi: postageStampAbiBatcheslegacy,
-		functionName: 'batches',
-		args: [json.batchId as Hex]
-	});
-
-	return [owner, depth, rBal];
-};
-
-const readBatchNew = async (chainId: number): Promise<[Address, number, bigint]> => {
-	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
-
-	const [owner, depth, , , rBal] = await publicClient.readContract({
-		address: json.PostageStamp as Address,
-		abi: postageStampAbi,
-		functionName: 'batches',
-		args: [json.batchId as Hex]
-	});
-
-	return [owner, depth, rBal];
-};
-
-const readRemainingBalance = async (chainId: number): Promise<bigint> => {
-	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
-
-	const data = await publicClient.readContract({
-		address: json.PostageStamp as Address,
-		abi: postageStampAbi,
-		functionName: 'remainingBalance',
-		args: [json.batchId as Hex]
-	});
-
-	return data;
-};
-
 const readChainId = async (chain: Chain) => {
 	const publicClient = await readPublicClient(chain.id);
 
 	return await publicClient.getChainId();
 };
 
-export {
-	readPublicClient,
-	readChainId,
-	readEnsName,
-	readBatchNew,
-	readLastPrice,
-	readIsContract,
-	readBzzBalance,
-	readBatchLegacy,
-	readRemainingBalance,
-	readBlock
-};
+export { readPublicClient, readChainId, readEnsName, readIsContract, readBlock };

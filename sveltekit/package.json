@@ -11,7 +11,7 @@
 		"test": "vitest",
 		"test-run": "vitest --run",
 		"test2": "npm run test:integration && npm run test:unit",
-		"dev": "vite dev",
+		"dev": "vite dev --open",
 		"preview": "vite preview",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint ."

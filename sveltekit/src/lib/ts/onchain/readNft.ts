@@ -1,10 +1,9 @@
 import type { Address } from 'viem';
-import { erc6551RegistryAbi, erc721Abi } from '../constants/abis';
+import { erc1155Abi, erc165Abi, erc6551RegistryAbi, erc721Abi } from '../constants/abis';
 import { type NftMetadata, SALT } from '$lib/ts/constants/constants';
-import { utilsError } from '../swarm/utils';
 import { readPublicClient } from './read';
 import { jsonGet } from '../constants/json';
-import { fetchJson, fetchUrlAlt } from '../offchain/fetch';
+import { fetchJson, fetchUrlAlt, fetchUrlOk } from '../offchain/fetch';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -34,32 +33,59 @@ const readNftMetadata = async (
 
 	const publicClient = await readPublicClient(chainId);
 
-	const tokenURI = await publicClient.readContract({
-		address: collection,
-		abi: erc721Abi,
-		functionName: 'tokenURI',
-		args: [tokenId]
-	});
-	const tokenURIAlt = await fetchUrlAlt(tokenURI);
-	const nftMetadataJson = (await fetchJson(tokenURIAlt)) as unknown as NftMetadata;
+	const nftIs1155 = await readNftIs1155(chainId, collection);
 
-	return {
-		name: nftMetadataJson.name,
-		image: nftMetadataJson.image,
-		description: nftMetadataJson.description,
-		tokenId: String(tokenId),
-		address: collection
-	};
+	let tokenUri: string;
+	if (nftIs1155) {
+		tokenUri = await publicClient.readContract({
+			address: collection,
+			abi: erc1155Abi,
+			functionName: 'uri',
+			args: [tokenId]
+		});
+	} else {
+		tokenUri = await publicClient.readContract({
+			address: collection,
+			abi: erc721Abi,
+			functionName: 'tokenURI',
+			args: [tokenId]
+		});
+	}
+	const [tokenUriAlt, tokenUriType] = await fetchUrlAlt(tokenUri);
+	const nftMetadataJson = (await fetchJson(tokenUriAlt)) as NftMetadata;
+	if (!nftMetadataJson)
+		throw Error(`NFT metadata lost!\nFollowing tokenURI not available\n${tokenUri}`);
+
+	const [imageAlt, imageType] = await fetchUrlAlt(nftMetadataJson.image);
+	if (!fetchUrlOk(imageAlt))
+		throw Error(`NFT image lost!\nFollowing image not available\n${nftMetadataJson.image}`);
+
+	nftMetadataJson.tokenUri = tokenUri;
+	nftMetadataJson.tokenUriType = tokenUriType;
+	nftMetadataJson.tokenUriAlt = tokenUriAlt;
+	nftMetadataJson.imageType = imageType;
+	nftMetadataJson.imageAlt = imageAlt;
+	nftMetadataJson.tokenId = String(tokenId);
+	nftMetadataJson.address = collection;
+
+	return nftMetadataJson;
 };
 
-const readNftImage = async (nftMetadataJson: NftMetadata): Promise<string> =>
-	await fetchUrlAlt(nftMetadataJson.image);
+const readNftIs1155 = async (chainId: number, collection: Address): Promise<boolean> => {
+	const publicClient = await readPublicClient(chainId);
+
+	const data = await publicClient.readContract({
+		address: collection,
+		abi: erc165Abi,
+		functionName: 'supportsInterface',
+		args: ['0xd9b67a26']
+	});
+
+	return data;
+};
 
 const readNftTotalSupply = async (chainId: number, collection: Address): Promise<bigint> => {
 	const publicClient = await readPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
 
 	const data = await publicClient.readContract({
 		address: collection,
@@ -95,4 +121,4 @@ const readNftTBAccount = async (
 	});
 };
 
-export { readNftOwner, readNftTBAccount, readNftTotalSupply, readNftMetadata, readNftImage };
+export { readNftOwner, readNftTBAccount, readNftTotalSupply, readNftMetadata, readNftIs1155 };

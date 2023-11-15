@@ -2,17 +2,26 @@ import type { BzzChainIdType } from './chains';
 
 import jsonFile from '$addresses';
 
+type JsonType = Record<string, string>;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GET : offline functions, returns data
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const jsonGet = (chainId: number) => {
-	return jsonFile[chainId as BzzChainIdType];
+// jsons Map used as cache
+const _jsons: Map<BzzChainIdType, JsonType> = new Map();
+
+const _jsonGet = (chainId: number): JsonType => {
+	const json = jsonFile[chainId as BzzChainIdType];
+	_jsons.set(chainId as BzzChainIdType, json);
+
+	return json;
 };
 
-const jsonGetBatchId = (chainId: number): string => {
-	const json = jsonGet(chainId as BzzChainIdType);
-	return 'batchId' in json ? json.batchId : '';
-};
+const jsonGet = (chainId: number): JsonType =>
+	_jsons.get(chainId as BzzChainIdType) || _jsonGet(chainId);
 
-export { jsonGet, jsonGetBatchId };
+const jsonGetField = (chainId: number, field: string): string =>
+	(jsonGet(chainId) as JsonType)[field] || '';
+
+export { jsonGet, jsonGetField };
