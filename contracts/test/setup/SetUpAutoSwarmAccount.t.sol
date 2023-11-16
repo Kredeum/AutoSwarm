@@ -11,7 +11,7 @@ import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t
 import {SetUpERC6551} from "@autoswarm/test/setup/SetUpERC6551.t.sol";
 
 contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
-    AutoSwarmAccount public autoSwarmAccount;
+    AutoSwarmAccount public tba;
     bytes32 batchId0;
     uint256 ttl0 = 10 weeks;
     uint8 depth0 = 20;
@@ -24,17 +24,16 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
 
         uint256 bzzAmount = autoSwarmMarket.getStampPriceOneYear(1);
 
-        autoSwarmAccount =
-            AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
-        deal(address(bzzToken), address(autoSwarmAccount), bzzAmount);
+        tba = AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
+        deal(address(bzzToken), address(tba), bzzAmount);
 
-        if (address(autoSwarmAccount).code.length == 0) {
+        if (address(tba).code.length == 0) {
             vm.startPrank(nftOwner);
             registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
-            autoSwarmAccount.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, bzzAmount);
+            tba.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, bzzAmount);
             vm.stopPrank();
         }
-        assert(address(autoSwarmAccount).code.length != 0);
+        assert(address(tba).code.length != 0);
     }
 
     function setUp() public override {

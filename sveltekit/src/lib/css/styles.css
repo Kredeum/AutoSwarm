@@ -220,6 +220,13 @@ article p {
 	cursor: pointer;
 }
 
+.btn-storage {
+	font-size: 2rem;
+	color: var(--color-link);
+	border-color: var(--color-link);
+	background-color: transparent;
+}
+
 button:disabled.btn.btn-topup {
 	cursor: no-drop;
 	border-color: var(--color-link);

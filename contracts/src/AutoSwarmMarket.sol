@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {IAutoSwarmMarket, IPostageStamp, IERC20} from "./interfaces/IAutoSwarmMarket.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import {console} from "forge-std/console.sol";
+// import {console} from "forge-std/console.sol";
 
 contract AutoSwarmMarket is Ownable {
     struct Stamp {

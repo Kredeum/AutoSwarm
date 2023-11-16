@@ -2,7 +2,7 @@
 	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
 
-	import { writeWalletAddress } from '$lib/ts/onchain/write';
+	import { sendWalletAddress } from '$lib/ts/send/send';
 	import AccountSimple from './AccountSimple.svelte';
 
 	/////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 	export let account: Address | undefined = undefined;
 
 	const getWalletAddress = async () => {
-		account = await writeWalletAddress(undefined, true);
+		account = await sendWalletAddress(undefined, true);
 		console.log('AccountConnect account CHANGE', account);
 	};
 

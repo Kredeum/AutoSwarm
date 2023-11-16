@@ -2,11 +2,11 @@ import type { Address } from 'viem';
 import { bzzTokenAbi } from '../constants/abis';
 
 import { jsonGetField } from '../constants/json';
-import { readPublicClient } from './read';
+import { callPublicClient } from './call';
 
-const readBzzBalance = async (chainId: number, account: Address): Promise<bigint | undefined> => {
+const callBzzBalance = async (chainId: number, account: Address): Promise<bigint | undefined> => {
 	if (account === undefined) return;
-	const publicClient = await readPublicClient(chainId);
+	const publicClient = await callPublicClient(chainId);
 
 	return await publicClient.readContract({
 		address: (await jsonGetField(chainId, 'BzzToken')) as Address,
@@ -16,4 +16,4 @@ const readBzzBalance = async (chainId: number, account: Address): Promise<bigint
 	});
 };
 
-export { readBzzBalance };
+export { callBzzBalance };

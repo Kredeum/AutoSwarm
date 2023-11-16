@@ -1,4 +1,4 @@
-import { formatUnits, type Chain, isAddress, type Address } from 'viem';
+import { formatUnits, isAddress, type Address } from 'viem';
 import {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
@@ -14,6 +14,7 @@ import {
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
 import { chainGet } from '../constants/chains';
+import { jsonGetField } from '../constants/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -96,15 +97,26 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	return ret;
 };
 
-const displayExplorerLink = (chainId: number, addr?: string): string => {
+const displayExplorer = (chainId: number): string => {
+	const chain = chainGet(chainId);
+	const explorer =
+		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
+
+	return `<a href="${explorer}" target="_blank">${chainId}</a>`;
+};
+
+const displayExplorerAddress = (chainId: number, addr?: string): string => {
 	const chain = chainGet(chainId);
 	const explorer =
 		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
 
 	return addr && isAddress(addr)
 		? `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`
-		: `<a href="${explorer}" target="_blank">${chainId}</a>`;
+		: `<a href="${explorer}" target="_blank">${addr === undefined ? chainId : addr}</a>`;
 };
+
+const displayExplorerField = (chainId: number, field: string): string =>
+	displayExplorerAddress(chainId, jsonGetField(chainId, field));
 
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
@@ -124,6 +136,9 @@ const displayBalance = (
 	return str.toFixed(Number(toFixed));
 };
 
+const displayLink = (url?: string): string | undefined =>
+	url === undefined ? url : `<a href="${url}" target="_blank">${url}</a>`;
+
 const displayNftLink = (chainId: number, collection: string, tokenId: bigint): string => {
 	if (!isAddress(collection)) return UNDEFINED_DATA;
 
@@ -134,6 +149,7 @@ const displayNftLink = (chainId: number, collection: string, tokenId: bigint): s
 export {
 	displayTxt,
 	displayTtl,
+	displayLink,
 	displayNftLink,
 	displayBalance,
 	displayAddress,
@@ -143,6 +159,8 @@ export {
 	displayDate,
 	displayBatchSize,
 	displayBatchDepthWithSize,
-	displayExplorerLink,
+	displayExplorer,
+	displayExplorerAddress,
+	displayExplorerField,
 	displayBzzFromNBal
 };

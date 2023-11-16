@@ -29,12 +29,14 @@ const bzzTokenAbi = parseAbi([
 	'function approve(address,uint256) external returns (bool)',
 	'function transfer(address,uint256) external returns (bool)'
 ]);
-const autoSwarmAbi = parseAbi([
-	'function initialize(address) external',
-	'function stampsBuy(uint256,uint8) external returns (bytes32)',
-	'function stampsTopUp(bytes32,uint256) external',
-	'function stampsIncreaseDepth(bytes32,uint8) external',
-	'function withdrawBzz() external',
+const autoSwarmAccountAbi = parseAbi([
+	'function initialize(address,bytes32,uint256,uint256) external',
+	'function topUp(uint256) external',
+	'function getTopUpYearPrice() external view returns (uint256)',
+	'function withdraw(address) external'
+]);
+const autoSwarmMarketAbi = parseAbi([
+	'function newBatch() public returns (bytes32)',
 	'function currentBatchId() external view returns (bytes32)'
 ]);
 
@@ -46,5 +48,6 @@ export {
 	postageStampAbiBatcheslegacy,
 	postageStampAbi,
 	bzzTokenAbi,
-	autoSwarmAbi
+	autoSwarmAccountAbi,
+	autoSwarmMarketAbi
 };

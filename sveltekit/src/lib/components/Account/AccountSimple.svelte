@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { readEnsName } from '$lib/ts/onchain/read';
+	import { callEnsName } from '$lib/ts/call/call';
 	import type { Address } from 'viem';
 
 	export let account: Address;
 </script>
 
-{#await readEnsName(account)}
+{#await callEnsName(account)}
 	{account}
 {:then accountEns}
 	{accountEns || account}

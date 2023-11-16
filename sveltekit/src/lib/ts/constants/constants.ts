@@ -1,3 +1,5 @@
+import { hexToBytes } from 'viem';
+
 type NftMetadata = {
 	image: string;
 	name: string;
@@ -13,13 +15,16 @@ type NftMetadata = {
 	address?: string;
 };
 
+const ZERO_BYTES32 = '0x' + '00'.repeat(32);
+
 const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz/';
 const IPFS_GATEWAY = 'https://ipfs.io/ipfs/';
 const ARWEAVE_GATEWAY = 'https://arweave.net/';
 
-const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
-// const SEPOLIA_RPC = "https://rpc.ankr.com/eth_sepolia";
+// const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
+const SEPOLIA_RPC = "https://rpc.ankr.com/eth_sepolia";
 // const SEPOLIA_RPC = "https://rpc.sepolia.org";
+// const SEPOLIA_RPC = "https://sepolia.publicgoods.network"
 
 const SALT = 87283691n;
 
@@ -31,9 +36,11 @@ const ONE_WEEK = ONE_DAY * 7;
 const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
-const AUTOSWARM_PERIOD = ONE_YEAR; // 1 year
-const AUTOSWARM_UNIT = 1024 ** 2; // 1 Mo
-const AUTOSWARM_UNIT_PRICE = 10n ** 15n; // 0.1 Bzz
+const STAMP_PERIOD = ONE_YEAR;
+const STAMP_UNIT = 1024 ** 2; // 1 Mo
+const STAMP_UNIT_PRICE = 10n ** 15n; // 0.1 Bzz
+
+const BATCH_UNIT_PRICE = 10n ** 17n; // 10 Bzz
 
 const BUCKET_DEPTH = 16;
 const BUCKET_SIZE = 4096;
@@ -62,10 +69,12 @@ export {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
 	SEPOLIA_RPC,
+	ZERO_BYTES32,
 	SWARM_GATEWAY,
 	IPFS_GATEWAY,
 	ARWEAVE_GATEWAY,
-	AUTOSWARM_PERIOD,
-	AUTOSWARM_UNIT,
-	AUTOSWARM_UNIT_PRICE
+	STAMP_PERIOD,
+	STAMP_UNIT,
+	STAMP_UNIT_PRICE,
+	BATCH_UNIT_PRICE
 };

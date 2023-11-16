@@ -1,20 +1,20 @@
 import type { Address } from 'viem';
 import { erc1155Abi, erc165Abi, erc6551RegistryAbi, erc721Abi } from '../constants/abis';
 import { type NftMetadata, SALT } from '$lib/ts/constants/constants';
-import { readPublicClient } from './read';
+import { callPublicClient } from './call';
 import { jsonGet } from '../constants/json';
-import { fetchJson, fetchUrlAlt, fetchUrlOk } from '../offchain/fetch';
+import { fetchJson, fetchUrlAlt, fetchUrlOk } from '../fetch/fetch';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const readNftOwner = async (
+const callNftOwner = async (
 	chainId: number,
 	collection: Address,
 	tokenId: bigint
 ): Promise<Address> => {
-	const publicClient = await readPublicClient(chainId);
+	const publicClient = await callPublicClient(chainId);
 
 	return await publicClient.readContract({
 		address: collection,
@@ -24,16 +24,16 @@ const readNftOwner = async (
 	});
 };
 
-const readNftMetadata = async (
+const callNftMetadata = async (
 	chainId: number,
 	collection: Address,
 	tokenId: bigint
 ): Promise<NftMetadata> => {
-	// console.info('readNftMetadata:', chainId, collection, tokenId);
+	// console.info('callNftMetadata:', chainId, collection, tokenId);
 
-	const publicClient = await readPublicClient(chainId);
+	const publicClient = await callPublicClient(chainId);
 
-	const nftIs1155 = await readNftIs1155(chainId, collection);
+	const nftIs1155 = await callNftIs1155(chainId, collection);
 
 	let tokenUri: string;
 	if (nftIs1155) {
@@ -71,8 +71,8 @@ const readNftMetadata = async (
 	return nftMetadataJson;
 };
 
-const readNftIs1155 = async (chainId: number, collection: Address): Promise<boolean> => {
-	const publicClient = await readPublicClient(chainId);
+const callNftIs1155 = async (chainId: number, collection: Address): Promise<boolean> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const data = await publicClient.readContract({
 		address: collection,
@@ -84,8 +84,8 @@ const readNftIs1155 = async (chainId: number, collection: Address): Promise<bool
 	return data;
 };
 
-const readNftTotalSupply = async (chainId: number, collection: Address): Promise<bigint> => {
-	const publicClient = await readPublicClient(chainId);
+const callNftTotalSupply = async (chainId: number, collection: Address): Promise<bigint> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const data = await publicClient.readContract({
 		address: collection,
@@ -96,12 +96,12 @@ const readNftTotalSupply = async (chainId: number, collection: Address): Promise
 	return data;
 };
 
-const readNftTBAccount = async (
+const callNftTBAccount = async (
 	chainId: number,
 	collection: Address,
 	tokenId: bigint
 ): Promise<Address> => {
-	const publicClient = await readPublicClient(chainId);
+	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
 
@@ -121,4 +121,4 @@ const readNftTBAccount = async (
 	});
 };
 
-export { readNftOwner, readNftTBAccount, readNftTotalSupply, readNftMetadata, readNftIs1155 };
+export { callNftOwner, callNftTBAccount, callNftTotalSupply, callNftMetadata, callNftIs1155 };

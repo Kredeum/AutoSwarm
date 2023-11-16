@@ -13,6 +13,4 @@ interface IAutoSwarmAccount {
     function topUp(uint256) external;
 
     function getTopUpYearPrice() external view returns (uint256);
-    function getBzzBalance() external view returns (uint256);
-    function getBzzAllowance() external view returns (uint256);
 }

@@ -11,8 +11,8 @@
     "test": "forge test",
     "deploy-test": "forge script script/DeployAll.s.sol",
     "deploy-anvil": "forge script script/DeployAll.s.sol --rpc-url anvil --broadcast --sender $ANVIL_ETH_FROM --private-key $ANVIL_PRIVATE_KEY",
-    "deploy-sepolia": "forge script script/DeployAll.s.sol --rpc-url sepolia --broadcast --sender $SEPOLIA_ETH_FROM --account $SEPOLIA_ETH_KEYSTORE_ACCOUNT --password $SEPOLIA_ETH_PASSWORD",
-    "deploy-gnosis": "forge script script/DeployAll.s.sol --rpc-url gnosis --broadcast --sender $GNOSIS_ETH_FROM --account $GNOSIS_ETH_KEYSTORE_ACCOUNT",
+    "deploy-sepolia": "forge script script/DeployAll.s.sol --rpc-url sepolia --broadcast --sender $SEPOLIA_ETH_FROM --account $SEPOLIA_ETH_KEYSTORE_ACCOUNT --verify",
+    "deploy-gnosis": "forge script script/DeployAll.s.sol --rpc-url gnosis --broadcast --sender $GNOSIS_ETH_FROM --account $GNOSIS_ETH_KEYSTORE_ACCOUNT --verify",
     "broadcast": "forge script script/DeployCounter.s.sol --private-key $PRIVATE_KEY --rpc-url $CHAIN_NAME --broadcast --verify"
   },
   "keywords": [

@@ -3,14 +3,14 @@ import { postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis
 import { utilsError } from '../swarm/utils';
 
 import { jsonGet } from '../constants/json';
-import { readPublicClient } from './read';
+import { callPublicClient } from './call';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const readPostageBatches = async (chainId: number): Promise<[Address, number, bigint]> => {
-	const publicClient = await readPublicClient(chainId);
+const callPostageBatches = async (chainId: number): Promise<[Address, number, bigint]> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
 	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
@@ -25,8 +25,8 @@ const readPostageBatches = async (chainId: number): Promise<[Address, number, bi
 	return [owner, depth, rBal];
 };
 
-const readPostageBatchesLegacy = async (chainId: number): Promise<[Address, number, bigint]> => {
-	const publicClient = await readPublicClient(chainId);
+const callPostageBatchesLegacy = async (chainId: number): Promise<[Address, number, bigint]> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
 	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
@@ -41,8 +41,8 @@ const readPostageBatchesLegacy = async (chainId: number): Promise<[Address, numb
 	return [owner, depth, rBal];
 };
 
-const readPostageLastPrice = async (chainId: number): Promise<bigint> => {
-	const publicClient = await readPublicClient(chainId);
+const callPostageLastPrice = async (chainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
 
@@ -53,8 +53,8 @@ const readPostageLastPrice = async (chainId: number): Promise<bigint> => {
 	});
 };
 
-const readPostageRemainingBalance = async (chainId: number): Promise<bigint> => {
-	const publicClient = await readPublicClient(chainId);
+const callPostageRemainingBalance = async (chainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
 	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
@@ -70,8 +70,8 @@ const readPostageRemainingBalance = async (chainId: number): Promise<bigint> => 
 };
 
 export {
-	readPostageBatches,
-	readPostageBatchesLegacy,
-	readPostageLastPrice,
-	readPostageRemainingBalance
+	callPostageBatches,
+	callPostageBatchesLegacy,
+	callPostageLastPrice,
+	callPostageRemainingBalance
 };
