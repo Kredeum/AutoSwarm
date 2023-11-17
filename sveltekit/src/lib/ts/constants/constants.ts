@@ -15,18 +15,18 @@ type NftMetadata = {
 	address?: string;
 };
 
-const ZERO_BYTES32 = '0x' + '00'.repeat(32);
+const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
+const SALT = '0x0000000000000000000000000000000000000000000000000000008712982323';
 
-const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz/';
-const IPFS_GATEWAY = 'https://ipfs.io/ipfs/';
-const ARWEAVE_GATEWAY = 'https://arweave.net/';
+const SWARM_API = 'http://127.0.0.1:1633';
+const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz';
+const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
+const ARWEAVE_GATEWAY = 'https://arweave.net';
 
 // const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
-const SEPOLIA_RPC = "https://rpc.ankr.com/eth_sepolia";
+const SEPOLIA_RPC = 'https://rpc.ankr.com/eth_sepolia';
 // const SEPOLIA_RPC = "https://rpc.sepolia.org";
 // const SEPOLIA_RPC = "https://sepolia.publicgoods.network"
-
-const SALT = 87283691n;
 
 const BZZ_DECIMALS = 16;
 
@@ -70,6 +70,7 @@ export {
 	UNDEFINED_DATA,
 	SEPOLIA_RPC,
 	ZERO_BYTES32,
+	SWARM_API,
 	SWARM_GATEWAY,
 	IPFS_GATEWAY,
 	ARWEAVE_GATEWAY,

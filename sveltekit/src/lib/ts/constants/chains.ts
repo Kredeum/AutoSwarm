@@ -30,6 +30,11 @@ const chainsMap: ChainMapType = new Map();
 for (const chain of allChains) chainsMap.set(chain.id, chain);
 
 const chainGet = (id: number): Chain => chainsMap.get(id) || mainnet;
+const chainGetExplorer = (id: number): string => {
+	const chain = chainGet(id);
 
-export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet };
+	return chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
+};
+
+export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet , chainGetExplorer};
 export type { ChainMapType, BzzChainIdType, NftChainIdType };

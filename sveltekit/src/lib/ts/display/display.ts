@@ -13,7 +13,7 @@ import {
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import { chainGet } from '../constants/chains';
+import {  chainGetExplorer } from '../constants/chains';
 import { jsonGetField } from '../constants/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,17 +98,19 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 };
 
 const displayExplorer = (chainId: number): string => {
-	const chain = chainGet(chainId);
-	const explorer =
-		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
+	const explorer = chainGetExplorer(chainId);
 
 	return `<a href="${explorer}" target="_blank">${chainId}</a>`;
 };
 
+const displayExplorerNft = (chainId: number, collection: string, tokenId: bigint): string => {
+	const explorer = chainGetExplorer(chainId);
+
+	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${tokenId}</a>`;
+};
+
 const displayExplorerAddress = (chainId: number, addr?: string): string => {
-	const chain = chainGet(chainId);
-	const explorer =
-		chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
+	const explorer = chainGetExplorer(chainId);
 
 	return addr && isAddress(addr)
 		? `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`
@@ -143,7 +145,7 @@ const displayNftLink = (chainId: number, collection: string, tokenId: bigint): s
 	if (!isAddress(collection)) return UNDEFINED_DATA;
 
 	const url = `https://app.kredeum.com/#/${chainId}/${collection}/${tokenId}`;
-	return `<a href="${url}" target="_blank"> #${tokenId}</a>`;
+	return `<a href="${url}" target="_blank">#${tokenId}</a>`;
 };
 
 export {
@@ -160,6 +162,7 @@ export {
 	displayBatchSize,
 	displayBatchDepthWithSize,
 	displayExplorer,
+	displayExplorerNft,
 	displayExplorerAddress,
 	displayExplorerField,
 	displayBzzFromNBal

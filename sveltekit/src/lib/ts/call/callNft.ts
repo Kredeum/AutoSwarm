@@ -1,62 +1,62 @@
 import type { Address } from 'viem';
-import { erc1155Abi, erc165Abi, erc6551RegistryAbi, erc721Abi } from '../constants/abis';
-import { type NftMetadata, SALT } from '$lib/ts/constants/constants';
+import { erc1155Abi, erc165Abi, erc721Abi } from '../constants/abis';
+import type { NftMetadata } from '$lib/ts/constants/constants';
 import { callPublicClient } from './call';
-import { jsonGet } from '../constants/json';
-import { fetchJson, fetchUrlAlt, fetchUrlOk } from '../fetch/fetch';
+import { fetchJson, fetchAltUrl, fetchUrlOk } from '../fetch/fetch';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const callNftOwner = async (
-	chainId: number,
-	collection: Address,
-	tokenId: bigint
+	nftChainId: number,
+	nftCollection: Address,
+	nftTokenId: bigint
 ): Promise<Address> => {
-	const publicClient = await callPublicClient(chainId);
+	const publicClient = await callPublicClient(nftChainId);
 
 	return await publicClient.readContract({
-		address: collection,
+		address: nftCollection,
 		abi: erc721Abi,
 		functionName: 'ownerOf',
-		args: [tokenId]
+		args: [nftTokenId]
 	});
 };
 
 const callNftMetadata = async (
-	chainId: number,
-	collection: Address,
-	tokenId: bigint
+	nftChainId: number,
+	nftCollection: Address,
+	nftTokenId: bigint
 ): Promise<NftMetadata> => {
-	// console.info('callNftMetadata:', chainId, collection, tokenId);
+	// console.info('callNftMetadata:', nftChainId, nftCollection, nftTokenId);
 
-	const publicClient = await callPublicClient(chainId);
+	const publicClient = await callPublicClient(nftChainId);
 
-	const nftIs1155 = await callNftIs1155(chainId, collection);
+	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);
 
 	let tokenUri: string;
 	if (nftIs1155) {
 		tokenUri = await publicClient.readContract({
-			address: collection,
+			address: nftCollection,
 			abi: erc1155Abi,
 			functionName: 'uri',
-			args: [tokenId]
+			args: [nftTokenId]
 		});
 	} else {
 		tokenUri = await publicClient.readContract({
-			address: collection,
+			address: nftCollection,
 			abi: erc721Abi,
 			functionName: 'tokenURI',
-			args: [tokenId]
+			args: [nftTokenId]
 		});
 	}
-	const [tokenUriAlt, tokenUriType] = await fetchUrlAlt(tokenUri);
+
+	const [tokenUriAlt, tokenUriType] = await fetchAltUrl(tokenUri);
 	const nftMetadataJson = (await fetchJson(tokenUriAlt)) as NftMetadata;
 	if (!nftMetadataJson)
 		throw Error(`NFT metadata lost!\nFollowing tokenURI not available\n${tokenUri}`);
 
-	const [imageAlt, imageType] = await fetchUrlAlt(nftMetadataJson.image);
+	const [imageAlt, imageType] = await fetchAltUrl(nftMetadataJson.image);
 	if (!fetchUrlOk(imageAlt))
 		throw Error(`NFT image lost!\nFollowing image not available\n${nftMetadataJson.image}`);
 
@@ -65,17 +65,17 @@ const callNftMetadata = async (
 	nftMetadataJson.tokenUriAlt = tokenUriAlt;
 	nftMetadataJson.imageType = imageType;
 	nftMetadataJson.imageAlt = imageAlt;
-	nftMetadataJson.tokenId = String(tokenId);
-	nftMetadataJson.address = collection;
+	nftMetadataJson.tokenId = String(nftTokenId);
+	nftMetadataJson.address = nftCollection;
 
 	return nftMetadataJson;
 };
 
-const callNftIs1155 = async (chainId: number, collection: Address): Promise<boolean> => {
-	const publicClient = await callPublicClient(chainId);
+const callNftIs1155 = async (nftChainId: number, nftCollection: Address): Promise<boolean> => {
+	const publicClient = await callPublicClient(nftChainId);
 
 	const data = await publicClient.readContract({
-		address: collection,
+		address: nftCollection,
 		abi: erc165Abi,
 		functionName: 'supportsInterface',
 		args: ['0xd9b67a26']
@@ -84,11 +84,11 @@ const callNftIs1155 = async (chainId: number, collection: Address): Promise<bool
 	return data;
 };
 
-const callNftTotalSupply = async (chainId: number, collection: Address): Promise<bigint> => {
-	const publicClient = await callPublicClient(chainId);
+const callNftTotalSupply = async (nftChainId: number, nftCollection: Address): Promise<bigint> => {
+	const publicClient = await callPublicClient(nftChainId);
 
 	const data = await publicClient.readContract({
-		address: collection,
+		address: nftCollection,
 		abi: erc721Abi,
 		functionName: 'totalSupply'
 	});
@@ -96,29 +96,4 @@ const callNftTotalSupply = async (chainId: number, collection: Address): Promise
 	return data;
 };
 
-const callNftTBAccount = async (
-	chainId: number,
-	collection: Address,
-	tokenId: bigint
-): Promise<Address> => {
-	const publicClient = await callPublicClient(chainId);
-
-	const json = await jsonGet(chainId);
-
-	const args: [`0x${string}`, bigint, `0x${string}`, bigint, bigint] = [
-		json.AutoSwarmAccount as Address,
-		BigInt(chainId),
-		collection,
-		tokenId,
-		SALT
-	];
-
-	return await publicClient.readContract({
-		address: json.ERC6551Registry as Address,
-		abi: erc6551RegistryAbi,
-		functionName: 'account',
-		args
-	});
-};
-
-export { callNftOwner, callNftTBAccount, callNftTotalSupply, callNftMetadata, callNftIs1155 };
+export { callNftOwner, callNftTotalSupply, callNftMetadata, callNftIs1155 };

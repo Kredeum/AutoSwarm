@@ -1,62 +1,58 @@
 import 'viem/window';
-import {
-	type Address,
-	BaseError,
-	ContractFunctionRevertedError,
-	encodeFunctionData,
-	type Hex
-} from 'viem';
-import { autoSwarmAccountAbi, erc6551RegistryAbi } from '$lib/ts/constants/abis';
+import type { Address } from 'viem';
+import { erc6551RegistryAbi } from '$lib/ts/constants/abis';
 import { callIsContract } from '$lib/ts/call/call';
-import { SALT, ZERO_BYTES32 } from '../constants/constants';
+import { SALT } from '../constants/constants';
 import { utilsError } from '../swarm/utils';
-import { jsonGet } from '../constants/json';
+import { jsonGetField } from '../constants/json';
 import { sendWallet } from './send';
+import { callRegistryAccount } from '../call/callRegistry';
 
 const sendRegistryCreateAccount = async (
-	chainId: number,
-	collection: Address,
-	tokenId: bigint,
-	tba: Address
+	bzzChainId: number,
+	nftChainId: number,
+	nftCollection: Address,
+	nftTokenId: bigint
 ): Promise<Address> => {
-	if (await callIsContract(chainId, tba)) return tba;
+	const tba = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
+	console.log('sendRegistryCreateAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
 
-	const json = await jsonGet(chainId);
+	if (await callIsContract(bzzChainId, tba)) return tba;
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const erc6551Registry = (await jsonGetField(bzzChainId, 'ERC6551Registry')) as Address;
+	const autoSwarmAccount = (await jsonGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
+
+  console.log('createAccount:', autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId);
+
 
 	try {
-		const swarmHash = ZERO_BYTES32;
-		const swarmSize = 0n;
-		const bzzAmount = 0n;
-		const data = encodeFunctionData({
-			abi: autoSwarmAccountAbi,
-			functionName: 'initialize',
-			args: [json.PostageStamp as Address, swarmHash as Hex, swarmSize, bzzAmount]
-		});
-
 		const { request } = await publicClient.simulateContract({
 			account: walletAddress,
-			address: json.ERC6551Registry as Address,
+			address: erc6551Registry,
 			abi: erc6551RegistryAbi,
 			functionName: 'createAccount',
-			args: [json.AutoSwarmAccount as Address, BigInt(chainId), collection, tokenId, SALT, data]
+			args: [autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId]
 		});
 		const hash = await walletClient.writeContract(request);
 		await publicClient.waitForTransactionReceipt({ hash: hash });
 	} catch (err) {
-		if (err instanceof BaseError) {
-			const revertError = err.walk((err) => err instanceof ContractFunctionRevertedError);
-			if (revertError instanceof ContractFunctionRevertedError) {
-				const errorName = revertError.data?.errorName ?? '';
-				console.error('sendRegistryCreateAccount ~ errorName:', errorName);
-			}
-		}
+		console.error(err);
 	}
 
-	if (!(await callIsContract(chainId, tba))) utilsError('Create failed');
+	if (!(await callIsContract(bzzChainId, tba))) utilsError('Create failed');
 
 	return tba;
 };
+
+// const swarmHash = ZERO_BYTES32;
+// const swarmSize = 0n;
+// const bzzAmount = 0n;
+// const data = encodeFunctionData({
+//   abi: autoSwarmAccountAbi,
+//   functionName: 'initialize',
+//   args: [json.PostageStamp as Address, swarmHash as Hex, swarmSize, bzzAmount]
+// });
 
 export { sendRegistryCreateAccount };
