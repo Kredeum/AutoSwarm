@@ -26,7 +26,8 @@ const callNftOwner = async (
 const callNftMetadata = async (
 	nftChainId: number,
 	nftCollection: Address,
-	nftTokenId: bigint
+	nftTokenId: bigint,
+	nftMetadata?: NftMetadata
 ): Promise<NftMetadata> => {
 	// console.info('callNftMetadata:', nftChainId, nftCollection, nftTokenId);
 
@@ -52,23 +53,23 @@ const callNftMetadata = async (
 	}
 
 	const [tokenUriAlt, tokenUriType] = await fetchAltUrl(tokenUri);
-	const nftMetadataJson = (await fetchJson(tokenUriAlt)) as NftMetadata;
-	if (!nftMetadataJson)
+	nftMetadata ||= (await fetchJson(tokenUriAlt)) as NftMetadata;
+	if (!nftMetadata)
 		throw Error(`NFT metadata lost!\nFollowing tokenURI not available\n${tokenUri}`);
 
-	const [imageAlt, imageType] = await fetchAltUrl(nftMetadataJson.image);
+	const [imageAlt, imageType] = await fetchAltUrl(nftMetadata.image);
 	if (!fetchUrlOk(imageAlt))
-		throw Error(`NFT image lost!\nFollowing image not available\n${nftMetadataJson.image}`);
+		throw Error(`NFT image lost!\nFollowing image not available\n${nftMetadata.image}`);
 
-	nftMetadataJson.tokenUri = tokenUri;
-	nftMetadataJson.tokenUriType = tokenUriType;
-	nftMetadataJson.tokenUriAlt = tokenUriAlt;
-	nftMetadataJson.imageType = imageType;
-	nftMetadataJson.imageAlt = imageAlt;
-	nftMetadataJson.tokenId = String(nftTokenId);
-	nftMetadataJson.address = nftCollection;
+	nftMetadata.tokenUri = tokenUri;
+	nftMetadata.tokenUriType = tokenUriType;
+	if (tokenUriAlt) nftMetadata.tokenUriAlt = tokenUriAlt;
+	nftMetadata.imageType = imageType;
+	if (imageAlt) nftMetadata.imageAlt = imageAlt;
+	nftMetadata.tokenId = String(nftTokenId);
+	nftMetadata.address = nftCollection;
 
-	return nftMetadataJson;
+	return nftMetadata;
 };
 
 const callNftIs1155 = async (nftChainId: number, nftCollection: Address): Promise<boolean> => {

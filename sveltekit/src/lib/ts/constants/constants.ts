@@ -1,5 +1,3 @@
-import { hexToBytes } from 'viem';
-
 type NftMetadata = {
 	image: string;
 	name: string;
@@ -18,7 +16,9 @@ type NftMetadata = {
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const SALT = '0x0000000000000000000000000000000000000000000000000000008712982323';
 
-const SWARM_API = 'http://127.0.0.1:1633';
+const SWARM_DEFAULT_API = 'http://127.0.0.1:1633';
+const SWARM_DEFAULT_BATCHID = ZERO_BYTES32;
+
 const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz';
 const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
 const ARWEAVE_GATEWAY = 'https://arweave.net';
@@ -70,7 +70,8 @@ export {
 	UNDEFINED_DATA,
 	SEPOLIA_RPC,
 	ZERO_BYTES32,
-	SWARM_API,
+	SWARM_DEFAULT_API,
+	SWARM_DEFAULT_BATCHID,
 	SWARM_GATEWAY,
 	IPFS_GATEWAY,
 	ARWEAVE_GATEWAY,

@@ -19,7 +19,7 @@ const fetchAltUrl = async (url: string): Promise<[string, string | undefined]> =
 			  : url.includes('arweave.net/') || url.includes('/ar/')
 			    ? 'arweave'
 			    : undefined;
-		console.log('fetchAltUrl ~ type:', type);
+		// console.info('fetchAltUrl ~ type:', type);
 		return [url, type];
 	}
 

@@ -1,10 +1,11 @@
-import  { type Address, zeroAddress } from 'viem';
+import { type Address, zeroAddress } from 'viem';
 import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
 import { utilsError } from '../swarm/utils';
 
-const sendTbaTopUp = async (chainId: number, tba: Address, bzzAmount: bigint) => {
-	if (!(chainId > 0 && tba)) utilsError('No tba');
+const sendTbaTopUp = async (chainId: number, tba: Address | undefined, bzzAmount: bigint) => {
+	if (!(chainId > 0)) throw Error('Bad chain!');
+	if (!tba) throw Error('Bad TBA!');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
 
@@ -20,7 +21,7 @@ const sendTbaTopUp = async (chainId: number, tba: Address, bzzAmount: bigint) =>
 };
 
 const sendTbaWithdraw = async (chainId: number, tba: Address, token = zeroAddress) => {
-	if (!(chainId > 0 && tba)) utilsError('No tba');
+	if (!(chainId > 0 && tba)) utilsError('sendTbaWithdraw: No tba');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
 

@@ -8,7 +8,7 @@
 	// Select Network via a list box
 	/////////////////////////////////////////////////
 	export let chainId: number;
-	$: console.log('NetworkListSelectSimple chainId CHANGE', chainId);
+	// $: console.info('NetworkListSelectSimple chainId CHANGE', chainId);
 
 	interface SwitchEventTarget extends EventTarget {
 		value: number;

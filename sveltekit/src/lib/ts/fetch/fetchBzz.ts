@@ -1,30 +1,29 @@
-import type { Hex } from 'viem';
-import {   SWARM_API, SWARM_GATEWAY } from '../constants/constants';
+import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID, SWARM_GATEWAY } from '../constants/constants';
+import { utilsError } from '../swarm/utils';
+import { localConfigGet } from '../constants/local';
+import { fetchUrlOk } from './fetch';
 
-const fetchBzzPost = async (url: string | undefined, batchId: Hex): Promise<string | undefined> => {
-	console.info('fetchBzzPost');
+const fetchBzzPost = async (url: string | undefined): Promise<string | undefined> => {
+	if (!(url && fetchUrlOk(url))) throw new Error('Bad Url');
 
-	try {
-		if (!url) throw new Error('url is undefined');
+	const swarmApiUrl = localConfigGet('api') || SWARM_DEFAULT_API;
+	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
+  if (batchId === ZERO_BYTES32) throw new Error('No BatchId defined!');
 
-		const urlApi = `${SWARM_API}/bzz`;
+	const body = await (await fetch(url)).blob();
 
-		const body = await (await fetch(url)).blob();
-		console.log('fetchBzzPost ~ body', body.size, body.type);
+	const headers = new Headers();
+	headers.append('Content-Type', body.type);
+	headers.append('swarm-postage-batch-id', batchId);
 
-		const headers = new Headers();
-		headers.append('Content-Type', body.type);
-		headers.append('swarm-postage-batch-id', batchId);
+	const response: Response = await fetch(swarmApiUrl, { method: 'POST', body, headers });
 
-		const response = await fetch(urlApi, { method: 'POST', body, headers });
-		const json = await response.json();
-		const urlResaved = `${SWARM_GATEWAY}/${json.reference}`;
-
-		console.log('fetchBzzPost ~ urlResaved:', urlResaved);
-		return urlResaved;
-	} catch (e) {
-		console.log('fetchBzzPost failed with error', e);
+	const json = await response.json();
+	if (!response.ok) {
+		throw Error(`${response.statusText}\n${JSON.stringify(json, null, 2)}`);
 	}
+
+	return `${SWARM_GATEWAY}/${json.reference}`;
 };
 
 const fetchBzzGet = async (swarmHash: string): Promise<Response | undefined> => {
@@ -36,7 +35,7 @@ const fetchBzzGet = async (swarmHash: string): Promise<Response | undefined> => 
 		console.log('fetchBzzGet', swarmHash, '\n', response);
 		return response;
 	} catch (e) {
-		console.log('fetchBzzGet failed with error', e, swarmHash);
+		utilsError(`fetchBzzGet: Error ${swarmHash}`, e);
 	}
 };
 

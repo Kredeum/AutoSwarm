@@ -13,7 +13,7 @@ const callPostageBatches = async (chainId: number): Promise<[Address, number, bi
 	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
+	if (!('batchId' in json)) utilsError(`callPostageBatches: No batchId in json ${chainId})`);
 
 	const [owner, depth, , , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -29,7 +29,7 @@ const callPostageBatchesLegacy = async (chainId: number): Promise<[Address, numb
 	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
+	if (!('batchId' in json)) utilsError(`callPostageBatchesLegacy: No batchId in json ${chainId})`);
 
 	const [owner, depth, , rBal] = await publicClient.readContract({
 		address: json.PostageStamp as Address,
@@ -57,7 +57,7 @@ const callPostageRemainingBalance = async (chainId: number): Promise<bigint> => 
 	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`No batchId in json ${chainId})`);
+	if (!('batchId' in json)) utilsError(`callPostageRemainingBalance: No batchId in json ${chainId})`);
 
 	const data = await publicClient.readContract({
 		address: json.PostageStamp as Address,

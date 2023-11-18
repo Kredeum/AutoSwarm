@@ -1,6 +1,6 @@
 import { fetchJson } from './fetchJson';
 import { fetchAltUrl } from './fetchAlt';
-
+import { utilsError } from '../swarm/utils';
 
 const fetchContentType = async (url: string): Promise<string | undefined> => {
 	// console.info('fetchContentType', url);
@@ -9,16 +9,17 @@ const fetchContentType = async (url: string): Promise<string | undefined> => {
 		const response = await fetch(url, { method: 'HEAD' });
 		if (200 === response.status) {
 			const type = response.headers.get('content-type');
-			console.info('fetchContentType', type, url);
+			// console.info('fetchContentType', type, url);
 			return type || 'text';
 		} else {
-			console.log('fetchContentType failed with bad status', response.status, url);
+			throw Error(`fetchContentType failed with bad status ${response.status} ${url}`);
 		}
 	} catch (e) {
-		console.error('fetchContentType failed with error', e, url);
+		utilsError(`fetchContentType: Error ${url}`, e);
 	}
 };
 
-const fetchUrlOk = async (url: string): Promise<boolean> => Boolean(await fetchContentType(url));
+const fetchUrlOk = async (url: string | undefined): Promise<boolean> =>
+	url ? Boolean(await fetchContentType(url)) : false;
 
 export { fetchContentType, fetchUrlOk, fetchAltUrl, fetchJson };

@@ -39,7 +39,8 @@
 
 	// State
 	let tbaDeployed = false;
-	let buying = false;
+	let monthlyCroning = false;
+	let dailyCroning = false;
 
 	const reset = () => {
 		tbaAddress = undefined;
@@ -63,20 +64,38 @@
 			// STATE
 			tbaDeployed = await callIsContract(bzzChainId, tbaAddress as Address);
 		} catch (e) {
-			alert(e);
+			utilsError('<Monitor/> refresh', e);
 		}
 	};
 
-	const newBatch = async () => {
-		buying = true;
+	const daylyCron = async () => {
+		console.info('DailyCron');
+
 		try {
+			if (dailyCroning) throw Error('Already running!');
+			dailyCroning = true;
+		} catch (e) {
+			utilsError('<Monitor/> Daily Cron:', e);
+		}
+
+		dailyCroning = false;
+	};
+
+	const monthlyCron = async () => {
+		console.info('MonthlyCron');
+
+		try {
+			if (monthlyCroning) throw Error('Already running!');
+			monthlyCroning = true;
+
 			const autoSwarmMarket = jsonGetField(bzzChainId, 'AutoSwarmMarket') as Address;
 			await sendBzzTransfer(bzzChainId, autoSwarmMarket, BATCH_UNIT_PRICE);
 			await sendMarketNewBatch(bzzChainId);
 		} catch (e) {
-			utilsError(`newBatch\n${e}`);
+			utilsError('<Monitor/> Monthly Cron:', e);
 		}
-		buying = false;
+
+		monthlyCroning = false;
 	};
 
 	onMount(refresh);
@@ -101,16 +120,24 @@
 	{/if}
 	<hr />
 	<p>
-		{#if currentBatchId == ZERO_BYTES32}
-			<button class="btn btn-topup" on:click={newBatch}>
-				Buy batch
-				{#if buying}
+		<button class="btn btn-topup" on:click={daylyCron}>
+			Dayly Cron
+			{#if dailyCroning}
+				<i class="fa-solid fa-spinner fa-spin-pulse" />
+			{/if}
+		</button>
+
+		<span>
+			<button class="btn btn-topup" on:click={monthlyCron}>
+				Monthly Cron
+				{#if monthlyCroning}
 					<i class="fa-solid fa-spinner fa-spin-pulse" />
 				{/if}
 			</button>
-		{:else}
-			currentBatchId <span>{currentBatchId}</span>
-		{/if}
+		</span>
+	</p>
+	<p>
+		currentBatchId <span>{currentBatchId}</span>
 	</p>
 	<hr />
 	<p>

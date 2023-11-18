@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { zeroAddress, type Address, type Hex } from 'viem';
+	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
@@ -22,9 +22,12 @@
 	import { callRegistryAccount } from '$lib/ts/call/callRegistry.js';
 	import { sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
-	import Debug from '$lib/components/Debug/Debug.svelte';
+
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import { fetchBzzPost } from '$lib/ts/fetch/fetchBzz';
+	import Monitor from '$lib/components/Monitor/Monitor.svelte';
+	import { localConfigInit } from '$lib/ts/constants/local';
+	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
 
 	// Block
 	let blockTimestamp: number = 0;
@@ -53,10 +56,10 @@
 
 	// State
 	let tbaDeployed: boolean | undefined;
-	let debug = false;
-	let initializing = false;
-	let resaving = false;
-	let topping = false;
+	let monitoring = false;
+
+	let resaving = 0;
+	let toping = 0;
 
 	const reset = () => {
 		remainingBalance = undefined;
@@ -67,7 +70,7 @@
 	};
 
 	const refresh = async () => {
-		console.log('refresh');
+		// console.info('refresh');
 		if (!($bzzChainId > 0)) return;
 		reset();
 
@@ -97,112 +100,146 @@
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 
 		tbaDeployed = await callIsContract($bzzChainId, tbaAddress as Address);
-		console.log('refresh ~ tbaDeployed:', tbaDeployed);
+	};
+
+	const resaveTokenUri = async () =>
+		(nftMetadata.tokenUriResave = await fetchBzzPost(nftMetadata.tokenUriAlt));
+
+	const resaveImage = async () =>
+		(nftMetadata.imageResave = await fetchBzzPost(nftMetadata.imageAlt));
+
+	const createAccount = async () =>
+		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
+
+	const sendBzzTransferUnit = async () =>
+		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
+
+	const topUpStamp = async () => {
+		if (lastPrice === undefined) throw Error('No price found');
+		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
+	};
+
+	const resaveNft = async () => {
+		[nftMetadata.tokenUriResave, nftMetadata.imageResave] = await fetchBzzTar([
+			nftMetadata.tokenUriAlt,
+			nftMetadata.imageAlt
+		]);
 	};
 
 	const reSave = async () => {
-		resaving = true;
-		try {
-			nftMetadata.imageResave = await fetchBzzPost(nftMetadata.imageAlt, '0x0');
+		console.info('reSave');
 
-			// await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
-			// await topUp();
+		try {
+			if (resaving) throw Error('Already ReSaving!');
+
+			await resaveNft();
+			resaving = 1;
+			await createAccount();
+			resaving = 2;
+			await sendBzzTransferUnit();
+			resaving = 3;
+			await topUpStamp();
+			resaving = 4;
+			alert('Your NFT has been ReSaved on Swarm! 🎉');
 		} catch (e) {
-			alert(e);
+			utilsError('ReSave:', e);
 		}
-		resaving = false;
+		resaving = 0;
+		refresh();
 	};
 
 	const topUp = async () => {
 		console.info('topUp');
-		topping = true;
-
-		if (lastPrice === undefined) {
-			utilsError('No price found');
-			return;
-		}
-		if (tbaAddress === undefined || tbaAddress == zeroAddress) {
-			utilsError('Bad TBA address');
-			return;
-		}
 
 		try {
-			await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
-			await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
-		} catch (e) {
-			alert(e);
-		}
-		topping = false;
+			if (toping) throw Error('Already Topping Up!');
 
+			await sendBzzTransferUnit();
+			toping = 1;
+			await topUpStamp();
+			toping = 2;
+			alert('Your NFT has been TopUped on Swarm! 🎉');
+		} catch (e) {
+			utilsError('TopUp:', e);
+		}
+
+		toping = 0;
 		refresh();
 	};
 
-	onMount(refresh);
+	onMount(async () => {
+		await localConfigInit();
+		await refresh();
+	});
 </script>
 
-<section>
-	<div class="nfts-grid">
-		<Nft {nftChainId} {nftCollection} {nftTokenId} bind:nftMetadata />
-	</div>
-	<section class="user-config">
-		{#if tbaDeployed}
-			<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
-		{:else}
-			<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
+{#key [toping, resaving]}
+	<section>
+		<div class="nfts-grid">
+			<Nft {nftChainId} {nftCollection} {nftTokenId} bind:nftMetadata />
+		</div>
+		<section class="user-config">
+			{#if tbaDeployed}
+				<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
+			{:else}
+				<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
+			{/if}
+		</section>
+
+		{#if tbaDeployed !== undefined}
+			<div class="batch-topUp">
+				{#if false}
+					<br />
+
+					{#if duration == 0}
+						<button class="btn btn-storage">Storage NOT Guaranteed</button>
+						<br />
+					{:else}
+						<button class="btn btn-storage">Storage Guaranteed</button>
+						<br />
+						<div class="batch-topUp-infos">
+							<p>for</p>
+							<p>{displayDuration(duration)}</p>
+							<p>until</p>
+							<p>{displayDate(until)}</p>
+						</div>
+					{/if}
+
+					<br />
+
+					<button class="btn btn-topup" on:click={topUp}>
+						TopUp 1 Year
+						{#if toping}
+							&nbsp;
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {toping}/2
+						{/if}
+					</button>
+				{:else}
+					<button class="btn btn-topup" on:click={reSave}>
+						ReSave NFT
+						{#if resaving}
+							&nbsp;
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving}/4
+						{/if}
+					</button>
+				{/if}
+				<div class="batch-topUp-below">
+					<p>Price: {displayBalance(STAMP_UNIT_PRICE, 16)} Bzz / Mo</p>
+				</div>
+			</div>
+		{/if}
+
+		<br />
+		<br />
+
+		<p>
+			<button class="btn" on:click={() => (monitoring = !monitoring)}>
+				{#if monitoring}hide{/if} monitor
+			</button>
+		</p>
+
+		{#if monitoring}
+			<Monitor bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
 		{/if}
 	</section>
-
-	{#if tbaDeployed !== undefined}
-		<div class="batch-topUp">
-			{#if tbaDeployed}
-				<br />
-
-				{#if duration == 0}
-					<button class="btn btn-storage">Storage NOT Guaranteed</button>
-					<br />
-				{:else}
-					<button class="btn btn-storage">Storage Guaranteed</button>
-					<br />
-					<div class="batch-topUp-infos">
-						<p>for</p>
-						<p>{displayDuration(duration)}</p>
-						<p>until</p>
-						<p>{displayDate(until)}</p>
-					</div>
-				{/if}
-
-				<br />
-
-				<button class="btn btn-topup" on:click={topUp}>
-					TopUp 1 Year
-					{#if topping}
-						<i class="fa-solid fa-spinner fa-spin-pulse" />
-					{/if}
-				</button>
-			{:else}
-				<button class="btn btn-topup" on:click={reSave}>
-					ReSave NFT
-					{#if resaving}
-						<i class="fa-solid fa-spinner fa-spin-pulse" />
-					{/if}
-				</button>
-			{/if}
-			<div class="batch-topUp-below">
-				<p>Price: {displayBalance(STAMP_UNIT_PRICE, 16)} Bzz / Mo</p>
-			</div>
-		</div>
-	{/if}
-
-	<br />
-	<br />
-
-	<p>
-		<button class="btn" on:click={() => (debug = !debug)}>
-			{#if debug}hide{/if} debug
-		</button>
-	</p>
-
-	{#if debug}
-		<Debug bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
-	{/if}
-</section>
+{/key}

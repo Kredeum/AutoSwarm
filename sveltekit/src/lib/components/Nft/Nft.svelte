@@ -2,6 +2,7 @@
 	import { callNftMetadata } from '$lib/ts/call/callNft';
 	import type { NftMetadata } from '$lib/ts/constants/constants';
 	import { displayExplorerNft, displayNftLink } from '$lib/ts/display/display';
+	import { utilsError } from '$lib/ts/swarm/utils';
 	import { onMount } from 'svelte';
 	import type { Address } from 'viem';
 
@@ -12,9 +13,9 @@
 
 	const refresh = async () => {
 		try {
-			nftMetadata = await callNftMetadata(nftChainId, nftCollection, nftTokenId);
+			nftMetadata = await callNftMetadata(nftChainId, nftCollection, nftTokenId, nftMetadata);
 		} catch (e) {
-			alert(e);
+			utilsError("<Nft/> refresh", e);
 		}
 	};
 

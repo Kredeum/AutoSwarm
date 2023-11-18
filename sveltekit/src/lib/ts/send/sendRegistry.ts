@@ -15,7 +15,7 @@ const sendRegistryCreateAccount = async (
 	nftTokenId: bigint
 ): Promise<Address> => {
 	const tba = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
-	console.log('sendRegistryCreateAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
+	// console.info('sendRegistryCreateAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
 
 	if (await callIsContract(bzzChainId, tba)) return tba;
 
@@ -24,24 +24,26 @@ const sendRegistryCreateAccount = async (
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
-  console.log('createAccount:', autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId);
+	console.log(
+		'createAccount:',
+		autoSwarmAccount,
+		SALT,
+		BigInt(nftChainId),
+		nftCollection,
+		nftTokenId
+	);
 
+	const { request } = await publicClient.simulateContract({
+		account: walletAddress,
+		address: erc6551Registry,
+		abi: erc6551RegistryAbi,
+		functionName: 'createAccount',
+		args: [autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId]
+	});
+	const hash = await walletClient.writeContract(request);
+	await publicClient.waitForTransactionReceipt({ hash: hash });
 
-	try {
-		const { request } = await publicClient.simulateContract({
-			account: walletAddress,
-			address: erc6551Registry,
-			abi: erc6551RegistryAbi,
-			functionName: 'createAccount',
-			args: [autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId]
-		});
-		const hash = await walletClient.writeContract(request);
-		await publicClient.waitForTransactionReceipt({ hash: hash });
-	} catch (err) {
-		console.error(err);
-	}
-
-	if (!(await callIsContract(bzzChainId, tba))) utilsError('Create failed');
+	if (!(await callIsContract(bzzChainId, tba))) utilsError('sendRegistryCreateAccount: Create failed');
 
 	return tba;
 };
