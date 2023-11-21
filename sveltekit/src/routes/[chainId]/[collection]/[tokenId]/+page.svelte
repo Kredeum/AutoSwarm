@@ -25,9 +25,10 @@
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import { fetchBzzPost } from '$lib/ts/fetch/fetchBzz';
-	import Monitor from '$lib/components/Monitor/Monitor.svelte';
+	import Monitor from '$lib/components/Pages/Monitor.svelte';
 	import { localConfigInit } from '$lib/ts/constants/local';
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
+	import Debug from '$lib/components/Pages/Debug.svelte';
 
 	// Block
 	let blockTimestamp: number = 0;
@@ -56,7 +57,7 @@
 
 	// State
 	let tbaDeployed: boolean | undefined;
-	let monitoring = false;
+	let debug = false;
 
 	let resaving = 0;
 	let toping = 0;
@@ -111,6 +112,8 @@
 	const createAccount = async () =>
 		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
 
+	const initializeAccount = async () => {};
+
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
 
@@ -142,7 +145,7 @@
 			resaving = 4;
 			alert('Your NFT has been ReSaved on Swarm! 🎉');
 		} catch (e) {
-			utilsError('ReSave:', e);
+			utilsError(`ReSave (${resaving}/4) :`, e);
 		}
 		resaving = 0;
 		refresh();
@@ -160,7 +163,7 @@
 			toping = 2;
 			alert('Your NFT has been TopUped on Swarm! 🎉');
 		} catch (e) {
-			utilsError('TopUp:', e);
+			utilsError(`TopUp (${toping}/2) :`, e);
 		}
 
 		toping = 0;
@@ -188,7 +191,7 @@
 
 		{#if tbaDeployed !== undefined}
 			<div class="batch-topUp">
-				{#if false}
+				{#if tbaDeployed}
 					<br />
 
 					{#if duration == 0}
@@ -233,13 +236,13 @@
 		<br />
 
 		<p>
-			<button class="btn" on:click={() => (monitoring = !monitoring)}>
-				{#if monitoring}hide{/if} monitor
+			<button class="btn" on:click={() => (debug = !debug)}>
+				{#if debug}hide{/if} debug
 			</button>
 		</p>
 
-		{#if monitoring}
-			<Monitor bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
+		{#if debug}
+			<Debug bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
 		{/if}
 	</section>
 {/key}

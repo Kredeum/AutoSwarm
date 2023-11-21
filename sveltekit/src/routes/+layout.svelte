@@ -8,6 +8,7 @@
 	import '$lib/css/styles.css';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { page } from '$app/stores';
 
 	let chainId: number = 11155111; // 100
 	$: chainId, onChainChange();
@@ -16,6 +17,9 @@
 		bzzChainId.set(chainId);
 		invalidateAll();
 	};
+
+	const rootStyle = document.querySelector(':root')?.style;
+	$: rootStyle.setProperty('--color-bg-0', $page.route.id === '/monitor' ? '#555' : '#000');
 </script>
 
 <div class="app">
@@ -28,7 +32,6 @@
 	</main>
 
 	<footer>
-		<AccountConnectSimple />
 		<p>
 			<NetworkListSelectSimple bind:chainId />
 		</p>

@@ -22,7 +22,7 @@ const fetchBzzTar = async (urls: (string | undefined)[]): Promise<string[]> => {
 
 		const blob = await (await fetch(url)).blob();
 		const data = new Uint8Array(await blob.arrayBuffer());
-		const path = index === 0 ? 'metadata' : index === 1 ? 'content' : `part${index}`;
+		const path = index === 0 ? 'metadata.json' : index === 1 ? 'content' : `part${index}`;
 
 		collection.push({ data, path });
 	}
@@ -41,11 +41,11 @@ const fetchBzzTar = async (urls: (string | undefined)[]): Promise<string[]> => {
 		throw Error(`${response.statusText}\n${JSON.stringify(json, null, 2)}`);
 	}
 
-	const urlRef = `${swarmApiUrl}/${json.reference}`;
-	console.log('fetchBzzTar ~ urlRef:', urlRef);
+	const paths = collection.map((item) => `${SWARM_GATEWAY}/${json.reference}/${item.path}`);
 
-	const paths = collection.map((item) => `${urlRef}/${item.path}`);
-	console.log('fetchBzzTar ~ paths:', paths);
+  console.log('fetchBzzTar ~ reference:', json.reference);
+	console.log('fetchBzzTar ~ metadata.json:', paths[0]);
+	console.log('fetchBzzTar ~ content:', paths[1]);
 	return paths;
 };
 

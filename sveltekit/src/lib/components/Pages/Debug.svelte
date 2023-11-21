@@ -68,7 +68,7 @@
 		}
 	};
 
-	const daylyCron = async () => {
+	const dailyCron = async () => {
 		console.info('DailyCron');
 
 		try {
@@ -120,55 +120,6 @@
 	{/if}
 	<hr />
 	<p>
-		<button class="btn btn-topup" on:click={daylyCron}>
-			Dayly Cron
-			{#if dailyCroning}
-				<i class="fa-solid fa-spinner fa-spin-pulse" />
-			{/if}
-		</button>
-
-		<span>
-			<button class="btn btn-topup" on:click={monthlyCron}>
-				Monthly Cron
-				{#if monthlyCroning}
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
-				{/if}
-			</button>
-		</span>
-	</p>
-	<p>
-		currentBatchId <span>{currentBatchId}</span>
-	</p>
-	<hr />
-	<p>
-		BZZ Chaind
-		<span>{@html displayExplorer(bzzChainId)}</span>
-	</p>
-	<p>
-		BzzToken
-		<span>{@html displayExplorerField(bzzChainId, 'BzzToken')}</span>
-	</p>
-	<p>
-		PriceOracle
-		<span>{@html displayExplorerField(bzzChainId, 'PriceOracle')}</span>
-	</p>
-	<p>
-		ERC6551Registry
-		<span>{@html displayExplorerField(bzzChainId, 'ERC6551Registry')}</span>
-	</p>
-	<p>
-		PostageStamp
-		<span>{@html displayExplorerField(bzzChainId, 'PostageStamp')}</span>
-	</p>
-	<p>
-		AutoSwarmAccount
-		<span>{@html displayExplorerField(bzzChainId, 'AutoSwarmAccount')}</span>
-	</p>
-	<p>
-		AutoSwarmMarket
-		<span>{@html displayExplorerField(bzzChainId, 'AutoSwarmMarket')}</span>
-	</p>
-	<p>
 		Wallet - {displayBalance(walletBalance, 16, 4)} Bzz
 		<span>{@html displayExplorerAddress(bzzChainId, walletAddress)}</span>
 	</p>
@@ -193,7 +144,7 @@
 
 <style>
 	#debug {
-		width: 1100px;
+		width: 1200px;
 		display: block;
 		text-align: left;
 	}
