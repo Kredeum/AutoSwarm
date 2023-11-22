@@ -97,22 +97,33 @@ header h2 {
 	font-size: 0.9em;
 }
 
+/*******************/
+/* Resaver section */
+/*******************/
+#resaver {
+	display: flex;
+	justify-content: center;
+	gap: 5rem;
+	flex-wrap: wrap;
+}
+
+
 /* NFTS */
 .nfts-grid {
-	margin: auto;
+	/* margin: auto; */
 	width: fit-content;
 	max-width: 1024px;
 	display: flex;
 	grid-gap: 20px;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-	margin: auto;
 }
 
 article {
 	background-color: var(--color-bg-nft);
 	padding: 1em;
 	border-radius: 5px;
+	width: calc(200px + 2em);
 }
 
 .nft-img {
@@ -126,6 +137,7 @@ article p {
 	color: #000;
 	text-align: left;
 	font-weight: bold;
+	word-break: break-word;
 }
 
 /* Bottom section */
