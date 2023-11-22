@@ -1,0 +1,33 @@
+@import '$lib/css/lib/_normalize.css';
+
+:root {
+  --font-body: 'Inter', sans-serif;
+  --color-bg-0: #000;
+  --color-bg-nft: #fff;
+  --color-text-1: #fff;
+  --color-text-2: #999;
+  --color-link: #fe7900;
+  --general-wrapper-min-width: 40%;
+  --general-wrapper-max-width: 1400px;
+
+  font-family: var(--font-body);
+  color: var(--color-text-1);
+  font-size: 10px;
+}
+
+html {
+  box-sizing: border-box;
+  -ms-overflow-style: scrollbar;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+html *,
+html *::before,
+html *::after {
+  box-sizing: border-box;
+}
+
+/* * {
+    outline: none;
+  } */

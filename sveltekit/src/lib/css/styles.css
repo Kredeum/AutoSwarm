@@ -1,33 +1,10 @@
+@import '$lib/css/_global.css';
 @import '$lib/css/_classes.css';
 
-:root {
-	--font-body: 'Inter', sans-serif;
-	--color-bg-0: #000;
-	--color-bg-nft: #fff;
-	--color-text-1: #fff;
-	--color-text-2: #999;
-	--color-link: #fe7900;
-	--general-wrapper-min-width: 40%;
-	--general-wrapper-max-width: 1400px;
-
-	font-family: var(--font-body);
-	color: var(--color-text-1);
-	font-size: 10px;
-}
-
-.monitor {
-	background-color: #555;
-}
 
 /* General */
-.app {
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-}
-
 body {
-	min-height: 100vh;
+	/* min-height: 100vh; */
 	background-image: url($lib/images/background.svg);
 	background-size: 100% auto;
 	background-repeat: no-repeat;
@@ -37,6 +14,12 @@ body {
 
 	/* base sizes */
 	font-size: 1.6rem;
+}
+
+.app {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
 header,
@@ -235,4 +218,15 @@ button:disabled.btn.btn-topup {
 	cursor: no-drop;
 	border-color: var(--color-link);
 	background-color: transparent;
+}
+
+/**************************/
+/* Swarm user config page */
+/**************************/
+#swarm-config {
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+	align-items: center;
+	flex-wrap: wrap;
 }
