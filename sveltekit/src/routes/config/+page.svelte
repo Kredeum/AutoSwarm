@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '$lib/ts/constants/constants';
 	import { localConfigGet, localConfigSet } from '$lib/ts/constants/local';
+	import { fade, fly } from 'svelte/transition';
+	import { quintOut, bounceOut } from 'svelte/easing';
 
 	let errMessage = '';
 	let successMessage = '';
@@ -21,8 +23,13 @@
 		return batchId.replace(/^0x/, '').length === 64;
 	};
 
-	const storeUserSettings = (): void => {
+	const resetMessages = () => {
 		errMessage = '';
+		successMessage = '';
+	};
+
+	const storeUserSettings = (): void => {
+		resetMessages();
 
 		if (!isUrlValid(swarmApi)) {
 			errMessage += 'Invalid url';
@@ -38,6 +45,8 @@
 		localConfigSet('api', swarmApi);
 		localConfigSet('batchId', batchId);
 		successMessage = 'Swarm config stored';
+
+		setTimeout(() => resetMessages(), 2000);
 	};
 </script>
 
@@ -51,6 +60,7 @@
 		placeholder="Enter your bee node URL"
 		bind:value={swarmApi}
 		id="swarm-api"
+		on:input={resetMessages}
 	/>
 
 	<label class="input-label" for="batch-id">BatchID</label>
@@ -60,6 +70,7 @@
 		placeholder="Enter your bee node URL"
 		bind:value={batchId}
 		id="batch-id"
+		on:input={resetMessages}
 	/>
 
 	<input
@@ -69,8 +80,20 @@
 		value="Store Swarm config"
 	/>
 	{#if errMessage}
-		<p class="error-message">{errMessage}</p>
+		<p
+			class="error-message"
+			in:fly={{ delay: 0, duration: 300, x: 0, y: 100, opacity: 0.5, easing: bounceOut }}
+			out:fade={{ duration: 300 }}
+		>
+			{errMessage}
+		</p>
 	{:else if successMessage}
-		<p class="success-message">{successMessage}</p>
+		<p
+			class="success-message"
+			in:fly={{ delay: 0, duration: 300, x: 0, y: 100, opacity: 0.5, easing: quintOut }}
+			out:fade={{ duration: 300 }}
+		>
+			{successMessage}
+		</p>
 	{/if}
 </section>
