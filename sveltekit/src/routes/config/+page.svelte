@@ -32,7 +32,7 @@
 		resetMessages();
 
 		if (!isUrlValid(swarmApi)) {
-			errMessage += 'Invalid url';
+			errMessage += 'Invalid URL';
 		}
 
 		if (!isBatchIdValid(batchId)) {
@@ -50,9 +50,9 @@
 	};
 </script>
 
-<h2>Config</h2>
-
 <section id="swarm-config">
+	<h2>Config</h2>
+
 	<label class="input-label" for="swarm-api">Bee node URL</label>
 	<input
 		type="text"
@@ -85,7 +85,7 @@
 			in:fly={{ delay: 0, duration: 300, x: 0, y: 100, opacity: 0.5, easing: bounceOut }}
 			out:fade={{ duration: 300 }}
 		>
-			{errMessage}
+			Ooops, {errMessage}
 		</p>
 	{:else if successMessage}
 		<p

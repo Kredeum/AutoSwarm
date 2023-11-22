@@ -230,3 +230,7 @@ button:disabled.btn.btn-topup {
 	align-items: center;
 	flex-wrap: wrap;
 }
+
+#swarm-config h2 {
+	color: var(--color-link);
+}
