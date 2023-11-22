@@ -1,4 +1,3 @@
-
 import {
 	SWARM_DEFAULT_API,
 	SWARM_DEFAULT_BATCHID,
@@ -26,7 +25,7 @@ const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<
 	for (let index = 0; index < urls.length; index++) {
 		const url = urls[index];
 		console.log('fetchBzzMultipart ~ url:', url);
-		if (!(url && fetchUrlOk(url))) throw new Error('Bad Url');
+		if (!(url && fetchUrlOk(url))) throw new Error('Bad URL');
 
 		const blob = await (await fetch(url)).blob();
 		const uint8Array = new Uint8Array(await blob.arrayBuffer());

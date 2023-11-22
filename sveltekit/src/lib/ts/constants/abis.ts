@@ -29,8 +29,9 @@ const erc6551RegistryAbi = parseAbi([
 	'function account(address,bytes32,uint256,address,uint256) external view returns (address)',
 	'function createAccount(address,bytes32,uint256,address,uint256) external returns (address)'
 ]);
+const autoSwarmAccountAbi2 = parseAbi(['function initialize(address,bytes32,uint256) external']);
 const autoSwarmAccountAbi = parseAbi([
-	'function initialize(address,bytes32,uint256,uint256) external',
+	'function initialize(address,bytes32,uint256) external',
 	'function topUp(uint256) external',
 	'function getTopUpYearPrice() external view returns (uint256)',
 	'function withdraw(address) external'
@@ -50,5 +51,6 @@ export {
 	postageStampAbiBatcheslegacy,
 	postageStampAbi,
 	autoSwarmAccountAbi,
+	autoSwarmAccountAbi2,
 	autoSwarmMarketAbi
 };

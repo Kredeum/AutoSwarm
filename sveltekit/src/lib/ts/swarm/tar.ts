@@ -1,8 +1,8 @@
 import Tar from 'tar-js';
 
 interface CollectionEntry {
-  data: Uint8Array;
-  path: string;
+	data: Uint8Array;
+	path: string;
 }
 type Collection = Array<CollectionEntry>;
 

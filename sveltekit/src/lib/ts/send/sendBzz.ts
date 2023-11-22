@@ -38,9 +38,7 @@ const sendBzzTransfer = async (chainId: number, to: Address | undefined, bzzAmou
 	});
 
 	const hash = await walletClient.writeContract(request);
-	console.info('sendBzzTransfer', 'A');
 	await publicClient.waitForTransactionReceipt({ hash });
-	console.info('sendBzzTransfer', 'B');
 };
 
 export { sendBzzApprove, sendBzzTransfer };

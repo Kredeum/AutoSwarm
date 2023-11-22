@@ -16,7 +16,8 @@ import { chainGet } from '../constants/chains';
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const _windowEthereum = (): EIP1193Provider => {
-	if (!window?.ethereum) utilsError('_windowEthereum: Install Web3 extension like Rabby or Metamask');
+	if (!window?.ethereum)
+		utilsError('_windowEthereum: Install Web3 extension like Rabby or Metamask');
 
 	return window.ethereum!;
 };

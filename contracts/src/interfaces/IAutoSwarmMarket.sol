@@ -9,7 +9,7 @@ interface IAutoSwarmMarket {
     event UpdateBatch(bytes32 indexed index, uint8 indexed depth, uint256 indexed ttl);
     event UpdateStampsUnitPrice(uint256 unitPrice);
 
-    function createStamp(bytes32 hash, uint256 size, uint256 bzzAmount) external returns (bytes32 stampId);
+    function createStamp(bytes32 hash, uint256 bzzAmount) external returns (bytes32 stampId);
     function topUpStamp(bytes32 stampId, uint256 bzzAmount) external;
 
     function newBatch() external returns (bytes32 batchId);

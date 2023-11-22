@@ -1,7 +1,35 @@
-import { type Address, zeroAddress } from 'viem';
-import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
+import { type Address, zeroAddress, type Hex } from 'viem';
+import { autoSwarmAccountAbi, autoSwarmAccountAbi2 } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
 import { utilsError } from '../swarm/utils';
+import { jsonGetField } from '../constants/json';
+
+const sendTbaInitialize = async (
+	chainId: number,
+	tba: Address | undefined,
+	swarmHash: Hex | undefined,
+	bzzAmount: bigint
+) => {
+	if (!(chainId > 0)) throw Error('Bad chain!');
+	if (!tba) throw Error('No TBA!');
+	if (!swarmHash) throw Error('No SwarmHash!');
+	console.log('sendTbaInitialize:', chainId, tba, swarmHash, bzzAmount);
+
+	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+
+	const autoSwarmMarket = jsonGetField(chainId, 'AutoSwarmMarket') as Address;
+
+	const { request } = await publicClient.simulateContract({
+		account: walletAddress,
+		address: tba,
+		abi: autoSwarmAccountAbi2,
+		functionName: 'initialize',
+		args: [autoSwarmMarket, swarmHash, bzzAmount]
+	});
+
+	const hash = await walletClient.writeContract(request);
+	await publicClient.waitForTransactionReceipt({ hash });
+};
 
 const sendTbaTopUp = async (chainId: number, tba: Address | undefined, bzzAmount: bigint) => {
 	if (!(chainId > 0)) throw Error('Bad chain!');
@@ -36,4 +64,4 @@ const sendTbaWithdraw = async (chainId: number, tba: Address, token = zeroAddres
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-export { sendTbaTopUp, sendTbaWithdraw };
+export { sendTbaTopUp, sendTbaWithdraw, sendTbaInitialize };

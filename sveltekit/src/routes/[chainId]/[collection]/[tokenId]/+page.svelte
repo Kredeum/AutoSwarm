@@ -16,16 +16,21 @@
 	import { callBlock, callIsContract } from '$lib/ts/call/call.js';
 	import { callBzzBalance } from '$lib/ts/call/callBzz.js';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage.js';
-	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
+	import {
+		displayBalance,
+		displayDate,
+		displayDuration,
+		displayExplorerAddress,
+		explorerAddress
+	} from '$lib/ts/display/display';
 	import { utilsError } from '$lib/ts/swarm/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { callRegistryAccount } from '$lib/ts/call/callRegistry.js';
-	import { sendTbaTopUp } from '$lib/ts/send/sendTba';
+	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import { fetchBzzPost } from '$lib/ts/fetch/fetchBzz';
-	import Monitor from '$lib/components/Pages/Monitor.svelte';
 	import { localConfigInit } from '$lib/ts/constants/local';
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
 	import Debug from '$lib/components/Pages/Debug.svelte';
@@ -82,6 +87,7 @@
 
 		// TBA
 		tbaAddress = await callRegistryAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
+		console.log('tbaAddress:', explorerAddress($bzzChainId, tbaAddress).toString());
 
 		// PostageStamp
 		lastPrice = (await callPostageLastPrice($bzzChainId)) || DEFAULT_PRICE;
@@ -112,7 +118,8 @@
 	const createAccount = async () =>
 		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
 
-	const initializeAccount = async () => {};
+	const initializeAccount = async () =>
+		await sendTbaInitialize($bzzChainId, tbaAddress, nftMetadata.swarmHash, STAMP_UNIT_PRICE);
 
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
@@ -123,10 +130,12 @@
 	};
 
 	const resaveNft = async () => {
-		[nftMetadata.tokenUriResave, nftMetadata.imageResave] = await fetchBzzTar([
-			nftMetadata.tokenUriAlt,
-			nftMetadata.imageAlt
-		]);
+		[nftMetadata.swarmHash, [nftMetadata.imageResave, nftMetadata.tokenUriResave]] =
+			await fetchBzzTar([nftMetadata.imageAlt, nftMetadata.tokenUriAlt]);
+
+		console.log('resaveNft ~ swarmHash:', nftMetadata.swarmHash);
+		console.log('resaveNft ~ imageResave:', nftMetadata.imageResave.toString());
+		console.log('resaveNft ~ tokenUriResave:', nftMetadata.tokenUriResave.toString());
 	};
 
 	const reSave = async () => {
@@ -134,18 +143,17 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
-
 			await resaveNft();
 			resaving = 1;
-			await createAccount();
-			resaving = 2;
 			await sendBzzTransferUnit();
+			resaving = 2;
+			await createAccount();
 			resaving = 3;
-			await topUpStamp();
+			await initializeAccount();
 			resaving = 4;
 			alert('Your NFT has been ReSaved on Swarm! 🎉');
 		} catch (e) {
-			utilsError(`ReSave (${resaving}/4) :`, e);
+			utilsError(`ReSave (${resaving}/5) :`, e);
 		}
 		resaving = 0;
 		refresh();

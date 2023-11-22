@@ -1,16 +1,17 @@
+import type { Address, Hex } from 'viem';
+
 type NftMetadata = {
-	image: string;
+	image: URL;
 	name: string;
 	description: string;
-	tokenUri?: string;
-	tokenUriAlt?: string;
-	tokenUriType?: string;
-	tokenUriResave?: string;
-	imageAlt?: string;
-	imageType?: string;
-	imageResave?: string;
-	tokenId?: string;
-	address?: string;
+	tokenUri?: URL;
+	tokenUriAlt?: URL;
+	tokenUriResave?: URL;
+	imageAlt?: URL;
+	imageResave?: URL;
+	tokenId?: bigint;
+	address?: Address;
+	swarmHash?: Hex;
 };
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';

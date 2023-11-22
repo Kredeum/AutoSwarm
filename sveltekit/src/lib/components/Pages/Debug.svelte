@@ -104,18 +104,18 @@
 <div id="debug">
 	{#if nftMetadata}
 		<p>
-			tokenURI original <strong>{nftMetadata.tokenUriType}</strong><span
-				>{@html displayLink(nftMetadata.tokenUri)}</span
-			>
+			tokenURI original
+			<span>
+				{@html displayLink(nftMetadata.tokenUri)}
+			</span>
 		</p>
-		<p>tokenURI alternative<span>{@html displayLink(nftMetadata.tokenUriAlt)}</span></p>
 		<p>tokenURI resaved<span>{@html displayLink(nftMetadata.tokenUriResave)}</span></p>
 		<p>
-			content original <strong>{nftMetadata.imageType}</strong><span
-				>{@html displayLink(nftMetadata.image)}</span
-			>
+			content original
+			<span>
+				{@html displayLink(nftMetadata.image)}
+			</span>
 		</p>
-		<p>content alternative<span>{@html displayLink(nftMetadata.imageAlt)}</span></p>
 		<p>content resaved<span>{@html displayLink(nftMetadata.imageResave)}</span></p>
 	{/if}
 	<hr />

@@ -23,4 +23,3 @@
 <p>
 	<a href="8453/0x5405242c013203FF278c02B1e0AA102Fff49C0cd/1">Kredeum - base ipfs</a>
 </p>
-

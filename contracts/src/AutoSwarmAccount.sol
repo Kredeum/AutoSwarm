@@ -8,9 +8,9 @@ import {IAutoSwarmAccount, IAutoSwarmMarket, IERC20} from "./interfaces/IAutoSwa
 
 contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     bytes32 public swarmHash;
-    uint256 public swarmSize;
-    bytes32 public myStampId;
-    address initializer;
+    uint256 public swarmSize = 1;
+    bytes32 public stampId;
+    address public initializer;
 
     IAutoSwarmMarket internal _autoSwarmMarket;
     IERC20 internal _bzzToken;
@@ -25,7 +25,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _;
     }
 
-    function initialize(address autoSwarmMarket_, bytes32 swarmHash_, uint256 swarmSize_, uint256 bzzAmount)
+    function initialize(address autoSwarmMarket_, bytes32 swarmHash_, uint256 bzzAmount)
         external
         override(IAutoSwarmAccount)
     {
@@ -33,12 +33,10 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
 
         require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
         require(swarmHash_ != bytes32(0), "Bad Swarm hash");
-        require(swarmSize_ > 0, "Bad Swarm size");
 
         initializer = msg.sender;
 
         swarmHash = swarmHash_;
-        swarmSize = swarmSize_;
 
         _autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
         _bzzToken = IERC20(_autoSwarmMarket.bzzToken());
@@ -46,12 +44,12 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         require(address(_bzzToken) != address(0), "Bad BzzToken");
 
         _bzzApproveMore(bzzAmount);
-        myStampId = _autoSwarmMarket.createStamp(swarmHash, swarmSize, bzzAmount);
+        stampId = _autoSwarmMarket.createStamp(swarmHash, bzzAmount);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) onlyWhenInitialized {
         _bzzApproveMore(bzzAmount);
-        _autoSwarmMarket.topUpStamp(myStampId, bzzAmount);
+        _autoSwarmMarket.topUpStamp(stampId, bzzAmount);
     }
 
     function withdraw(address token) external {

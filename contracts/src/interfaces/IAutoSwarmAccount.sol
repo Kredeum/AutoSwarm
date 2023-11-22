@@ -5,7 +5,7 @@ import {IERC20} from "./IERC20.sol";
 import {IAutoSwarmMarket} from "./IAutoSwarmMarket.sol";
 
 interface IAutoSwarmAccount {
-    function initialize(address, bytes32, uint256, uint256) external;
+    function initialize(address, bytes32, uint256) external;
 
     function swarmHash() external returns (bytes32);
     function swarmSize() external returns (uint256);

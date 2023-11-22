@@ -15,7 +15,7 @@
 		try {
 			nftMetadata = await callNftMetadata(nftChainId, nftCollection, nftTokenId, nftMetadata);
 		} catch (e) {
-			utilsError("<Nft/> refresh", e);
+			utilsError('<Nft/> refresh', e);
 		}
 	};
 

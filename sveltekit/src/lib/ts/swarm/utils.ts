@@ -49,7 +49,7 @@ const utilsTtlToNBal = (
 const utilsError = (label: string, err?: unknown) => {
 	const message = `${label} : ${err}`;
 	console.error(message);
-	// alert(message);
+	alert(message);
 };
 
 export {

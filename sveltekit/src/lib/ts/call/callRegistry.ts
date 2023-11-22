@@ -23,7 +23,7 @@ const callRegistryAccount = async (
 		functionName: 'account',
 		args: [autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId]
 	});
-	// console.info('callRegistryAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
+	console.info('callRegistryAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
 
 	return tba;
 };

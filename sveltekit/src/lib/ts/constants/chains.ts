@@ -36,5 +36,5 @@ const chainGetExplorer = (id: number): string => {
 	return chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
 };
 
-export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet , chainGetExplorer};
+export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet, chainGetExplorer };
 export type { ChainMapType, BzzChainIdType, NftChainIdType };
