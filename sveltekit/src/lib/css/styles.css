@@ -1,7 +1,6 @@
 @import '$lib/css/_global.css';
 @import '$lib/css/_classes.css';
 
-
 /* General */
 body {
 	/* min-height: 100vh; */
@@ -106,7 +105,6 @@ header h2 {
 	gap: 5rem;
 	flex-wrap: wrap;
 }
-
 
 /* NFTS */
 .nfts-grid {
