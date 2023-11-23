@@ -42,7 +42,7 @@
 
 		if (errMessage) return;
 
-		localConfigSet('api', swarmApi);
+		localConfigSet('api', swarmApi.replace(/\/$/, ''));
 		localConfigSet('batchId', batchId);
 		successMessage = 'Swarm config stored';
 
