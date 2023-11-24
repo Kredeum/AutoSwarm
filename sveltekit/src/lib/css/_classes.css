@@ -30,17 +30,13 @@
 	/* outline: 0; */
 	padding: 1em;
 	margin-bottom: 3em;
+	width: 100%;
 }
 
 .input-field:focus {
 	outline-color: var(--color-link);
 	outline-style: outset;
 	outline-width: 3px;
-}
-
-.batchid-field {
-	width: 100%;
-	max-width: 44em;
 }
 
 .error-message {

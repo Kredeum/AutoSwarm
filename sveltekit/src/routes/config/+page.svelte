@@ -3,14 +3,16 @@
 	import { localConfigGet, localConfigSet } from '$lib/ts/constants/local';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
+	import { trim } from 'viem';
 
 	let errMessage = '';
 	let successMessage = '';
 
 	$: swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
-	$: batchId = localConfigGet('batchId') || SWARM_DEFAULT_BATCHID;
+	$: batchId = localConfigGet('batchId');
 
 	const isUrlValid = (url: string): boolean => {
+		if (!url) return false;
 		try {
 			new URL(url);
 			return true;
@@ -19,9 +21,8 @@
 		}
 	};
 
-	const isBatchIdValid = (batchId: string): boolean => {
-		return batchId.replace(/^0x/, '').length === 64;
-	};
+	const isBatchIdValid = (batchId: string | null): boolean =>
+		!batchId || batchId.replace(/^0x/, '').length === 64;
 
 	const resetMessages = () => {
 		errMessage = '';
@@ -31,21 +32,25 @@
 	const storeUserSettings = (): void => {
 		resetMessages();
 
+		swarmApi = swarmApi.trim().replace(/\/$/, '');
 		if (!isUrlValid(swarmApi)) {
-			errMessage += 'Invalid URL';
+			errMessage = `Invalid node URL '${swarmApi}'`;
+			swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
+			return;
 		}
+		localConfigSet('api', swarmApi);
 
-		if (!isBatchIdValid(batchId)) {
-			if (errMessage) errMessage += ' & ';
-			errMessage += 'Invalid batchId';
+		batchId = batchId?.trim() || null;
+		batchId = batchId?.replace(/^0x/, '') || null;
+		if (batchId !== null) batchId = `0x${batchId}`;
+		if (!(batchId && isBatchIdValid(batchId))) {
+      errMessage = `Invalid batchId '${batchId}'`;
+			batchId = localConfigGet('batchId') || null;
+			return;
 		}
-
-		if (errMessage) return;
-
-		localConfigSet('api', swarmApi.replace(/\/$/, ''));
 		localConfigSet('batchId', batchId);
-		successMessage = 'Swarm config stored';
 
+		successMessage = 'Swarm config stored';
 		setTimeout(() => resetMessages(), 2000);
 	};
 </script>
@@ -66,8 +71,8 @@
 	<label class="input-label" for="batch-id">BatchID</label>
 	<input
 		type="text"
-		class="input-field batchid-field"
-		placeholder="Enter your bee node URL"
+		class="input-field"
+		placeholder="Enter your batch ID"
 		bind:value={batchId}
 		id="batch-id"
 		on:input={resetMessages}
