@@ -133,7 +133,9 @@ const callNftTokenUri = async (
 };
 
 const callNftIs1155 = async (nftChainId: number, nftCollection: Address): Promise<boolean> => {
+  console.log("callNftIs1155", nftChainId, nftCollection );
 	const publicClient = await callPublicClient(nftChainId);
+	console.log("callNftIs1155 ~ publicClient:", publicClient);
 
 	const data = await publicClient.readContract({
 		address: nftCollection,

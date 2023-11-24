@@ -1,12 +1,4 @@
-import {
-	http,
-	type Chain,
-	type Address,
-	type Block,
-	type PublicClient,
-	createPublicClient
-} from 'viem';
-import { SEPOLIA_RPC } from '$lib/ts/constants/constants';
+import { type Chain, type Address, type Block, type PublicClient, createPublicClient } from 'viem';
 import { chainGetWithTransport } from '../constants/chains';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

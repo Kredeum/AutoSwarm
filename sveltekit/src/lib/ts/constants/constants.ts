@@ -8,11 +8,6 @@ const SWARM_GATEWAY = 'https://api.gateway.ethswarm.org/bzz';
 const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
 const ARWEAVE_GATEWAY = 'https://arweave.net';
 
-// const SEPOLIA_RPC = 'https://ethereum-sepolia.publicnode.com';
-const SEPOLIA_RPC = 'https://rpc.ankr.com/eth_sepolia';
-// const SEPOLIA_RPC = "https://rpc.sepolia.org";
-// const SEPOLIA_RPC = "https://sepolia.publicgoods.network"
-
 const BZZ_DECIMALS = 16;
 
 const ONE_HOUR = 3600;
@@ -52,7 +47,6 @@ export {
 	DIVISION_BY_ZERO,
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
-	SEPOLIA_RPC,
 	ZERO_BYTES32,
 	SWARM_DEFAULT_API,
 	SWARM_DEFAULT_BATCHID,
