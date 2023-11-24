@@ -10,7 +10,7 @@ contract AutoSwarmMarket is Ownable {
     struct Stamp {
         // immutable
         address owner;
-        bytes32 swarmHash;
+        bytes32 bzzHash;
         uint256 swarmSize;
         // mutable
         bytes32 batchId;
@@ -69,24 +69,17 @@ contract AutoSwarmMarket is Ownable {
         assert(_postageStamp.remainingBalance(batchId) == ttl);
     }
 
-    function createStamp(bytes32 hash, uint256 size, uint256 bzzAmount) public returns (bytes32 stampId) {
-        require(currentBatchId != bytes32(0), "No current batch");
+    function createStamp(bytes32 hash, uint256 bzzAmount) public returns (bytes32 stampId) {
         require(hash != bytes32(0), "Bad Swarm Hash");
-        require(size > 0, "Bad Swarm size");
 
-        Stamp memory stamp = Stamp({
-            owner: msg.sender,
-            swarmHash: hash,
-            swarmSize: size,
-            batchId: "",
-            unitBalance: currentStampUnitPaid()
-        });
-        stampId = keccak256(abi.encode(msg.sender, hash, size));
+        Stamp memory stamp =
+            Stamp({owner: msg.sender, bzzHash: hash, swarmSize: 1, batchId: "", unitBalance: currentStampUnitPaid()});
+        stampId = keccak256(abi.encode(msg.sender, hash, block.number));
 
         stamps[stampId] = stamp;
         stampIds.push(stampId);
 
-        _topUpStamp(stamps[stampId], bzzAmount);
+        // _topUpStamp(stamps[stampId], bzzAmount);
     }
 
     function topUpStamp(bytes32 stampId, uint256 bzzAmount) public {
@@ -99,6 +92,14 @@ contract AutoSwarmMarket is Ownable {
         stampBlockUpdate = block.number;
 
         emit UpdateStampUnitPrice(stampUnitPrice);
+    }
+
+    function setStampsSize(bytes32[] memory stampIdsToSize, uint256 size) public {
+        uint256 len = stampIdsToSize.length;
+
+        for (uint256 index; index < len; index++) {
+            stamps[stampIdsToSize[index]].swarmSize = size;
+        }
     }
 
     function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public {

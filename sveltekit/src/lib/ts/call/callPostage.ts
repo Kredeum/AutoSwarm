@@ -57,7 +57,8 @@ const callPostageRemainingBalance = async (chainId: number): Promise<bigint> => 
 	const publicClient = await callPublicClient(chainId);
 
 	const json = await jsonGet(chainId);
-	if (!('batchId' in json)) utilsError(`callPostageRemainingBalance: No batchId in json ${chainId})`);
+	if (!('batchId' in json))
+		utilsError(`callPostageRemainingBalance: No batchId in json ${chainId})`);
 
 	const data = await publicClient.readContract({
 		address: json.PostageStamp as Address,

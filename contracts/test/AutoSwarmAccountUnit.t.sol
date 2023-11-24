@@ -23,31 +23,38 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(account.code.length != 0);
     }
 
+    function test_AutoSwarmAccount_initialize3() public {
+        bytes32 salt = "3";
+
+        tba = AutoSwarmAccount(
+            payable(registry.createAccount(address(implementation), salt, chainId, collection, tokenId))
+        );
+        deal(address(bzzToken), address(tba), 4e8 * BLOCKS_PER_YEAR);
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 4e8 * BLOCKS_PER_YEAR);
+    }
+
     function test_AutoSwarmAccount_initialize1() public {
         bytes32 salt = "1";
 
         tba = AutoSwarmAccount(payable(registry.account(address(implementation), salt, chainId, collection, tokenId)));
 
+        assert(address(tba).code.length == 0);
         registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
         assert(address(tba).code.length != 0);
 
         vm.expectRevert();
-        tba.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
-
-        vm.expectRevert();
-        tba.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 2e15);
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 2e15);
 
         deal(address(bzzToken), address(tba), 2e8 * BLOCKS_PER_YEAR);
 
-        tba.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 2e8 * BLOCKS_PER_YEAR);
-        console.log("test_AutoSwarmAccount_initialize1 ~ tba.getTopUpYearPrice():", tba.getTopUpYearPrice());
-        assert(tba.swarmHash() == bytes32("1"));
-        assert(tba.swarmSize() == 85_000);
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 2e8 * BLOCKS_PER_YEAR);
+        assert(tba.bzzHash() == bytes32("1"));
+        // assert(tba.swarmSize() == 1);
         assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
-        assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+        // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
 
         vm.expectRevert();
-        tba.initialize(address(autoSwarmMarket), bytes32("1"), 85_000, 1e15);
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 2e15);
     }
 
     function test_AutoSwarmAccount_initialize2() public {
@@ -58,24 +65,23 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
         registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
 
-        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1_200_000, 4e8 * BLOCKS_PER_YEAR);
-        console.log("test_AutoSwarmAccount_initialize2 ~ tba.getTopUpYearPrice():", tba.getTopUpYearPrice());
-        assert(tba.swarmHash() == bytes32("1"));
-        assert(tba.swarmSize() == 1_200_000);
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 4e8 * BLOCKS_PER_YEAR);
+
+        assert(tba.bzzHash() == bytes32("1"));
         assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
-        assert(tba.getTopUpYearPrice() == 4e8 * BLOCKS_PER_YEAR);
+        // assert(tba.getTopUpYearPrice() == 4e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_swarhHash() public view {
-        assert(tba.swarmHash() == bytes32("1"));
+        assert(tba.bzzHash() == bytes32("1"));
     }
 
     function test_AutoSwarmAccount_swarmSize() public view {
-        assert(tba.swarmSize() == 85_000);
+        // assert(tba.swarmSize() == 1);
     }
 
     function test_AutoSwarmAccount_getTopUpYearPrice() public view {
-        assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+        // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_token() public view {

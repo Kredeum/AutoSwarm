@@ -13,7 +13,7 @@ import {
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import {  chainGetExplorer } from '../constants/chains';
+import { chainGetExplorer } from '../constants/chains';
 import { jsonGetField } from '../constants/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,26 +99,35 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 
 const displayExplorer = (chainId: number): string => {
 	const explorer = chainGetExplorer(chainId);
+	if (!explorer) return '';
 
 	return `<a href="${explorer}" target="_blank">${chainId}</a>`;
 };
 
 const displayExplorerNft = (chainId: number, collection: string, tokenId: bigint): string => {
 	const explorer = chainGetExplorer(chainId);
+	if (!explorer) return '';
 
 	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${tokenId}</a>`;
 };
 
-const displayExplorerAddress = (chainId: number, addr?: string): string => {
+const explorerAddress = (chainId: number, addr: Address): URL | Address => {
 	const explorer = chainGetExplorer(chainId);
+	if (!explorer) return addr;
 
-	return addr && isAddress(addr)
-		? `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`
-		: `<a href="${explorer}" target="_blank">${addr === undefined ? chainId : addr}</a>`;
+	return new URL(`${explorer}/address/${addr}`);
 };
 
+const displayExplorerAddress = (chainId: number, addr?: Address): string => {
+	const explorer = chainGetExplorer(chainId);
+	if (!explorer) return '';
+
+	return addr && isAddress(addr)
+		? `<a href="${explorerAddress(chainId, addr)}" target="_blank">${addr}</a>`
+		: `<a href="${explorer}" target="_blank">${addr || chainId}</a>`;
+};
 const displayExplorerField = (chainId: number, field: string): string =>
-	displayExplorerAddress(chainId, jsonGetField(chainId, field));
+	displayExplorerAddress(chainId, jsonGetField(chainId, field) as Address);
 
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
@@ -138,7 +147,7 @@ const displayBalance = (
 	return str.toFixed(Number(toFixed));
 };
 
-const displayLink = (url?: string): string | undefined =>
+const displayLink = (url: URL | string | undefined): string | undefined =>
 	url === undefined ? url : `<a href="${url}" target="_blank">${url}</a>`;
 
 const displayNftLink = (chainId: number, collection: string, tokenId: bigint): string => {
@@ -163,6 +172,7 @@ export {
 	displayBatchDepthWithSize,
 	displayExplorer,
 	displayExplorerNft,
+	explorerAddress,
 	displayExplorerAddress,
 	displayExplorerField,
 	displayBzzFromNBal

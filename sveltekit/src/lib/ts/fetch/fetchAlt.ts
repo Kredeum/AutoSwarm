@@ -1,38 +1,41 @@
 import { ARWEAVE_GATEWAY, IPFS_GATEWAY, SWARM_GATEWAY } from '../constants/constants';
 import { fetchUrlOk } from './fetch';
 
-const fetchAltUrl = async (url: string): Promise<[string, string | undefined]> => {
-	let tryIpfsUrl = url.replace('ipfs://', `${IPFS_GATEWAY}/`);
-	if (tryIpfsUrl !== url && (await fetchUrlOk(tryIpfsUrl))) return [tryIpfsUrl, 'ipfs'];
+// const type = urlToString.includes('/ipfs/')
+//   ? 'ipfs'
+//   : urlToString.includes('/bzz/')
+//     ? 'swarm'
+//     : urlToString.includes('arweave.net/') || urlToString.includes('/ar/')
+//       ? 'arweave'
+//       : undefined;
 
-	let trySwarmUrl = url.replace(/(bzz|bzzr|swarm):\/\//, `${SWARM_GATEWAY}/`);
-	if (trySwarmUrl !== url && (await fetchUrlOk(trySwarmUrl))) return [trySwarmUrl, 'swarm'];
+const fetchAltUrl = async (url: URL | undefined): Promise<URL | undefined> => {
+	if (!url) return;
+	const urlToString = url.toString();
 
-	let tryArweaveUrl = url.replace('ar://', `${ARWEAVE_GATEWAY}/`);
-	if (tryArweaveUrl !== url && (await fetchUrlOk(tryArweaveUrl))) return [tryArweaveUrl, 'arweave'];
+	let tryIpfsUrl = urlToString.replace('ipfs://', `${IPFS_GATEWAY}/`);
+	if (tryIpfsUrl !== urlToString && (await fetchUrlOk(tryIpfsUrl))) return new URL(tryIpfsUrl);
 
-	if (await fetchUrlOk(url)) {
-		const type = url.includes('/ipfs/')
-			? 'ipfs'
-			: url.includes('/bzz/')
-			  ? 'swarm'
-			  : url.includes('arweave.net/') || url.includes('/ar/')
-			    ? 'arweave'
-			    : undefined;
-		// console.info('fetchAltUrl ~ type:', type);
-		return [url, type];
-	}
+	let trySwarmUrl = urlToString.replace(/(bzz|bzzr|swarm):\/\//, `${SWARM_GATEWAY}/`);
+	if (trySwarmUrl !== urlToString && (await fetchUrlOk(trySwarmUrl))) return new URL(trySwarmUrl);
 
-	tryIpfsUrl = url.replace(/^.*\/ipfs\//, `${IPFS_GATEWAY}/`);
-	if (tryIpfsUrl !== url && (await fetchUrlOk(tryIpfsUrl))) return [tryIpfsUrl, 'ipfs'];
+	let tryArweaveUrl = urlToString.replace('ar://', `${ARWEAVE_GATEWAY}/`);
+	if (tryArweaveUrl !== urlToString && (await fetchUrlOk(tryArweaveUrl)))
+		return new URL(tryArweaveUrl);
 
-	trySwarmUrl = url.replace(/^.*\/bzz\//, `${SWARM_GATEWAY}/`);
-	if (trySwarmUrl !== url && (await fetchUrlOk(trySwarmUrl))) return [trySwarmUrl, 'swarm'];
+	if (await fetchUrlOk(urlToString)) return new URL(urlToString);
 
-	tryArweaveUrl = url.replace(/^.*\/ar\//, `${ARWEAVE_GATEWAY}/`);
-	if (tryArweaveUrl !== url && (await fetchUrlOk(tryArweaveUrl))) return [tryArweaveUrl, 'swarm'];
+	tryIpfsUrl = urlToString.replace(/^.*\/ipfs\//, `${IPFS_GATEWAY}/`);
+	if (tryIpfsUrl !== urlToString && (await fetchUrlOk(tryIpfsUrl))) return new URL(tryIpfsUrl);
 
-	return [url, undefined];
+	trySwarmUrl = urlToString.replace(/^.*\/bzz\//, `${SWARM_GATEWAY}/`);
+	if (trySwarmUrl !== urlToString && (await fetchUrlOk(trySwarmUrl))) return new URL(trySwarmUrl);
+
+	tryArweaveUrl = urlToString.replace(/^.*\/ar\//, `${ARWEAVE_GATEWAY}/`);
+	if (tryArweaveUrl !== urlToString && (await fetchUrlOk(tryArweaveUrl)))
+		return new URL(tryArweaveUrl);
+
+	return url;
 	// throw new Error(`fetchAltUrl failed ${url}`);
 };
 

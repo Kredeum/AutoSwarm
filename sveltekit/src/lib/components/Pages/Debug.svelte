@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import { ZERO_BYTES32, type NftMetadata, BATCH_UNIT_PRICE } from '$lib/ts/constants/constants';
+	import { ZERO_BYTES32, BATCH_UNIT_PRICE } from '$lib/ts/constants/constants';
 	import { jsonGetField } from '$lib/ts/constants/json';
 	import {
 		displayBalance,
@@ -19,12 +19,16 @@
 	import { callRegistryAccount } from '$lib/ts/call/callRegistry';
 	import { onMount } from 'svelte';
 	import { callIsContract } from '$lib/ts/call/call';
+	import type { NftMetadata } from '$lib/ts/constants/types';
 
 	export let bzzChainId: number;
 	export let nftChainId: number;
 	export let nftCollection: Address;
 	export let nftTokenId: bigint;
 	export let nftMetadata: NftMetadata;
+
+	// $: autoSwarmMetadata = nftMetadata?.autoswarm;
+	const autoSwarmMetadata = nftMetadata?.autoswarm;
 
 	// Wallet
 	let walletAddress: Address | undefined;
@@ -68,7 +72,7 @@
 		}
 	};
 
-	const daylyCron = async () => {
+	const dailyCron = async () => {
 		console.info('DailyCron');
 
 		try {
@@ -102,72 +106,39 @@
 </script>
 
 <div id="debug">
-	{#if nftMetadata}
+	{#if autoSwarmMetadata}
 		<p>
-			tokenURI original <strong>{nftMetadata.tokenUriType}</strong><span
-				>{@html displayLink(nftMetadata.tokenUri)}</span
-			>
+			tokenURI original
+			<span>
+				{@html displayLink(autoSwarmMetadata.nftTokenUri)}
+			</span>
 		</p>
-		<p>tokenURI alternative<span>{@html displayLink(nftMetadata.tokenUriAlt)}</span></p>
-		<p>tokenURI resaved<span>{@html displayLink(nftMetadata.tokenUriResave)}</span></p>
 		<p>
-			content original <strong>{nftMetadata.imageType}</strong><span
-				>{@html displayLink(nftMetadata.image)}</span
-			>
+			tokenURI original alt
+			<span>
+				{@html displayLink(autoSwarmMetadata.nftTokenUriAlt)}
+			</span>
 		</p>
-		<p>content alternative<span>{@html displayLink(nftMetadata.imageAlt)}</span></p>
-		<p>content resaved<span>{@html displayLink(nftMetadata.imageResave)}</span></p>
+		<p>tokenURI resaved<span>{@html displayLink(autoSwarmMetadata.tbaTokenUri)}</span></p>
+		<p>
+			tokenURI resaved alt<span>{@html displayLink(autoSwarmMetadata.tbaTokenUriAlt)}</span>
+		</p>
+		<p>
+			image original
+			<span>
+				{@html displayLink(autoSwarmMetadata.nftImage)}
+			</span>
+		</p>
+		<p>
+			image original alt
+			<span>
+				{@html displayLink(autoSwarmMetadata.nftImageAlt)}
+			</span>
+		</p>
+		<p>image resaved<span>{@html displayLink(autoSwarmMetadata.tbaImage)}</span></p>
+		<p>image resaved alt<span>{@html displayLink(autoSwarmMetadata.tbaImageAlt)}</span></p>
 	{/if}
 	<hr />
-	<p>
-		<button class="btn btn-topup" on:click={daylyCron}>
-			Dayly Cron
-			{#if dailyCroning}
-				<i class="fa-solid fa-spinner fa-spin-pulse" />
-			{/if}
-		</button>
-
-		<span>
-			<button class="btn btn-topup" on:click={monthlyCron}>
-				Monthly Cron
-				{#if monthlyCroning}
-					<i class="fa-solid fa-spinner fa-spin-pulse" />
-				{/if}
-			</button>
-		</span>
-	</p>
-	<p>
-		currentBatchId <span>{currentBatchId}</span>
-	</p>
-	<hr />
-	<p>
-		BZZ Chaind
-		<span>{@html displayExplorer(bzzChainId)}</span>
-	</p>
-	<p>
-		BzzToken
-		<span>{@html displayExplorerField(bzzChainId, 'BzzToken')}</span>
-	</p>
-	<p>
-		PriceOracle
-		<span>{@html displayExplorerField(bzzChainId, 'PriceOracle')}</span>
-	</p>
-	<p>
-		ERC6551Registry
-		<span>{@html displayExplorerField(bzzChainId, 'ERC6551Registry')}</span>
-	</p>
-	<p>
-		PostageStamp
-		<span>{@html displayExplorerField(bzzChainId, 'PostageStamp')}</span>
-	</p>
-	<p>
-		AutoSwarmAccount
-		<span>{@html displayExplorerField(bzzChainId, 'AutoSwarmAccount')}</span>
-	</p>
-	<p>
-		AutoSwarmMarket
-		<span>{@html displayExplorerField(bzzChainId, 'AutoSwarmMarket')}</span>
-	</p>
 	<p>
 		Wallet - {displayBalance(walletBalance, 16, 4)} Bzz
 		<span>{@html displayExplorerAddress(bzzChainId, walletAddress)}</span>
@@ -193,7 +164,7 @@
 
 <style>
 	#debug {
-		width: 1100px;
+		width: 1200px;
 		display: block;
 		text-align: left;
 	}

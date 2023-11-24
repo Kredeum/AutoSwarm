@@ -1,4 +1,4 @@
-import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from "./constants";
+import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from './constants';
 
 const localConfigGet = (field: string): string | null => localStorage.getItem(`swarm.${field}`);
 

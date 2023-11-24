@@ -8,14 +8,21 @@
 	import '$lib/css/styles.css';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { page } from '$app/stores';
+	import type { as } from 'vitest/dist/reporters-5f784f42';
 
-	let chainId: number = 11155111; // 100
+	// let chainId: number = 100;
+	// let chainId: number = 11155111;
+	let chainId: number = 31337;
 	$: chainId, onChainChange();
 
 	const onChainChange = () => {
 		bzzChainId.set(chainId);
 		invalidateAll();
 	};
+
+	const rootStyle = document.querySelector(':root') as HTMLElement;
+	$: rootStyle.style.setProperty('--color-bg-0', $page.route.id === '/monitor' ? '#555' : '#000');
 </script>
 
 <div class="app">
@@ -28,10 +35,7 @@
 	</main>
 
 	<footer>
-		<AccountConnectSimple />
-		<p>
-			<NetworkListSelectSimple bind:chainId />
-		</p>
+		{chainId}
 		<Footer />
 	</footer>
 </div>

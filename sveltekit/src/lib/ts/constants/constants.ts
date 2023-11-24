@@ -1,18 +1,3 @@
-type NftMetadata = {
-	image: string;
-	name: string;
-	description: string;
-	tokenUri?: string;
-	tokenUriAlt?: string;
-	tokenUriType?: string;
-	tokenUriResave?: string;
-	imageAlt?: string;
-	imageType?: string;
-	imageResave?: string;
-	tokenId?: string;
-	address?: string;
-};
-
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const SALT = '0x0000000000000000000000000000000000000000000000000000008712982323';
 
@@ -53,7 +38,6 @@ const UNDEFINED_ADDRESS = '0x****************************************';
 const UNDEFINED_DATA = '*****';
 
 export {
-	type NftMetadata,
 	SALT,
 	ONE_HOUR,
 	ONE_DAY,

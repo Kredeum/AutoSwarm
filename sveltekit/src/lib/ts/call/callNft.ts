@@ -1,8 +1,13 @@
-import type { Address } from 'viem';
+import type { Address, Hex } from 'viem';
 import { erc1155Abi, erc165Abi, erc721Abi } from '../constants/abis';
-import type { NftMetadata } from '$lib/ts/constants/constants';
-import { callPublicClient } from './call';
+import type { NftMetadata } from '$lib/ts/constants/types';
+import { callIsContract, callPublicClient } from './call';
 import { fetchJson, fetchAltUrl, fetchUrlOk } from '../fetch/fetch';
+import { callTbaBzzHash, callTbaTokenUri } from './callTba';
+import type { NftMetadataAutoSwarm } from '../constants/types';
+import { callRegistryAccount } from './callRegistry';
+import { ZERO_BYTES32 } from '../constants/constants';
+import { bzzImageUri, bzzTokenUri } from '../swarm/bzz';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -24,52 +29,107 @@ const callNftOwner = async (
 };
 
 const callNftMetadata = async (
+	bzzChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
-	nftTokenId: bigint,
-	nftMetadata?: NftMetadata
+	nftTokenId: bigint
 ): Promise<NftMetadata> => {
-	// console.info('callNftMetadata:', nftChainId, nftCollection, nftTokenId);
+	console.log('callNftMetadata', bzzChainId, nftChainId, nftCollection, nftTokenId);
 
-	const publicClient = await callPublicClient(nftChainId);
+	const nftTokenUri = await callNftTokenUri(nftChainId, nftCollection, nftTokenId);
+	const nftTokenUriAlt = await fetchAltUrl(nftTokenUri);
+	const nftMetadata = (await fetchJson(nftTokenUriAlt)) as NftMetadata;
+	const nftImage = nftMetadata.image;
+	const nftImageAlt = await fetchAltUrl(nftImage);
+	const nftImageOK = await fetchUrlOk(nftImageAlt);
 
-	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);
+	const tbaAddress = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
+	console.log('tbaAddress:', tbaAddress);
 
-	let tokenUri: string;
-	if (nftIs1155) {
-		tokenUri = await publicClient.readContract({
-			address: nftCollection,
-			abi: erc1155Abi,
-			functionName: 'uri',
-			args: [nftTokenId]
-		});
-	} else {
-		tokenUri = await publicClient.readContract({
-			address: nftCollection,
-			abi: erc721Abi,
-			functionName: 'tokenURI',
-			args: [nftTokenId]
-		});
+	let bzzHash: Hex | undefined;
+	let tbaTokenUri: URL | undefined;
+	let tbaTokenUriAlt: URL | undefined;
+	let tbaMetadata: NftMetadata | undefined;
+	let tbaImageAlt: URL | undefined;
+	let tbaImageOK: boolean | undefined;
+	const contract = await callIsContract(bzzChainId, tbaAddress);
+	if (contract) {
+		bzzHash = (await callTbaBzzHash(bzzChainId, tbaAddress)) as Hex;
+		console.log('bzzHash:', bzzHash);
+
+		tbaTokenUri = bzzTokenUri(bzzHash);
+		tbaTokenUriAlt = await fetchAltUrl(tbaTokenUri);
+		tbaMetadata = (await fetchJson(tbaTokenUriAlt)) as NftMetadata;
+		tbaImageAlt = bzzImageUri(bzzHash);
+		tbaImageOK = await fetchUrlOk(tbaImageAlt);
 	}
 
-	const [tokenUriAlt, tokenUriType] = await fetchAltUrl(tokenUri);
-	nftMetadata ||= (await fetchJson(tokenUriAlt)) as NftMetadata;
-	if (!nftMetadata)
-		throw Error(`NFT metadata lost!\nFollowing tokenURI not available\n${tokenUri}`);
+	if (!(nftMetadata || tbaMetadata)) throw Error(`NFT metadata lost! ${nftTokenUri}`);
+	if (!(nftImageOK || tbaImageOK)) throw Error(`NFT image lost! ${nftMetadata.image}`);
 
-	const [imageAlt, imageType] = await fetchAltUrl(nftMetadata.image);
-	if (!fetchUrlOk(imageAlt))
-		throw Error(`NFT image lost!\nFollowing image not available\n${nftMetadata.image}`);
+	const metadata = nftMetadata || tbaMetadata;
 
-	nftMetadata.tokenUri = tokenUri;
-	nftMetadata.tokenUriType = tokenUriType;
-	if (tokenUriAlt) nftMetadata.tokenUriAlt = tokenUriAlt;
-	nftMetadata.imageType = imageType;
-	if (imageAlt) nftMetadata.imageAlt = imageAlt;
-	nftMetadata.tokenId = String(nftTokenId);
-	nftMetadata.address = nftCollection;
+	const autoswarm: NftMetadataAutoSwarm = {
+		nftChainId,
+		nftCollection,
+		nftTokenId,
+		bzzChainId,
+		tbaAddress
+	};
+	if (nftMetadata) {
+    autoswarm.nftTokenUri = nftTokenUri?.toString();
+		autoswarm.nftTokenUriAlt = nftTokenUriAlt?.toString();
+		if (nftImageOK) {
+      autoswarm.nftImage = nftImage?.toString();
+			autoswarm.nftImageAlt = nftImageAlt?.toString();
+		}
+	}
+  if (bzzHash) autoswarm.bzzHash = bzzHash;
+	if (tbaMetadata) {
+		autoswarm.tbaTokenUri = tbaTokenUri?.toString();
+		autoswarm.tbaTokenUriAlt = tbaTokenUriAlt?.toString();
+		if (tbaImageOK) {
+			autoswarm.tbaImage = tbaMetadata.image?.toString();
+			autoswarm.tbaImageAlt = tbaImageAlt?.toString();
+		}
+	}
+	metadata.autoswarm = autoswarm;
+	console.log('metadata:', metadata);
 
-	return nftMetadata;
+	return metadata;
+};
+
+const callNftTokenUri = async (
+	nftChainId: number,
+	nftCollection: Address,
+	nftTokenId: bigint
+): Promise<URL> => {
+	console.info('callNftTokenUri', nftChainId, nftCollection, nftTokenId);
+
+	const publicClient = await callPublicClient(nftChainId);
+	console.log("publicClient:", publicClient);
+	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);
+	console.info('callNftTokenUri nftIs1155',nftIs1155);
+
+	if (nftIs1155) {
+		return new URL(
+			await publicClient.readContract({
+				address: nftCollection,
+				abi: erc1155Abi,
+				functionName: 'uri',
+				args: [nftTokenId]
+			})
+		);
+	} else {
+		return new URL(
+			await publicClient.readContract({
+				address: nftCollection,
+				abi: erc721Abi,
+				functionName: 'tokenURI',
+				args: [nftTokenId]
+			})
+		);
+	}
 };
 
 const callNftIs1155 = async (nftChainId: number, nftCollection: Address): Promise<boolean> => {
@@ -97,4 +157,4 @@ const callNftTotalSupply = async (nftChainId: number, nftCollection: Address): P
 	return data;
 };
 
-export { callNftOwner, callNftTotalSupply, callNftMetadata, callNftIs1155 };
+export { callNftOwner, callNftTotalSupply, callNftTokenUri, callNftMetadata, callNftIs1155 };

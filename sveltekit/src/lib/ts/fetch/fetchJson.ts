@@ -1,7 +1,8 @@
-import { utilsError } from "../swarm/utils";
+import { utilsError } from '../swarm/utils';
 
-const fetchJson = async (url: string): Promise<unknown | undefined> => {
+const fetchJson = async (url: URL | undefined): Promise<unknown | undefined> => {
 	// console.info('fetchJson', url);
+	if (!url) return;
 
 	try {
 		const json = await (await fetch(url)).json();

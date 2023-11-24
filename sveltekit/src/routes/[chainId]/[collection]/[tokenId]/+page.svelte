@@ -8,26 +8,32 @@
 		STAMP_UNIT_PRICE,
 		DEFAULT_PRICE,
 		ONE_DAY,
-		SECONDS_PER_BLOCK,
-		type NftMetadata
+		SECONDS_PER_BLOCK
 	} from '$lib/ts/constants/constants.js';
 
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { callBlock, callIsContract } from '$lib/ts/call/call.js';
 	import { callBzzBalance } from '$lib/ts/call/callBzz.js';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage.js';
-	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
+	import {
+		displayBalance,
+		displayDate,
+		displayDuration,
+		displayExplorerAddress,
+		explorerAddress
+	} from '$lib/ts/display/display';
 	import { utilsError } from '$lib/ts/swarm/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { callRegistryAccount } from '$lib/ts/call/callRegistry.js';
-	import { sendTbaTopUp } from '$lib/ts/send/sendTba';
+	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import { fetchBzzPost } from '$lib/ts/fetch/fetchBzz';
-	import Monitor from '$lib/components/Monitor/Monitor.svelte';
 	import { localConfigInit } from '$lib/ts/constants/local';
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
+	import Debug from '$lib/components/Pages/Debug.svelte';
+	import type { NftMetadata } from '$lib/ts/constants/types';
 
 	// Block
 	let blockTimestamp: number = 0;
@@ -39,9 +45,12 @@
 	const nftTokenId = BigInt($page.params.tokenId);
 	let nftMetadata: NftMetadata;
 
-	// TBA
-	let tbaAddress: Address | undefined;
+	$: autoSwarmMetadata = nftMetadata?.autoswarm;
+	$: tbaAddress = autoSwarmMetadata?.tbaAddress;
+	$: nftResaved = Boolean(autoSwarmMetadata?.bzzHash);
 
+	$: console.info('nftResaved', nftResaved);
+	$: console.info('nftMetadata', nftMetadata);
 	// Batch
 	let owner: Address | undefined;
 	let depth: number;
@@ -55,8 +64,7 @@
 	let oneDayNBal: bigint | undefined;
 
 	// State
-	let tbaDeployed: boolean | undefined;
-	let monitoring = false;
+	let debug = false;
 
 	let resaving = 0;
 	let toping = 0;
@@ -65,7 +73,6 @@
 		remainingBalance = undefined;
 		normalisedBalance = undefined;
 		oneDayNBal = undefined;
-		tbaAddress = undefined;
 		owner = undefined;
 	};
 
@@ -79,11 +86,9 @@
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
-		// TBA
-		tbaAddress = await callRegistryAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
-
 		// PostageStamp
 		lastPrice = (await callPostageLastPrice($bzzChainId)) || DEFAULT_PRICE;
+		console.log('refresh ~ lastPrice:', lastPrice);
 
 		const tbaBalance = await callBzzBalance($bzzChainId, tbaAddress);
 		if (tbaBalance !== undefined && lastPrice > 0n) {
@@ -91,25 +96,28 @@
 			until = blockTimestamp + duration;
 		}
 
-		// remainingBalance = await callPostageRemainingBalance($bzzChainId);
-		// [owner, depth, normalisedBalance] =
-		// 	$bzzChainId == 100
-		// 		? await callPostageBatchesLegacy($bzzChainId)
-		// 		: await callPostageBatches($bzzChainId);
-
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
-
-		tbaDeployed = await callIsContract($bzzChainId, tbaAddress as Address);
 	};
 
-	const resaveTokenUri = async () =>
-		(nftMetadata.tokenUriResave = await fetchBzzPost(nftMetadata.tokenUriAlt));
+	const resaveTokenUri = async () => {
+		if (!autoSwarmMetadata) return;
 
-	const resaveImage = async () =>
-		(nftMetadata.imageResave = await fetchBzzPost(nftMetadata.imageAlt));
+		autoSwarmMetadata.tbaTokenUri = (
+			await fetchBzzPost(autoSwarmMetadata.nftTokenUriAlt)
+		)?.toString();
+	};
+
+	const resaveImage = async () => {
+		if (!autoSwarmMetadata) return;
+
+		autoSwarmMetadata.tbaImageAlt = (await fetchBzzPost(autoSwarmMetadata.nftImageAlt))?.toString();
+	};
 
 	const createAccount = async () =>
 		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
+
+	const initializeAccount = async () =>
+		await sendTbaInitialize($bzzChainId, tbaAddress, autoSwarmMetadata?.bzzHash, STAMP_UNIT_PRICE);
 
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
@@ -120,10 +128,20 @@
 	};
 
 	const resaveNft = async () => {
-		[nftMetadata.tokenUriResave, nftMetadata.imageResave] = await fetchBzzTar([
-			nftMetadata.tokenUriAlt,
-			nftMetadata.imageAlt
+		if (!autoSwarmMetadata) return;
+
+		// [autoSwarmMetadata.bzzHash, [autoSwarmMetadata.tbaImageAlt, autoSwarmMetadata.tbaTokenUri]] =
+		const [bzzHash, [tbaImageAlt, tbaTokenUri]] = await fetchBzzTar([
+			autoSwarmMetadata.nftImageAlt,
+			autoSwarmMetadata.nftTokenUriAlt
 		]);
+		autoSwarmMetadata.bzzHash = bzzHash;
+		autoSwarmMetadata.tbaImageAlt = tbaImageAlt.toString();
+		autoSwarmMetadata.tbaTokenUri = tbaTokenUri.toString();
+
+		console.log('resaveNft ~ bzzHash:', autoSwarmMetadata.bzzHash);
+		console.log('resaveNft ~ tbaImageAlt:', autoSwarmMetadata.tbaImageAlt);
+		console.log('resaveNft ~ tbaTokenUri:', autoSwarmMetadata.tbaTokenUri);
 	};
 
 	const reSave = async () => {
@@ -131,18 +149,17 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
-
 			await resaveNft();
 			resaving = 1;
-			await createAccount();
-			resaving = 2;
 			await sendBzzTransferUnit();
+			resaving = 2;
+			await createAccount();
 			resaving = 3;
-			await topUpStamp();
-			resaving = 4;
+			await initializeAccount();
 			alert('Your NFT has been ReSaved on Swarm! 🎉');
+			resaving = 4;
 		} catch (e) {
-			utilsError('ReSave:', e);
+			utilsError(`ReSave (${resaving}/4) :`, e);
 		}
 		resaving = 0;
 		refresh();
@@ -157,10 +174,10 @@
 			await sendBzzTransferUnit();
 			toping = 1;
 			await topUpStamp();
-			toping = 2;
 			alert('Your NFT has been TopUped on Swarm! 🎉');
+			toping = 2;
 		} catch (e) {
-			utilsError('TopUp:', e);
+			utilsError(`TopUp (${toping}/2) :`, e);
 		}
 
 		toping = 0;
@@ -168,27 +185,28 @@
 	};
 
 	onMount(async () => {
-		await localConfigInit();
+		localConfigInit();
 		await refresh();
 	});
 </script>
 
 {#key [toping, resaving]}
 	<section>
+		{autoSwarmMetadata?.nftTokenUriAlt}
 		<div class="nfts-grid">
 			<Nft {nftChainId} {nftCollection} {nftTokenId} bind:nftMetadata />
 		</div>
 		<section class="user-config">
-			{#if tbaDeployed}
+			{#if nftResaved}
 				<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
 			{:else}
 				<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
 			{/if}
 		</section>
 
-		{#if tbaDeployed !== undefined}
+		{#if nftResaved !== undefined}
 			<div class="batch-topUp">
-				{#if false}
+				{#if nftResaved}
 					<br />
 
 					{#if duration == 0}
@@ -233,13 +251,13 @@
 		<br />
 
 		<p>
-			<button class="btn" on:click={() => (monitoring = !monitoring)}>
-				{#if monitoring}hide{/if} monitor
+			<button class="btn" on:click={() => (debug = !debug)}>
+				{#if debug}hide{/if} debug
 			</button>
 		</p>
 
-		{#if monitoring}
-			<Monitor bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
+		{#if debug}
+			<Debug bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
 		{/if}
 	</section>
 {/key}

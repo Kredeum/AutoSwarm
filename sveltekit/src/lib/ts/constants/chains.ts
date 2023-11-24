@@ -1,18 +1,7 @@
-import type { Chain } from 'viem';
-import {
-	arbitrum,
-	base,
-	bsc,
-	gnosis,
-	linea,
-	mainnet,
-	optimism,
-	polygon,
-	scroll,
-	zkSync,
-	sepolia
-} from 'viem/chains';
+import { http, type Chain, type HttpTransport } from 'viem';
+import { arbitrum, base, bsc, gnosis, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 import { anvil } from './anvil';
+import { SEPOLIA_RPC } from './constants';
 
 type ChainMapType = Map<number, Chain>;
 
@@ -20,7 +9,7 @@ const bzzChains = [gnosis, sepolia, anvil];
 const bzzChainsId = bzzChains.map((chain) => chain.id);
 type BzzChainIdType = (typeof bzzChainsId)[number];
 
-const nftChains = [arbitrum, base, bsc, gnosis, linea, mainnet, optimism, polygon, scroll, zkSync];
+const nftChains = [arbitrum, base, bsc, gnosis, mainnet, optimism, polygon];
 const nftChainsId = nftChains.map((chain) => chain.id);
 type NftChainIdType = (typeof nftChainsId)[number];
 
@@ -29,12 +18,31 @@ const allChains = [...new Set([...bzzChains, ...nftChains])];
 const chainsMap: ChainMapType = new Map();
 for (const chain of allChains) chainsMap.set(chain.id, chain);
 
-const chainGet = (id: number): Chain => chainsMap.get(id) || mainnet;
-const chainGetExplorer = (id: number): string => {
-	const chain = chainGet(id);
+const chainGet = (chainId: number): Chain => chainsMap.get(chainId) || mainnet;
 
-	return chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url || '';
+const chainGetWithTransport = (chainId: number): { chain: Chain; transport: HttpTransport } => {
+	const chain = chainGet(chainId);
+
+	const transport = chainId == 11155111 ? http(SEPOLIA_RPC) : http();
+
+	return { chain, transport };
 };
 
-export { bzzChains, bzzChainsId, nftChains, nftChainsId, chainsMap, chainGet , chainGetExplorer};
+const chainGetExplorer = (id: number): URL | undefined => {
+	const chain = chainGet(id);
+	const url = chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url;
+
+	return url ? new URL(url) : undefined;
+};
+
+export {
+	bzzChains,
+	bzzChainsId,
+	nftChains,
+	nftChainsId,
+	chainsMap,
+	chainGet,
+	chainGetWithTransport,
+	chainGetExplorer
+};
 export type { ChainMapType, BzzChainIdType, NftChainIdType };

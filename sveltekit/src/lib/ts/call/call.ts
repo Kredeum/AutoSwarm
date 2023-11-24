@@ -3,12 +3,11 @@ import {
 	type Chain,
 	type Address,
 	type Block,
-	type Hex,
 	type PublicClient,
 	createPublicClient
 } from 'viem';
 import { SEPOLIA_RPC } from '$lib/ts/constants/constants';
-import { chainGet } from '../constants/chains';
+import { chainGetWithTransport } from '../constants/chains';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -18,10 +17,7 @@ import { chainGet } from '../constants/chains';
 const _publicClients: Map<number, PublicClient> = new Map();
 
 const _publicClient = (chainId: number): PublicClient => {
-	const chain = chainGet(chainId);
-	const transport = chainId == 11155111 ? http(SEPOLIA_RPC) : http();
-
-	const publicClient = createPublicClient({ chain, transport });
+	const publicClient = createPublicClient(chainGetWithTransport(chainId));
 	_publicClients.set(chainId, publicClient);
 
 	return publicClient;

@@ -10,7 +10,7 @@ const callRegistryAccount = async (
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<Address> => {
-	// console.info('callRegistryAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId);
+	// console.info('callRegistryAccount start', bzzChainId, nftChainId, nftCollection, nftTokenId);
 
 	const publicClient = await callPublicClient(bzzChainId);
 
@@ -23,7 +23,6 @@ const callRegistryAccount = async (
 		functionName: 'account',
 		args: [autoSwarmAccount, SALT, BigInt(nftChainId), nftCollection, nftTokenId]
 	});
-	// console.info('callRegistryAccount:', bzzChainId, nftChainId, nftCollection, nftTokenId, tba);
 
 	return tba;
 };
