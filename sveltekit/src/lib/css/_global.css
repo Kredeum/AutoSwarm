@@ -7,7 +7,7 @@
 	--color-text-1: #fff;
 	--color-text-2: #999;
 	--color-link: #fe7900;
-	--general-wrapper-min-width: 40%;
+	--general-wrapper-min-width: 80%;
 	--general-wrapper-max-width: 1400px;
 
 	font-family: var(--font-body);

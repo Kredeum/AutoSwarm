@@ -29,18 +29,11 @@
 	// AutoSwarmMarket
 	let currentBatchId: Hex | undefined;
 
-	// TBA
-	let tbaAddress: Address | undefined;
-	let tbaBalance: bigint | undefined;
-
 	// State
-	let tbaDeployed = false;
 	let monthlyCroning = false;
 	let dailyCroning = false;
 
 	const reset = () => {
-		tbaAddress = undefined;
-		tbaBalance = undefined;
 		currentBatchId = undefined;
 	};
 
@@ -52,11 +45,8 @@
 
 			// AutoSwarmMarket
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
-
-			// STATE
-			tbaDeployed = await callIsContract($bzzChainId, tbaAddress as Address);
 		} catch (e) {
-			utilsError('<Monitor/> refresh', e);
+			utilsError('<Monitor Refresh', e);
 		}
 	};
 
@@ -67,7 +57,7 @@
 			if (dailyCroning) throw Error('Already running!');
 			dailyCroning = true;
 		} catch (e) {
-			utilsError('<Monitor/> Daily Cron:', e);
+			utilsError('<Monitor Daily Cron:', e);
 		}
 
 		dailyCroning = false;
@@ -84,7 +74,7 @@
 			await sendBzzTransfer($bzzChainId, autoSwarmMarket, BATCH_UNIT_PRICE);
 			await sendMarketNewBatch($bzzChainId);
 		} catch (e) {
-			utilsError('<Monitor/> Monthly Cron:', e);
+			utilsError('<Monitor Monthly Cron:', e);
 		}
 
 		monthlyCroning = false;
@@ -94,64 +84,78 @@
 </script>
 
 <div id="monitor">
-	<p>
-		<button class="btn btn-topup" on:click={dailyCron}>
-			Daily Cron
-			{#if dailyCroning}
-				<i class="fa-solid fa-spinner fa-spin-pulse" />
-			{/if}
-		</button>
+	<h2>Monitor</h2>
 
-		<span>
-			<button class="btn btn-topup" on:click={monthlyCron}>
-				Monthly Cron
-				{#if monthlyCroning}
+	<div id="monitor-content">
+		<p>
+			<button class="btn btn-topup" on:click={dailyCron}>
+				Daily Cron
+				{#if dailyCroning}
 					<i class="fa-solid fa-spinner fa-spin-pulse" />
 				{/if}
 			</button>
-		</span>
-	</p>
-	<p>
-		currentBatchId <span>{currentBatchId}</span>
-	</p>
-	<hr />
-	<p>
-		BZZ Chaind
-		<span>{@html displayExplorer($bzzChainId)}</span>
-	</p>
-	<p>
-		BzzToken
-		<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span>
-	</p>
-	<p>
-		PriceOracle
-		<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span>
-	</p>
-	<p>
-		ERC6551Registry
-		<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span>
-	</p>
-	<p>
-		PostageStamp
-		<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span>
-	</p>
-	<p>
-		AutoSwarmAccount
-		<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
-	</p>
-	<p>
-		AutoSwarmMarket
-		<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span>
-	</p>
+
+			<span>
+				<button class="btn btn-topup" on:click={monthlyCron}>
+					Monthly Cron
+					{#if monthlyCroning}
+						<i class="fa-solid fa-spinner fa-spin-pulse" />
+					{/if}
+				</button>
+			</span>
+		</p>
+		<p>
+			currentBatchId <span>{currentBatchId}</span>
+		</p>
+		<hr />
+		<p>
+			BZZ Chaind
+			<span>{@html displayExplorer($bzzChainId)}</span>
+		</p>
+		<p>
+			BzzToken
+			<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span>
+		</p>
+		<p>
+			PriceOracle
+			<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span>
+		</p>
+		<p>
+			ERC6551Registry
+			<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span>
+		</p>
+		<p>
+			PostageStamp
+			<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span>
+		</p>
+		<p>
+			AutoSwarmAccount
+			<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
+		</p>
+		<p>
+			AutoSwarmMarket
+			<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span>
+		</p>
+	</div>
 </div>
 
 <style>
 	#monitor {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+	}
+
+	#monitor-content {
 		width: 800px;
 		display: block;
 		text-align: left;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
 	}
-	#monitor p span {
+	#monitor-content p span {
 		float: right;
 	}
 </style>

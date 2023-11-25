@@ -230,17 +230,4 @@ button:disabled.btn.btn-topup {
 	background-color: transparent;
 }
 
-/**************************/
-/* Swarm user config page */
-/**************************/
-#swarm-config {
-	display: flex;
-	flex-direction: column;
-	align-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-}
 
-#swarm-config h2 {
-	color: var(--color-link);
-}

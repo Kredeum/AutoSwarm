@@ -17,7 +17,14 @@ const allChains = [...new Set([...bzzChains, ...nftChains])];
 const chainsMap: ChainMapType = new Map();
 for (const chain of allChains) chainsMap.set(chain.id, chain);
 
-const chainGet = (chainId: number): Chain => chainsMap.get(chainId) || mainnet;
+const chainGet = (chainId: number): Chain | undefined => {
+	if (!chainId) return;
+
+	const chain = chainsMap.get(chainId);
+	if (!chain) throw new Error(`No chain found for chainId #${chainId}`);
+
+	return chain;
+};
 
 const chainGetExplorer = (id: number): URL | undefined => {
 	const chain = chainGet(id);
@@ -50,11 +57,12 @@ const chainGetWithTransport = (chainId: number): { chain: Chain; transport: Http
 	} else if (chainId === bsc.id) {
 		// rpcUrl = 'https://rpc.ankr.com/bsc';
 		rpcUrl = 'https://bsc.publicnode.com';
+	} else {
+		throw new Error(`No rpc url found for chainId 1${chainId}`);
 	}
 
-	console.log('chainGetWithTransport ~ rpcUrl:', rpcUrl);
+	console.log('chainGetWithTransport ~ rpcUrl:', chainId, rpcUrl);
 	const transport = http(rpcUrl);
-	console.log('chainGetWithTransport ~ transport:', transport);
 
 	return { chain, transport };
 };

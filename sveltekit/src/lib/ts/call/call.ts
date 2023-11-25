@@ -30,7 +30,9 @@ const callEnsName = async (account: Address) =>
 	await callPublicClient(1).getEnsName({ address: account });
 
 const callIsContract = async (chainId: number, address: Address): Promise<boolean> => {
-	if (address == '0x0') return false;
+	console.log('callIsContract', chainId, address);
+	if (!(address && address !== '0x0' && chainId > 0)) return false;
+
 	const publicClient = await callPublicClient(chainId);
 
 	const bytecode = await publicClient.getBytecode({ address });

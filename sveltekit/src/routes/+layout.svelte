@@ -10,6 +10,7 @@
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { page } from '$app/stores';
 	import type { as } from 'vitest/dist/reporters-5f784f42';
+	import { onMount } from 'svelte';
 
 	// let chainId: number = 100;
 	// let chainId: number = 11155111;
@@ -21,8 +22,9 @@
 		invalidateAll();
 	};
 
-	const rootStyle = document.querySelector(':root') as HTMLElement;
-	$: rootStyle.style.setProperty('--color-bg-0', $page.route.id === '/monitor' ? '#555' : '#000');
+	$: document.body.style.backgroundColor = ['/monitor', '/config'].includes($page.route.id || '')
+		? '#444'
+		: '#000';
 </script>
 
 <div class="app">
