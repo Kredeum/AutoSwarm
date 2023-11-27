@@ -2,6 +2,7 @@ import type { Address, Hex } from 'viem';
 import { autoSwarmAccountAbi } from '../constants/abis';
 
 import { callPublicClient } from './call';
+import { ZERO_BYTES32 } from '../constants/constants';
 
 const callTbaTokenUri = async (chainId: number, tba: Address): Promise<URL | undefined> => {
 	if (tba === undefined) return;
@@ -10,8 +11,9 @@ const callTbaTokenUri = async (chainId: number, tba: Address): Promise<URL | und
 	return new URL(`bzz://${bzzHash}`);
 };
 
-const callTbaBzzHash = async (chainId: number, tba: Address): Promise<Hex | undefined> => {
-	if (tba === undefined) return;
+const callTbaBzzHash = async (chainId: number, tba: Address): Promise<Hex> => {
+	if (tba === undefined) return ZERO_BYTES32;
+
 	const publicClient = await callPublicClient(chainId);
 
 	return await publicClient.readContract({

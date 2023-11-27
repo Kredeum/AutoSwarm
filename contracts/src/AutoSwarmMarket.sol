@@ -79,7 +79,7 @@ contract AutoSwarmMarket is Ownable {
         stamps[stampId] = stamp;
         stampIds.push(stampId);
 
-        // _topUpStamp(stamps[stampId], bzzAmount);
+        if (bzzAmount > 0) _topUpStamp(stamps[stampId], bzzAmount);
     }
 
     function topUpStamp(bytes32 stampId, uint256 bzzAmount) public {

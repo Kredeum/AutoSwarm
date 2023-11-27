@@ -8,7 +8,7 @@ import { fetchContentType, fetchUrlOk } from './fetch';
 const fetchBzzTar = async (urls: (URL | string | undefined)[]): Promise<[Hex, URL[]]> => {
 	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
 
-	const swarmApiUrl = localConfigGet('api') || SWARM_DEFAULT_API;
+	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
 	if (batchId === ZERO_BYTES32) throw new Error('No BatchId defined!');
 
@@ -19,6 +19,7 @@ const fetchBzzTar = async (urls: (URL | string | undefined)[]): Promise<[Hex, UR
 		const url = new URL(_url);
 
 		const contentType = await fetchContentType(url);
+		console.log('fetchBzzTar part', index, contentType);
 		const [type, subtype] = contentType?.split('/') || [];
 		const blob = await (await fetch(url)).blob();
 		const data = new Uint8Array(await blob.arrayBuffer());
@@ -26,20 +27,20 @@ const fetchBzzTar = async (urls: (URL | string | undefined)[]): Promise<[Hex, UR
 		let path: string;
 		// image
 		if (index === 0) {
-			if (type !== 'image') throw new Error(`Bad Image Content-Type ${contentType} for ${url}`);
+			// if (type !== 'image') throw new Error(`Bad Image Content-Type ${contentType} for ${url}`);
 			path = 'image';
 		}
 		// metadata
 		else if (index === 1) {
-			if (!(contentType?.startsWith('application/json') || contentType?.startsWith('text/plain')))
-				throw new Error(`Bad Metadata Content-Type ${contentType} for ${url}`);
+			// if (!(contentType?.startsWith('application/json') || contentType?.startsWith('text/plain')))
+			// 	throw new Error(`Bad Metadata Content-Type ${contentType} for ${url}`);
 			path = 'metadata.json';
 			// partName = 'metadata';
 			// const json = JSON.parse(new TextDecoder().decode(data));
 			// json.imageName = imageName;
 			// data = new TextEncoder().encode(JSON.stringify(json));
 		} else {
-			path = `part${index}.${subtype}`;
+			path = `part${index}.${type}.${subtype}`;
 		}
 
 		collection.push({ data, path });

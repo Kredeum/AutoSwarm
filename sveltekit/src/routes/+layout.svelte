@@ -13,8 +13,8 @@
 	import { onMount } from 'svelte';
 
 	// let chainId: number = 100;
-	// let chainId: number = 11155111;
-	let chainId: number = 31337;
+	let chainId: number = 11155111;
+	// let chainId: number = 31337;
 	$: chainId, onChainChange();
 
 	const onChainChange = () => {

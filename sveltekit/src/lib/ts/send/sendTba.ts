@@ -7,13 +7,13 @@ import { jsonGetField } from '../constants/json';
 const sendTbaInitialize = async (
 	chainId: number,
 	tba: Address | undefined,
-	bzzHash: Hex | undefined,
-	bzzAmount: bigint
+	bzzHash: Hex | undefined
 ) => {
+  // console.info("sendTbaInitialize:", chainId, tba, bzzHash);
+
 	if (!(chainId > 0)) throw Error('Bad chain!');
 	if (!tba) throw Error('No TBA!');
 	if (!bzzHash) throw Error('No SwarmHash!');
-	console.log('sendTbaInitialize:', chainId, tba, bzzHash, bzzAmount);
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
 
@@ -24,7 +24,7 @@ const sendTbaInitialize = async (
 		address: tba,
 		abi: autoSwarmAccountAbi,
 		functionName: 'initialize',
-		args: [autoSwarmMarket, bzzHash, bzzAmount]
+		args: [autoSwarmMarket, bzzHash]
 	});
 
 	const hash = await walletClient.writeContract(request);

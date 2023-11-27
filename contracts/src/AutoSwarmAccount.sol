@@ -25,10 +25,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _;
     }
 
-    function initialize(address autoSwarmMarket_, bytes32 swarmHash_, uint256 bzzAmount)
-        external
-        override(IAutoSwarmAccount)
-    {
+    function initialize(address autoSwarmMarket_, bytes32 swarmHash_) external override(IAutoSwarmAccount) {
         require(address(_autoSwarmMarket) == address(0), "Already initialized");
 
         require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
@@ -43,8 +40,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
 
         require(address(_bzzToken) != address(0), "Bad BzzToken");
 
-        _bzzApproveMore(bzzAmount);
-        stampId = _autoSwarmMarket.createStamp(bzzHash, bzzAmount);
+        stampId = _autoSwarmMarket.createStamp(bzzHash, 0);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) onlyWhenInitialized {

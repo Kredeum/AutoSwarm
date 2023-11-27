@@ -8,7 +8,10 @@
 		STAMP_UNIT_PRICE,
 		DEFAULT_PRICE,
 		ONE_DAY,
-		SECONDS_PER_BLOCK
+		SECONDS_PER_BLOCK,
+
+		ZERO_BYTES32
+
 	} from '$lib/ts/constants/constants.js';
 
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
@@ -47,9 +50,8 @@
 
 	$: autoSwarmMetadata = nftMetadata?.autoswarm;
 	$: tbaAddress = autoSwarmMetadata?.tbaAddress;
-	$: nftResaved = Boolean(autoSwarmMetadata?.bzzHash);
+	$: nftResaved = Boolean((autoSwarmMetadata?.bzzHash !== undefined) && (autoSwarmMetadata?.bzzHash !== ZERO_BYTES32));
 
-	$: console.info('nftResaved', nftResaved);
 
 	let owner: Address | undefined;
 	let depth: number;
@@ -134,9 +136,12 @@
 			autoSwarmMetadata.nftImageAlt,
 			autoSwarmMetadata.nftTokenUriAlt
 		]);
+		console.log('resaveNft ~ bzzHash:', bzzHash);
+
 		autoSwarmMetadata.bzzHash = bzzHash;
 		autoSwarmMetadata.tbaImageAlt = tbaImageAlt.toString();
 		autoSwarmMetadata.tbaTokenUri = tbaTokenUri.toString();
+		console.log('resaveNft ~ autoSwarmMetadata:', autoSwarmMetadata);
 
 		console.log('resaveNft ~ bzzHash:', autoSwarmMetadata.bzzHash);
 		console.log('resaveNft ~ tbaImageAlt:', autoSwarmMetadata.tbaImageAlt);
@@ -148,13 +153,21 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
+			console.log('reSave ~ resaveNft');
 			await resaveNft();
+			console.log('reSave ~ resaveNft done');
 			resaving = 1;
+			console.log('reSave ~ sendBzzTransferUnit');
 			await sendBzzTransferUnit();
+			console.log('reSave ~ sendBzzTransferUnit done');
 			resaving = 2;
+			console.log('reSave ~ createAccount');
 			await createAccount();
+			console.log('reSave ~ createAccount done');
 			resaving = 3;
+			console.log('reSave ~ initializeAccount');
 			await initializeAccount();
+			console.log('reSave ~ initializeAccount done');
 			alert('Your NFT has been ReSaved on Swarm! 🎉');
 			resaving = 4;
 		} catch (e) {

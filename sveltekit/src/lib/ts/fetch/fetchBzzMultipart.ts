@@ -16,7 +16,8 @@ const _Uint8ArrayToBinary = (u8Array: Uint8Array): string => {
 // TOO BUGGY
 const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<string> => {
 	const boundary = `AUTOSWARM${Math.random().toString().substr(8)}`;
-	const swarmApiUrl = localConfigGet('api') || SWARM_DEFAULT_API;
+
+	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
 	if (batchId === ZERO_BYTES32) throw new Error('No BatchId defined!');
 

@@ -13,7 +13,7 @@ import type { Hex } from 'viem';
 const fetchBzzPost = async (url: URL | string | undefined): Promise<URL | undefined> => {
 	if (!(url && fetchUrlOk(url))) throw new Error('Bad URL');
 
-	const swarmApiUrl = localConfigGet('api') || SWARM_DEFAULT_API;
+	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
 	if (batchId === ZERO_BYTES32) throw new Error('No BatchId defined!');
 

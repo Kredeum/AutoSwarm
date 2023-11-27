@@ -17,7 +17,9 @@
 	const refresh = async () => {
 		console.log('<Nft refresh', $bzzChainId, nftChainId);
 		try {
+			const nftMetadataOld = nftMetadata;
 			nftMetadata = await callNftMetadata($bzzChainId, nftChainId, nftCollection, nftTokenId);
+			Object.assign(nftMetadata?.autoswarm || {}, nftMetadataOld?.autoswarm);
 		} catch (e) {
 			utilsError('<Nft refresh', e);
 		}
@@ -30,7 +32,9 @@
 	<div
 		title="NFT Collection Address  @{nftCollection}"
 		class="nft-img"
-		style="background-image: url({autoSwarmMetadata?.nftImageAlt ||autoSwarmMetadata?.tbaImageAlt || ''});"
+		style="background-image: url({autoSwarmMetadata?.nftImageAlt ||
+			autoSwarmMetadata?.tbaImageAlt ||
+			''});"
 		aria-label={nftMetadata?.description || ''}
 	/>
 	<p class="nft-title">
