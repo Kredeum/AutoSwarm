@@ -1,40 +1,27 @@
 <script lang="ts">
-	import { callNftMetadata } from '$lib/ts/call/callNft';
-	import type { NftMetadata } from '$lib/ts/constants/types';
-	import { displayExplorerNft, displayNftLink } from '$lib/ts/display/display';
-	import { utilsError } from '$lib/ts/swarm/utils';
-	import { onMount } from 'svelte';
 	import type { Address } from 'viem';
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import type { NftMetadata } from '$lib/ts/constants/types';
+	import { displayNftLink } from '$lib/ts/display/display';
 
+	////////////////////// NFT Component ///////////////////////////////////////
+	// <Nft {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
+	////////////////////////////////////////////////////////////////////////////
+	// - nftChainId    : NFT Chain Id
+	// - nftCollection : NFT Collection Address
+	// - nftTokenId    : NFT Token Id
+	////////////////////////////////////////////////////////////////////////////
 	export let nftChainId: number;
 	export let nftCollection: Address;
 	export let nftTokenId: bigint;
 	export let nftMetadata: NftMetadata;
-
-	$: autoSwarmMetadata = nftMetadata?.autoswarm;
-
-	const refresh = async () => {
-		console.log('<Nft refresh', $bzzChainId, nftChainId);
-		try {
-			const nftMetadataOld = nftMetadata;
-			nftMetadata = await callNftMetadata($bzzChainId, nftChainId, nftCollection, nftTokenId);
-			Object.assign(nftMetadata?.autoswarm || {}, nftMetadataOld?.autoswarm);
-		} catch (e) {
-			utilsError('<Nft refresh', e);
-		}
-	};
-
-	onMount(refresh);
+	////////////////////////////////////////////////////////////////////////////
 </script>
 
 <article>
 	<div
 		title="NFT Collection Address  @{nftCollection}"
 		class="nft-img"
-		style="background-image: url({autoSwarmMetadata?.nftImageAlt ||
-			autoSwarmMetadata?.tbaImageAlt ||
-			''});"
+		style="background-image: url({nftMetadata?.autoSwarm?.nftImageAlt || ''});"
 		aria-label={nftMetadata?.description || ''}
 	/>
 	<p class="nft-title">

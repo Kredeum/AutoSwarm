@@ -1,9 +1,10 @@
-import { fetchJson } from './fetchJson';
 import { fetchAltUrl } from './fetchAlt';
-import { utilsError } from '../swarm/utils';
+import { utilsError } from '../common/utils';
+import { urlToUrl, urlToUrlAlt } from '../common/url';
 
-const fetchContentType = async (url: URL): Promise<string | undefined> => {
+const fetchContentType = async (url: URL | string | undefined): Promise<string | undefined> => {
 	// console.info('fetchContentType', url);
+	if (!url) return;
 
 	try {
 		const response = await fetch(url, { method: 'HEAD' });
@@ -22,4 +23,10 @@ const fetchContentType = async (url: URL): Promise<string | undefined> => {
 const fetchUrlOk = async (url: URL | string | undefined): Promise<boolean> =>
 	url ? Boolean(await fetchContentType(new URL(url))) : false;
 
-export { fetchContentType, fetchUrlOk, fetchAltUrl, fetchJson };
+const fetchUriOk = async (url: URL | string | undefined): Promise<boolean> =>
+	fetchUrlOk(urlToUrl(url));
+
+const fetchUrlAltOk = async (url: URL | string | undefined): Promise<boolean> =>
+	fetchUrlOk(urlToUrlAlt(url));
+
+export { fetchContentType, fetchUrlOk, fetchUriOk, fetchUrlAltOk, fetchAltUrl };

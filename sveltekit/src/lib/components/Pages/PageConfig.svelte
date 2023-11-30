@@ -1,9 +1,16 @@
 <script lang="ts">
 	import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '$lib/ts/constants/constants';
-	import { localConfigGet, localConfigSet } from '$lib/ts/constants/local';
+	import { localConfigGet, localConfigSet } from '$lib/ts/common/local';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
-	import { trim } from 'viem';
+
+	////////////////////// Swarm Config Component ///////////////////////////////
+	// <Config />
+	/////////////////////////////////////////////////////////////////////////////
+	// Config stored in localStorage
+	// - swarm.api     : Swarm node API URL, default http://127.0.0.1:1633/bzz
+	// - swarm.batchId : Swarm Batch Id, default 0x0
+	/////////////////////////////////////////////////////////////////////////////
 
 	let errMessage = '';
 	let successMessage = '';

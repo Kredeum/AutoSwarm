@@ -1,4 +1,4 @@
-import { formatUnits, isAddress, type Address } from 'viem';
+import { formatUnits, isAddress, type Address, type Hex } from 'viem';
 import {
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
@@ -9,12 +9,14 @@ import {
 	ONE_MONTH,
 	ONE_YEAR,
 	BZZ_DECIMALS,
-	BUCKET_DEPTH
+	BUCKET_DEPTH,
+	SWARM_GATEWAY,
+	ZERO_BYTES32
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import { chainGetExplorer } from '../constants/chains';
-import { jsonGetField } from '../constants/json';
+import { chainGetExplorer } from '../common/chains';
+import { jsonGetField } from '../common/json';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -97,16 +99,17 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	return ret;
 };
 
-const displayExplorer = (chainId: number): string => {
+const displayExplorer = (chainId: number | undefined): string => {
+	if (chainId === undefined) return '';
 	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return '';
+	if (!explorer) return `#${chainId}`;
 
-	return `<a href="${explorer}" target="_blank">${chainId}</a>`;
+	return `<a href="${explorer}" target="_blank">#${chainId}</a>`;
 };
 
 const displayExplorerNft = (chainId: number, collection: string, tokenId: bigint): string => {
 	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return '';
+	if (!explorer) return `#${chainId}`;
 
 	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${tokenId}</a>`;
 };
@@ -118,13 +121,13 @@ const explorerAddress = (chainId: number, addr: Address): URL | Address => {
 	return new URL(`${explorer}/address/${addr}`);
 };
 
-const displayExplorerAddress = (chainId: number, addr?: Address): string => {
+const displayExplorerAddress = (chainId: number, addr: Address | undefined): string => {
 	const explorer = chainGetExplorer(chainId);
 	if (!explorer) return '';
 
 	return addr && isAddress(addr)
 		? `<a href="${explorerAddress(chainId, addr)}" target="_blank">${addr}</a>`
-		: `<a href="${explorer}" target="_blank">${addr || chainId}</a>`;
+		: UNDEFINED_ADDRESS;
 };
 const displayExplorerField = (chainId: number, field: string): string =>
 	displayExplorerAddress(chainId, jsonGetField(chainId, field) as Address);
@@ -133,6 +136,28 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
 
 	return displayBalance(utilsNBalToBzz(balance, depth), BZZ_DECIMALS);
+};
+
+const displayBzzURI = (hash: Hex | string | undefined, path?: string): string => {
+	if (!(hash && hash !== ZERO_BYTES32)) return UNDEFINED_DATA;
+
+	hash = hash.replace(/^0x/, '');
+	const urlHash = `bzz://${hash}`;
+	const urlPath = `${urlHash}/${path}`;
+	const url = path ? urlPath : urlHash;
+
+	return url;
+};
+
+const displayBzzURL = (hash: Hex | string | undefined, path?: string): string => {
+	if (!(hash && hash !== ZERO_BYTES32)) return UNDEFINED_DATA;
+
+	hash = hash.replace(/^0x/, '');
+	const urlHash = `${SWARM_GATEWAY}/${hash}`;
+	const urlPath = `${urlHash}/${path}`;
+	const url = path ? urlPath : urlHash;
+
+	return `<a href="${url}" target="_blank">${url}</a>`;
 };
 
 const displayBalance = (
@@ -166,6 +191,8 @@ export {
 	displayAddress,
 	displayDuration,
 	displayTbaDisplayed,
+	displayBzzURL,
+	displayBzzURI,
 	displaySize,
 	displayDate,
 	displayBatchSize,

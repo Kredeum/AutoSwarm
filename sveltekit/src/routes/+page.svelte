@@ -1,3 +1,9 @@
+<script>
+	////////////////////// Demo Home Page ///////////////////////////////////////
+	// Demo Page : select NFTs on multiple CHain
+	/////////////////////////////////////////////////////////////////////////////
+</script>
+
 <h2>Select NFT</h2>
 <p>
 	<a href="10/0x1B36291fF8F503CfB4E3baBe198a40398BCF54AD/1">Bedrock - optimism ipfs</a>

@@ -3,8 +3,8 @@ import type { Address } from 'viem';
 import { erc6551RegistryAbi } from '$lib/ts/constants/abis';
 import { callIsContract } from '$lib/ts/call/call';
 import { SALT } from '../constants/constants';
-import { utilsError } from '../swarm/utils';
-import { jsonGetField } from '../constants/json';
+import { utilsError } from '../common/utils';
+import { jsonGetField } from '../common/json';
 import { sendWallet } from './send';
 import { callRegistryAccount } from '../call/callRegistry';
 

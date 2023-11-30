@@ -46,17 +46,11 @@ const utilsTtlToNBal = (
 	return (BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
 };
 
-const utilsError = (label: string, err?: unknown) => {
-	const message = `${label} : ${err}`;
-	console.error(message);
-	// alert(message);
-};
 
 export {
 	utilsBzzToTtl,
 	utilsNBalToTtl,
 	utilsTtlToNBal,
 	utilsNBalToBzz,
-	utilsBzzToNBal,
-	utilsError
+	utilsBzzToNBal
 };

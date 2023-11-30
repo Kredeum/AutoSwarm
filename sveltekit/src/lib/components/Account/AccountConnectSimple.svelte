@@ -12,7 +12,7 @@
 	export let account: Address | undefined = undefined;
 
 	const getWalletAddress = async () => {
-		account = await sendWalletAddress(undefined, true);
+		account = await sendWalletAddress(true);
 		console.log('AccountConnect account CHANGE', account);
 	};
 

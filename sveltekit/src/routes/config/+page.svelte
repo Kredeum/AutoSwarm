@@ -1,5 +1,5 @@
 <script>
-	import Config from '$lib/components/Pages/Config.svelte';
+	import Config from '$lib/components/Pages/PageConfig.svelte';
 </script>
 
 <Config />

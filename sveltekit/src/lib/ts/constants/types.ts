@@ -1,9 +1,6 @@
 import type { Address, Hex } from 'viem';
 
 type NftMetadataAutoSwarm = {
-	nftChainId: number;
-	nftCollection: Address;
-	nftTokenId: bigint;
 	nftTokenUri?: string;
 	nftTokenUriAlt?: string;
 	nftImage?: string;
@@ -12,19 +9,17 @@ type NftMetadataAutoSwarm = {
 	bzzHash?: Hex;
 	tbaAddress?: Address;
 	tbaTokenUri?: string;
-	tbaTokenUriAlt?: string;
 	tbaImage?: string;
-	tbaImageAlt?: string;
 };
 
 type NftMetadataErc721 = {
-	image: URL;
+	image: string;
 	name: string;
 	description: string;
 };
 
 type NftMetadata = NftMetadataErc721 & {
-	autoswarm?: NftMetadataAutoSwarm;
+	autoSwarm?: NftMetadataAutoSwarm;
 	[key: string]: unknown;
 };
 

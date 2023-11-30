@@ -1,23 +1,23 @@
 import { type Address, zeroAddress, type Hex } from 'viem';
 import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
-import { utilsError } from '../swarm/utils';
-import { jsonGetField } from '../constants/json';
+import { utilsError } from '../common/utils';
+import { jsonGetField } from '../common/json';
 
 const sendTbaInitialize = async (
-	chainId: number,
+	bzzChainId: number,
 	tba: Address | undefined,
 	bzzHash: Hex | undefined
 ) => {
-  // console.info("sendTbaInitialize:", chainId, tba, bzzHash);
+	// console.info("sendTbaInitialize:", bzzChainId, tba, bzzHash);
 
-	if (!(chainId > 0)) throw Error('Bad chain!');
+	if (!(bzzChainId > 0)) throw Error('Bad chain!');
 	if (!tba) throw Error('No TBA!');
 	if (!bzzHash) throw Error('No SwarmHash!');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
-	const autoSwarmMarket = jsonGetField(chainId, 'AutoSwarmMarket') as Address;
+	const autoSwarmMarket = jsonGetField(bzzChainId, 'AutoSwarmMarket') as Address;
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -31,11 +31,11 @@ const sendTbaInitialize = async (
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendTbaTopUp = async (chainId: number, tba: Address | undefined, bzzAmount: bigint) => {
-	if (!(chainId > 0)) throw Error('Bad chain!');
+const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmount: bigint) => {
+	if (!(bzzChainId > 0)) throw Error('Bad chain!');
 	if (!tba) throw Error('Bad TBA!');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -48,10 +48,10 @@ const sendTbaTopUp = async (chainId: number, tba: Address | undefined, bzzAmount
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendTbaWithdraw = async (chainId: number, tba: Address, token = zeroAddress) => {
-	if (!(chainId > 0 && tba)) utilsError('sendTbaWithdraw: No tba');
+const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAddress) => {
+	if (!(bzzChainId > 0 && tba)) utilsError('sendTbaWithdraw: No tba');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

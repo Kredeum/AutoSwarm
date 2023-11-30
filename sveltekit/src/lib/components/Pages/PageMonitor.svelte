@@ -1,26 +1,24 @@
 <script lang="ts">
+	import type { Address, Hex } from 'viem';
+	import { onMount } from 'svelte';
+
+	import { BATCH_UNIT_PRICE } from '$lib/ts/constants/constants';
+	import { jsonGetField } from '$lib/ts/common/json';
+	import { utilsError } from '$lib/ts/common/utils';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import { ZERO_BYTES32, BATCH_UNIT_PRICE } from '$lib/ts/constants/constants';
-	import { jsonGetField } from '$lib/ts/constants/json';
-	import {
-		displayBalance,
-		displayExplorer,
-		displayExplorerAddress,
-		displayExplorerField,
-		displayExplorerNft,
-		displayLink
-	} from '$lib/ts/display/display';
+	import { displayExplorer, displayExplorerField } from '$lib/ts/display/display';
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendMarketNewBatch } from '$lib/ts/send/sendMarket';
 	import { sendWalletAddress } from '$lib/ts/send/send';
-	import { utilsError } from '$lib/ts/swarm/utils';
-	import type { Address, Hex } from 'viem';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
-	import { callRegistryAccount } from '$lib/ts/call/callRegistry';
-	import { onMount } from 'svelte';
-	import { callIsContract } from '$lib/ts/call/call';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+
+	/////////////////////////////// Monitor Component ///////////////////////////////////
+	// <Monitor />
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Daily Cron and Monthly Cron
+	/////////////////////////////////////////////////////////////////////////////////////
 
 	// Wallet
 	let walletAddress: Address | undefined;

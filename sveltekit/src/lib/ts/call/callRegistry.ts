@@ -1,6 +1,6 @@
 import type { Address, Hex } from 'viem';
 import { callPublicClient } from './call';
-import { jsonGetField } from '../constants/json';
+import { jsonGetField } from '../common/json';
 import { erc6551RegistryAbi } from '../constants/abis';
 import { SALT } from '../constants/constants';
 

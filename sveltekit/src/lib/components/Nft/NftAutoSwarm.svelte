@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 
 	import {
 		ONE_YEAR,
@@ -9,49 +8,48 @@
 		DEFAULT_PRICE,
 		ONE_DAY,
 		SECONDS_PER_BLOCK,
-
 		ZERO_BYTES32
-
 	} from '$lib/ts/constants/constants.js';
-
-	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
-	import { callBlock, callIsContract } from '$lib/ts/call/call.js';
+	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
+	import { localConfigInit } from '$lib/ts/common/local';
+	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
+	import { callBlock } from '$lib/ts/call/call.js';
+	import { callTbaBzzHash } from '$lib/ts/call/callTba';
 	import { callBzzBalance } from '$lib/ts/call/callBzz.js';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage.js';
-	import {
-		displayBalance,
-		displayDate,
-		displayDuration,
-		displayExplorerAddress,
-		explorerAddress
-	} from '$lib/ts/display/display';
-	import { utilsError } from '$lib/ts/swarm/utils.js';
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import { callRegistryAccount } from '$lib/ts/call/callRegistry.js';
+	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
+	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
+
+	import { utilsError } from '$lib/ts/common/utils.js';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
-	import { fetchBzzPost } from '$lib/ts/fetch/fetchBzz';
-	import { localConfigInit } from '$lib/ts/constants/local';
-	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
-	import Debug from '$lib/components/Pages/Debug.svelte';
-	import type { NftMetadata } from '$lib/ts/constants/types';
+	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
+	import { callTbaMetadata } from '$lib/ts/call/callTbaMetadata';
+
+	////////////////////// AutoSwarm Component /////////////////////////////////
+	// <AutoSwarm {nftChainId} {nftCollection} {nftTokenId} />
+	////////////////////////////////////////////////////////////////////////////
+	// - nftChainId    : NFT Chain Id
+	// - nftCollection : NFT Collection Address
+	// - nftTokenId    : NFT Token Id
+	////////////////////////////////////////////////////////////////////////////
+	export let nftChainId: number;
+	export let nftCollection: Address;
+	export let nftTokenId: bigint;
+	////////////////////////////////////////////////////////////////////////////
 
 	// Block
 	let blockTimestamp: number = 0;
 	let blockNumber: number = 0;
 
-	// NFT
-	const nftChainId = Number($page.params.chainId);
-	const nftCollection = $page.params.collection as Address;
-	const nftTokenId = BigInt($page.params.tokenId);
 	let nftMetadata: NftMetadata;
 
-	$: autoSwarmMetadata = nftMetadata?.autoswarm;
-	$: tbaAddress = autoSwarmMetadata?.tbaAddress;
-	$: nftResaved = Boolean((autoSwarmMetadata?.bzzHash !== undefined) && (autoSwarmMetadata?.bzzHash !== ZERO_BYTES32));
+	let tbaAddress: Address | undefined;
 
+	let nftResaved: boolean;
 
 	let owner: Address | undefined;
 	let depth: number;
@@ -78,9 +76,21 @@
 	};
 
 	const refresh = async () => {
-		// console.info('refresh');
-		if (!($bzzChainId > 0)) return;
+		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftChainId, nftCollection, nftTokenId);
+		try {
+			const metadata = await callTbaMetadata($bzzChainId, nftChainId, nftCollection, nftTokenId);
+			if (metadata) nftMetadata = metadata;
+		} catch (e) {
+			utilsError('<NftAutoSwarm refresh', e);
+		}
+		if (!nftMetadata?.autoSwarm) return;
 		reset();
+		console.info('<NftAutoSwarm refresh ongoing...');
+
+		tbaAddress = nftMetadata.autoSwarm.tbaAddress;
+
+		const tbaBzzHash = await callTbaBzzHash($bzzChainId, tbaAddress);
+		nftResaved = Boolean(tbaBzzHash !== undefined && tbaBzzHash !== ZERO_BYTES32);
 
 		// Block
 		const block = await callBlock($bzzChainId);
@@ -89,7 +99,6 @@
 
 		// PostageStamp
 		lastPrice = (await callPostageLastPrice($bzzChainId)) || DEFAULT_PRICE;
-		console.log('refresh ~ lastPrice:', lastPrice);
 
 		const tbaBalance = await callBzzBalance($bzzChainId, tbaAddress);
 		if (tbaBalance !== undefined && lastPrice > 0n) {
@@ -98,27 +107,15 @@
 		}
 
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
-	};
 
-	const resaveTokenUri = async () => {
-		if (!autoSwarmMetadata) return;
-
-		autoSwarmMetadata.tbaTokenUri = (
-			await fetchBzzPost(autoSwarmMetadata.nftTokenUriAlt)
-		)?.toString();
-	};
-
-	const resaveImage = async () => {
-		if (!autoSwarmMetadata) return;
-
-		autoSwarmMetadata.tbaImageAlt = (await fetchBzzPost(autoSwarmMetadata.nftImageAlt))?.toString();
+		console.info('<NftAutoSwarm refresh OUT');
 	};
 
 	const createAccount = async () =>
 		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
 
 	const initializeAccount = async () =>
-		await sendTbaInitialize($bzzChainId, tbaAddress, autoSwarmMetadata?.bzzHash, STAMP_UNIT_PRICE);
+		await sendTbaInitialize($bzzChainId, tbaAddress, nftMetadata?.autoSwarm?.bzzHash);
 
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
@@ -128,24 +125,17 @@
 		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
 	};
 
-	const resaveNft = async () => {
-		if (!autoSwarmMetadata) return;
+	const reSaveNft = async () => {
+		if (!nftMetadata?.autoSwarm) return;
 
-		// [autoSwarmMetadata.bzzHash, [autoSwarmMetadata.tbaImageAlt, autoSwarmMetadata.tbaTokenUri]] =
-		const [bzzHash, [tbaImageAlt, tbaTokenUri]] = await fetchBzzTar([
-			autoSwarmMetadata.nftImageAlt,
-			autoSwarmMetadata.nftTokenUriAlt
-		]);
-		console.log('resaveNft ~ bzzHash:', bzzHash);
+		[
+			nftMetadata.autoSwarm.bzzHash,
+			[nftMetadata.autoSwarm.tbaImage, nftMetadata.autoSwarm.tbaTokenUri]
+		] = await fetchBzzTar([nftMetadata.autoSwarm.nftImage, nftMetadata.autoSwarm.nftTokenUri]);
 
-		autoSwarmMetadata.bzzHash = bzzHash;
-		autoSwarmMetadata.tbaImageAlt = tbaImageAlt.toString();
-		autoSwarmMetadata.tbaTokenUri = tbaTokenUri.toString();
-		console.log('resaveNft ~ autoSwarmMetadata:', autoSwarmMetadata);
-
-		console.log('resaveNft ~ bzzHash:', autoSwarmMetadata.bzzHash);
-		console.log('resaveNft ~ tbaImageAlt:', autoSwarmMetadata.tbaImageAlt);
-		console.log('resaveNft ~ tbaTokenUri:', autoSwarmMetadata.tbaTokenUri);
+		console.log('reSaveNft ~ bzzHash:', nftMetadata.autoSwarm.bzzHash);
+		console.log('reSaveNft ~ tbaImage:', nftMetadata.autoSwarm.tbaImage);
+		console.log('reSaveNft ~ tbaTokenUri:', nftMetadata.autoSwarm.tbaTokenUri);
 	};
 
 	const reSave = async () => {
@@ -153,21 +143,13 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
-			console.log('reSave ~ resaveNft');
-			await resaveNft();
-			console.log('reSave ~ resaveNft done');
+			await reSaveNft();
 			resaving = 1;
-			console.log('reSave ~ sendBzzTransferUnit');
 			await sendBzzTransferUnit();
-			console.log('reSave ~ sendBzzTransferUnit done');
 			resaving = 2;
-			console.log('reSave ~ createAccount');
 			await createAccount();
-			console.log('reSave ~ createAccount done');
 			resaving = 3;
-			console.log('reSave ~ initializeAccount');
 			await initializeAccount();
-			console.log('reSave ~ initializeAccount done');
 			alert('Your NFT has been ReSaved on Swarm! 🎉');
 			resaving = 4;
 		} catch (e) {
@@ -202,10 +184,10 @@
 	});
 </script>
 
-{#key [toping, resaving]}
+{#key [toping, resaving, nftResaved]}
 	<section id="resaver">
 		<div class="nfts-grid">
-			<Nft {nftChainId} {nftCollection} {nftTokenId} bind:nftMetadata />
+			<Nft {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
 
 			{#if nftResaved !== undefined}
 				<div class="batch-topUp">
@@ -267,6 +249,6 @@
 	</p>
 
 	{#if debug}
-		<Debug bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
+		<NftDebug bzzChainId={$bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
 	{/if}
 {/key}

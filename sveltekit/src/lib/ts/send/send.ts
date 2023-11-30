@@ -5,11 +5,15 @@ import {
 	type WalletClient,
 	type EIP1193Provider,
 	custom,
-	type PublicClient
+	type PublicClient,
+	type Transport,
+	type Chain,
+	type WalletClientConfig
 } from 'viem';
+
 import { callPublicClient } from '$lib/ts/call/call';
-import { utilsError } from '../swarm/utils';
-import { chainGet } from '../constants/chains';
+import { utilsError } from '../common/utils';
+import { chainGet } from '../common/chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // WRITE : onchain write functions via rpc, i.e. functions with walletClient
@@ -22,45 +26,61 @@ const _windowEthereum = (): EIP1193Provider => {
 	return window.ethereum!;
 };
 
-const _walletEthereum = (): WalletClient => {
-	return createWalletClient({
-		transport: custom(_windowEthereum())
-	});
+const _transportEthereum = (): WalletClientConfig<Transport, Chain | undefined> => {
+	return { transport: custom(_windowEthereum()) };
 };
 
-const sendWallet = async (chainId: number): Promise<[PublicClient, WalletClient, Address]> => {
-	const publicClient = await callPublicClient(chainId);
-	const walletClient = await sendWalletClient(chainId);
-	const walletAddress = await sendWalletAddress(walletClient, true);
+// walletClients Map used as cache
+const _walletClients: Map<number, WalletClient> = new Map();
+const _walletClient: WalletClient = createWalletClient(_transportEthereum());
 
-	return [publicClient, walletClient, walletAddress];
-};
+const _walletClientCreate = (bzzChainId?: number): WalletClient => {
+	const transportPlusOptionalChain: WalletClientConfig<Transport, Chain> = _transportEthereum();
+	let walletClient: WalletClient;
 
-const sendWalletAddress = async (
-	walletClient = _walletEthereum(),
-	force = false,
-	n = 0
-): Promise<Address> => {
-	return force
-		? (await walletClient.requestAddresses())[n]
-		: (await walletClient.getAddresses())[n];
-};
+	if (bzzChainId) {
+		const chain = chainGet(bzzChainId);
+		if (chain) transportPlusOptionalChain.chain = chain;
+		walletClient = createWalletClient(transportPlusOptionalChain);
 
-const sendWalletClient = async (chainId: number): Promise<WalletClient> => {
-	const ethereum = _windowEthereum();
-	const chain = chainGet(chainId);
-
-	const walletClient = createWalletClient({
-		chain,
-		transport: custom(ethereum)
-	});
-
-	if (chainId > 0 && chainId !== chainId) {
-		console.log('sendWalletClient switchChain', chainId, chainId);
-		await walletClient.switchChain({ id: chainId });
+		_walletClients.set(bzzChainId, walletClient);
+	} else {
+		walletClient = _walletClient;
 	}
 
 	return walletClient;
 };
 
-export { sendWallet, sendWalletClient, sendWalletAddress };
+const sendWalletClient = async (bzzChainId: number): Promise<WalletClient> => {
+	if (bzzChainId !== (await sendWalletChainId())) await sendWalletSwitchChain(bzzChainId);
+
+	_walletClients.get(bzzChainId) || _walletClientCreate(bzzChainId);
+	return sendWalletClient(bzzChainId);
+};
+
+const sendWallet = async (bzzChainId: number): Promise<[PublicClient, WalletClient, Address]> => {
+	const publicClient = await callPublicClient(bzzChainId);
+	const walletClient = await sendWalletClient(bzzChainId);
+	const walletAddress = await sendWalletAddress(true);
+
+	return [publicClient, walletClient, walletAddress];
+};
+
+const sendWalletAddress = async (force = false, n = 0): Promise<Address> => {
+	return force
+		? (await _walletClient.requestAddresses())[n]
+		: (await _walletClient.getAddresses())[n];
+};
+
+const sendWalletChainId = async (): Promise<number> => await _walletClient.getChainId();
+
+const sendWalletSwitchChain = async (bzzChainId: number): Promise<void> =>
+	await _walletClient.switchChain({ id: bzzChainId });
+
+export {
+	sendWallet,
+	sendWalletClient,
+	sendWalletAddress,
+	sendWalletChainId,
+	sendWalletSwitchChain
+};

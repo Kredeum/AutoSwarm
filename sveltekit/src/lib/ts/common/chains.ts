@@ -1,6 +1,6 @@
 import { http, type Chain, type HttpTransport } from 'viem';
 import { arbitrum, bsc, gnosis, mainnet, optimism, polygon, sepolia } from 'viem/chains';
-import { anvil } from './anvil';
+import { anvil } from '../constants/anvil';
 
 type ChainMapType = Map<number, Chain>;
 
@@ -21,7 +21,7 @@ const chainGet = (chainId: number): Chain | undefined => {
 	if (!chainId) return;
 
 	const chain = chainsMap.get(chainId);
-	if (!chain) throw new Error(`No chain found for chainId #${chainId}`);
+	if (!chain) return;
 
 	return chain;
 };
@@ -33,8 +33,12 @@ const chainGetExplorer = (id: number): URL | undefined => {
 	return url ? new URL(url) : undefined;
 };
 
-const chainGetWithTransport = (chainId: number): { chain: Chain; transport: HttpTransport } => {
+const chainGetWithTransport = (
+	chainId: number
+): { chain: Chain; transport: HttpTransport } | undefined => {
 	const chain = chainGet(chainId);
+	if (!chain) return;
+
 	const INFURA_API_KEY = '7e5ff61abb704742b7783199fbf36327';
 
 	let rpcUrl: string | undefined;
@@ -58,10 +62,10 @@ const chainGetWithTransport = (chainId: number): { chain: Chain; transport: Http
 		// rpcUrl = 'https://rpc.ankr.com/bsc';
 		rpcUrl = 'https://bsc.publicnode.com';
 	} else {
-		throw new Error(`No rpc url found for chainId 1${chainId}`);
+		throw new Error(`chainGetWithTransport: No rpc url found for chainId 1${chainId}`);
 	}
 
-	console.log('chainGetWithTransport ~ rpcUrl:', chainId, rpcUrl);
+	// console.info('chainGetWithTransport ~ rpcUrl:', chainId, rpcUrl);
 	const transport = http(rpcUrl);
 
 	return { chain, transport };

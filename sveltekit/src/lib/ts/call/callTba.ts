@@ -1,20 +1,25 @@
 import type { Address, Hex } from 'viem';
 import { autoSwarmAccountAbi } from '../constants/abis';
 
-import { callPublicClient } from './call';
-import { ZERO_BYTES32 } from '../constants/constants';
+import { callIsContract, callPublicClient } from './call';
+import { UNDEFINED_DATA, ZERO_BYTES32 } from '../constants/constants';
 
-const callTbaTokenUri = async (chainId: number, tba: Address): Promise<URL | undefined> => {
-	if (tba === undefined) return;
-	const bzzHash = await callTbaBzzHash(chainId, tba);
 
-	return new URL(`bzz://${bzzHash}`);
+const callTbaStampId = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
+
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: tba,
+		abi: autoSwarmAccountAbi,
+		functionName: 'stampId'
+	});
 };
+const callTbaBzzHash = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
 
-const callTbaBzzHash = async (chainId: number, tba: Address): Promise<Hex> => {
-	if (tba === undefined) return ZERO_BYTES32;
-
-	const publicClient = await callPublicClient(chainId);
+	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
 		address: tba,
@@ -23,4 +28,4 @@ const callTbaBzzHash = async (chainId: number, tba: Address): Promise<Hex> => {
 	});
 };
 
-export { callTbaTokenUri, callTbaBzzHash };
+export { callTbaBzzHash, callTbaStampId };

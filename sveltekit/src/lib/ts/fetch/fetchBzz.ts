@@ -4,20 +4,23 @@ import {
 	SWARM_GATEWAY,
 	ZERO_BYTES32
 } from '../constants/constants';
-import { utilsError } from '../swarm/utils';
-import { localConfigGet } from '../constants/local';
-import { fetchUrlOk } from './fetch';
+import { utilsError } from '../common/utils';
+import { localConfigGet } from '../common/local';
+import { fetchAltUrl, fetchUrlOk } from './fetch';
 
 import type { Hex } from 'viem';
 
-const fetchBzzPost = async (url: URL | string | undefined): Promise<URL | undefined> => {
-	if (!(url && fetchUrlOk(url))) throw new Error('Bad URL');
+const fetchBzzPost = async (url: URL | string | undefined): Promise<string | undefined> => {
+	if (!(url && fetchUrlOk(url))) throw new Error(`fetchBzzPost: Bad URL ${url}`);
 
 	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
-	if (batchId === ZERO_BYTES32) throw new Error('No BatchId defined!');
+	if (batchId === ZERO_BYTES32) throw new Error('fetchBzzPost: No BatchId defined!');
 
-	const body = await (await fetch(url)).blob();
+	const urlAlt = await fetchAltUrl(url);
+  if (!urlAlt) throw new Error(`fetchBzzPost: Bad URL ${url}`);
+
+  const body = await (await fetch(urlAlt)).blob();
 
 	const headers = new Headers();
 	headers.append('Content-Type', body.type);
@@ -30,7 +33,7 @@ const fetchBzzPost = async (url: URL | string | undefined): Promise<URL | undefi
 		throw Error(`${response.statusText}\n${JSON.stringify(json, null, 2)}`);
 	}
 
-	return new URL(`${SWARM_GATEWAY}/${json.reference}`);
+	return `${SWARM_GATEWAY}/${json.reference}`;
 };
 
 const fetchBzzGet = async (bzzHash: Hex): Promise<Response | undefined> => {
@@ -38,7 +41,7 @@ const fetchBzzGet = async (bzzHash: Hex): Promise<Response | undefined> => {
 
 	try {
 		const url = `${SWARM_GATEWAY}/${bzzHash}`;
-		const response = await await fetch(url);
+		const response = await fetch(url);
 		console.log('fetchBzzGet', bzzHash, '\n', response);
 		return response;
 	} catch (e) {

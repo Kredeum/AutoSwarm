@@ -1,13 +1,13 @@
 import { zeroAddress, type Address } from 'viem';
 import { erc20Abi } from '$lib/ts/constants/abis';
-import { jsonGet } from '../constants/json';
+import { jsonGet } from '../common/json';
 import { sendWallet } from './send';
 
-const sendBzzApprove = async (chainId: number, bzzAmount: bigint) => {
-	// console.info('sendBzzApprove', chainId,  bzzAmount);
-	const json = await jsonGet(chainId);
+const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint) => {
+	// console.info('sendBzzApprove', bzzChainId,  bzzAmount);
+	const json = await jsonGet(bzzChainId);
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -21,13 +21,13 @@ const sendBzzApprove = async (chainId: number, bzzAmount: bigint) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendBzzTransfer = async (chainId: number, to: Address | undefined, bzzAmount: bigint) => {
-	// console.info('sendBzzTransfer', chainId, to, bzzAmount);
+const sendBzzTransfer = async (bzzChainId: number, to: Address | undefined, bzzAmount: bigint) => {
+	console.info('sendBzzTransfer', bzzChainId, to, bzzAmount);
 
 	if (to === undefined || to === zeroAddress) throw Error('Bad address');
-	const json = await jsonGet(chainId);
+	const json = await jsonGet(bzzChainId);
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(chainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

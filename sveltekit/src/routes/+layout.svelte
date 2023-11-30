@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 
-	import Header from '$lib/components/Layout/Header.svelte';
-	import Footer from '$lib/components/Layout/Footer.svelte';
-	import NetworkListSelectSimple from '$lib/components/Network/NetworkListSelectSimple.svelte';
-	import AccountConnectSimple from '$lib/components/Account/AccountConnectSimple.svelte';
+	import Header from '$lib/components/Layout/LayoutHeader.svelte';
+	import Footer from '$lib/components/Layout/LayoutFooter.svelte';
 	import '$lib/css/styles.css';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { page } from '$app/stores';
-	import type { as } from 'vitest/dist/reporters-5f784f42';
-	import { onMount } from 'svelte';
+
+	////////////////////// AutoSwarm Layout ///////////////////////////////////////
+	// Layout for all AutoSwamr pages
+	/////////////////////////////////////////////////////////////////////////////
 
 	// let chainId: number = 100;
 	let chainId: number = 11155111;
