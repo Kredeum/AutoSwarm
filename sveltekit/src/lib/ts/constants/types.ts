@@ -9,7 +9,9 @@ type NftMetadataAutoSwarm = {
 	bzzHash?: Hex;
 	tbaAddress?: Address;
 	tbaTokenUri?: string;
+	tbaTokenUriSize?: number;
 	tbaImage?: string;
+	tbaImageSize?: number;
 };
 
 type NftMetadataErc721 = {

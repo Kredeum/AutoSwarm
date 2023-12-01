@@ -10,13 +10,13 @@ import {
 	ONE_YEAR,
 	BZZ_DECIMALS,
 	BUCKET_DEPTH,
-	SWARM_GATEWAY,
-	ZERO_BYTES32
+	SWARM_GATEWAY
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
 import { chainGetExplorer } from '../common/chains';
 import { jsonGetField } from '../common/json';
+import { utilsIsBytes32Null } from '../common/utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -139,9 +139,9 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 };
 
 const displayBzzURI = (hash: Hex | string | undefined, path?: string): string => {
-	if (!(hash && hash !== ZERO_BYTES32)) return UNDEFINED_DATA;
+	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
 
-	hash = hash.replace(/^0x/, '');
+	hash = hash?.replace(/^0x/, '');
 	const urlHash = `bzz://${hash}`;
 	const urlPath = `${urlHash}/${path}`;
 	const url = path ? urlPath : urlHash;
@@ -150,9 +150,9 @@ const displayBzzURI = (hash: Hex | string | undefined, path?: string): string =>
 };
 
 const displayBzzURL = (hash: Hex | string | undefined, path?: string): string => {
-	if (!(hash && hash !== ZERO_BYTES32)) return UNDEFINED_DATA;
+	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
 
-	hash = hash.replace(/^0x/, '');
+	hash = hash?.replace(/^0x/, '');
 	const urlHash = `${SWARM_GATEWAY}/${hash}`;
 	const urlPath = `${urlHash}/${path}`;
 	const url = path ? urlPath : urlHash;

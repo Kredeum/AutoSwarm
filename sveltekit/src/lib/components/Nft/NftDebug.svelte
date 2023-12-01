@@ -4,7 +4,6 @@
 
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { UNDEFINED_DATA } from '$lib/ts/constants/constants';
-	import { fetchAltUrl } from '$lib/ts/fetch/fetchAlt';
 	import { utilsError } from '$lib/ts/common/utils';
 	import { callIsContract } from '$lib/ts/call/call';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
@@ -21,6 +20,8 @@
 		displayExplorerNft,
 		displayLink
 	} from '$lib/ts/display/display';
+	import { fetchSize } from '$lib/ts/fetch/fetch';
+	import { urlToUrlAlt } from '$lib/ts/common/url';
 
 	///////////////////////////// Debug Component ///////////////////////////////////////
 	// <Debug {bzzChainId} {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
@@ -51,10 +52,17 @@
 	// State
 	let tbaDeployed = false;
 
+	let tokenUriSize: number | undefined;
+	let imageSize: number | undefined;
+
 	$: bzzChainId > 0 && nftChainId > 0 && nftCollection && nftTokenId >= 0 && refresh();
 	const refresh = async () => {
 		console.info('<NftDebug refresh  IN', bzzChainId, nftChainId, nftCollection, nftTokenId);
 		try {
+			// Sizes
+			tokenUriSize = await fetchSize(urlToUrlAlt(nftMetadata.autoSwarm?.nftTokenUri));
+			imageSize = await fetchSize(urlToUrlAlt(nftMetadata.autoSwarm?.nftImage));
+
 			// Wallet
 			walletAddress = await sendWalletAddress();
 			walletBalance = await callBzzBalance(bzzChainId, walletAddress);
@@ -78,8 +86,8 @@
 	};
 </script>
 
-<div id="debug">
-	{#if nftMetadata.autoSwarm}
+{#if nftMetadata?.autoSwarm}
+	<div id="debug">
 		<p>
 			NFT Chain Id / Collection Address / Token Id
 			<span>
@@ -90,7 +98,9 @@
 		</p>
 		<hr />
 		<p>
-			NFT Metadata URI / URL
+			NFT Metadata URI / URL  ({nftMetadata.autoSwarm.tbaTokenUriSize ||
+				tokenUriSize ||
+				UNDEFINED_DATA} bytes)
 			<span>
 				{@html displayLink(nftMetadata.autoSwarm.nftTokenUri)}
 			</span>
@@ -102,7 +112,7 @@
 			</span>
 		</p>
 		<p>
-			NFT Image URI / URL
+			NFT Image URI / URL ({nftMetadata.autoSwarm.tbaImageSize || imageSize || UNDEFINED_DATA} bytes)
 			<span>
 				{@html displayLink(nftMetadata.autoSwarm.nftImage)}
 			</span>
@@ -115,42 +125,52 @@
 		</p>
 		<hr />
 		<p>
-			NFT Swarm Bzz <span>{displayBzzURI(nftMetadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
+			NFT Swarm Hash <span>{displayBzzURI(nftMetadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
 		</p>
-	{/if}
-	<hr />
-	<p>
-		TBA Deployed? / Bzz Balance / Chain Id / Address
-		<span>
-			{#if !tbaDeployed}Not{/if} deployed /
-			{displayBalance(tbaBalance, 16, 4)} Bzz /
-			{@html displayExplorer(bzzChainId)} /
-			{@html displayExplorerAddress(bzzChainId, tbaAddress)}
-		</span>
-	</p>
-	<p>
-		TBA Bzz URI <span>{displayBzzURI(tbaBzzHash) || UNDEFINED_DATA}</span>
-	</p>
-	<p>
-		TBA Metadata URL <span> {@html displayBzzURL(tbaBzzHash, 'metadata.json')}</span>
-	</p>
-	<p>
-		TBA Image URL <span> {@html displayBzzURL(tbaBzzHash, 'image')}</span>
-	</p>
-	<p>
-		TBA Stamp Id <span>{tbaStampId || UNDEFINED_DATA}</span>
-	</p>
-	<hr />
+		<p>
+			NFT Metadata Swarm Path
+			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, 'metadata.json')}</span>
+		</p>
+		<p>
+			NFT Image Swarm Path
+			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, 'image')}</span>
+		</p>
+		<hr />
+		<p>
+			Bzz Balance / TBA Deployed? / Chain Id / Address
+			<span>
+				{displayBalance(tbaBalance, 16, 4)} Bzz /
+				{#if !tbaDeployed}Not{/if} deployed /
+				{@html displayExplorer(bzzChainId)} /
+				{@html displayExplorerAddress(bzzChainId, tbaAddress)}
+			</span>
+		</p>
+		<p>
+			TBA Bzz Hash <span>{tbaBzzHash || UNDEFINED_DATA}</span>
+		</p>
+		<p>
+			TBA Metadata URL
+			<span>{@html displayBzzURL(tbaBzzHash, 'metadata.json')}</span>
+		</p>
+		<p>
+			TBA Image URL
+			<span> {@html displayBzzURL(tbaBzzHash, 'image')}</span>
+		</p>
+		<p>
+			TBA Stamp Id <span>{tbaStampId || UNDEFINED_DATA}</span>
+		</p>
+		<hr />
 
-	<p>
-		Wallet Bzz Balance / Chain Id / Address
-		<span>
-			{displayBalance(walletBalance, 16, 4)} Bzz /
-			{@html displayExplorer(walletChainId)} /
-			{@html displayExplorerAddress(bzzChainId, walletAddress)}
-		</span>
-	</p>
-</div>
+		<p>
+			Wallet Bzz Balance / Chain Id / Address
+			<span>
+				{displayBalance(walletBalance, 16, 4)} Bzz /
+				{@html displayExplorer(walletChainId)} /
+				{@html displayExplorerAddress(bzzChainId, walletAddress)}
+			</span>
+		</p>
+	</div>
+{/if}
 
 <style>
 	#debug {

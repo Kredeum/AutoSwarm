@@ -1,11 +1,12 @@
 import { callTbaBzzHash } from './callTba';
 import type { NftMetadata } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
-import { fetchAltUrl, fetchUrlOk } from '../fetch/fetch';
+import { fetchUrlOk } from '../fetch/fetch';
+import { fetchAltUrl } from '../fetch/fetchAlt';
 import { bzz, bzzImage } from '../swarm/bzz';
-import { ZERO_BYTES32 } from '../constants/constants';
 import type { Address } from 'viem';
 import { callNftMetadata } from './callNftMetadata';
+import { utilsIsBytes32Null } from '../common/utils';
 
 const callTbaMetadata = async (
 	bzzChainId: number,
@@ -22,7 +23,7 @@ const callTbaMetadata = async (
 	tbaMetadata.autoSwarm.tbaAddress = tbaAddress;
 
 	const bzzHash = await callTbaBzzHash(bzzChainId, tbaAddress);
-	if (!(bzzHash && bzzHash !== ZERO_BYTES32)) return tbaMetadata;
+	if (utilsIsBytes32Null(bzzHash)) return tbaMetadata;
 	tbaMetadata.autoSwarm.bzzHash = bzzHash;
 
 	const tbaTokenUri = bzz(bzzHash);

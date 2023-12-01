@@ -52,10 +52,12 @@ const _walletClientCreate = (bzzChainId?: number): WalletClient => {
 };
 
 const sendWalletClient = async (bzzChainId: number): Promise<WalletClient> => {
-	if (bzzChainId !== (await sendWalletChainId())) await sendWalletSwitchChain(bzzChainId);
+	// console.info('sendWalletClient ~ bzzChainId:', bzzChainId);
+	const walletChainId = await sendWalletChainId();
 
-	_walletClients.get(bzzChainId) || _walletClientCreate(bzzChainId);
-	return sendWalletClient(bzzChainId);
+	if (bzzChainId !== walletChainId) await sendWalletSwitchChain(bzzChainId);
+
+	return _walletClients.get(bzzChainId) || _walletClientCreate(bzzChainId);
 };
 
 const sendWallet = async (bzzChainId: number): Promise<[PublicClient, WalletClient, Address]> => {

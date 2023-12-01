@@ -1,7 +1,8 @@
 import type { Address } from 'viem';
 import type { NftMetadata } from '$lib/ts/constants/types';
 import { fetchJson } from '../fetch/fetchJson';
-import { fetchAltUrl, fetchUrlOk } from '../fetch/fetch';
+import { fetchUrlOk } from '../fetch/fetch';
+import { fetchAltUrl } from '../fetch/fetchAlt';
 import type { NftMetadataAutoSwarm } from '../constants/types';
 
 import { callNftTokenUri } from './callNft';
@@ -17,7 +18,7 @@ const callNftMetadata = async (
 ): Promise<NftMetadata | undefined> => {
 	console.info('callNftMetadata  IN', nftChainId, nftCollection, nftTokenId);
 
-  const nftTokenUri = await callNftTokenUri(nftChainId, nftCollection, nftTokenId);
+	const nftTokenUri = await callNftTokenUri(nftChainId, nftCollection, nftTokenId);
 	if (!nftTokenUri) throw new Error(`callNftMetadata: No Token Uri`);
 
 	const nftTokenUriAlt = await fetchAltUrl(nftTokenUri);
