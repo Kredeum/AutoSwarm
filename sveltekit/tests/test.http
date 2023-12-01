@@ -1,0 +1,28 @@
+### EX1 : HEAD KO => HTTP/1.1 403 Forbidden
+HEAD https://api.poap.tech/metadata/159706/6927432
+
+### EX1 : GET OK => HTTP/1.1 200 OK
+GET https://api.poap.tech/metadata/159706/6927432
+
+### EX2
+GET https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+Origin: http://localhost:5173
+
+### EX2
+HEAD https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+Origin: http://localhost:5173
+
+###
+HEAD	https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+Accept:	*/*
+Accept-Encoding:	gzip, deflate, br
+Accept-Language:	fr,en;q=0.9
+Origin:	http://localhost:5173
+Referer:	http://localhost:5173/
+sec-ch-ua:	"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"
+sec-ch-ua-mobile:	?0
+sec-ch-ua-platform:	"macOS"
+Sec-Fetch-Dest:	empty
+Sec-Fetch-Mode:	cors
+Sec-Fetch-Site:	cross-site
+User-Agent:	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36

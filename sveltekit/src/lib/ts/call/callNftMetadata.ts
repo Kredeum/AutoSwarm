@@ -16,7 +16,7 @@ const callNftMetadata = async (
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<NftMetadata | undefined> => {
-	console.info('callNftMetadata  IN', nftChainId, nftCollection, nftTokenId);
+	// console.info('callNftMetadata  IN', nftChainId, nftCollection, nftTokenId);
 
 	const nftTokenUri = await callNftTokenUri(nftChainId, nftCollection, nftTokenId);
 	if (!nftTokenUri) throw new Error(`callNftMetadata: No Token Uri`);
@@ -27,10 +27,11 @@ const callNftMetadata = async (
 	const nftMetadata = (await fetchJson(nftTokenUriAlt)) as NftMetadata;
 	if (!nftMetadata) throw new Error(`callNftMetadata: No Metadata for Token Uri ${nftTokenUri}`);
 
-	const nftImage = nftMetadata.image;
-	const nftImageAlt = await fetchAltUrl(nftImage);
-	const nftImageOK = await fetchUrlOk(nftImageAlt);
-	if (!nftImageOK) throw new Error(`callNftMetadata: Broken Image ${nftImage}`);
+	const nftImage = nftMetadata.image || nftMetadata.image_url;
+
+  const nftImageAlt = await fetchAltUrl(nftImage);
+	// const nftImageOK = await fetchUrlOk(nftImageAlt);
+	// if (!nftImageOK) throw new Error(`callNftMetadata: Broken Image ${nftImage}`);
 
 	nftMetadata.autoSwarm = {} as NftMetadataAutoSwarm;
 	nftMetadata.autoSwarm.nftTokenUri = nftTokenUri;

@@ -5,5 +5,8 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	test: {
 		include: ['tests/**/*.ts']
+	},
+	server: {
+		open: true
 	}
 });

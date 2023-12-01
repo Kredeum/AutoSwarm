@@ -15,9 +15,10 @@ type NftMetadataAutoSwarm = {
 };
 
 type NftMetadataErc721 = {
-	image: string;
 	name: string;
 	description: string;
+	image: string;
+	image_url?: string;
 };
 
 type NftMetadata = NftMetadataErc721 & {

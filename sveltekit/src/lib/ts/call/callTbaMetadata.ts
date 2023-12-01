@@ -14,6 +14,8 @@ const callTbaMetadata = async (
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<NftMetadata | undefined> => {
+	// console.info('callTbaMetadata  IN', bzzChainId, nftChainId, nftCollection, nftTokenId);
+
 	const tbaMetadata = await callNftMetadata(nftChainId, nftCollection, nftTokenId);
 	if (!tbaMetadata) throw new Error(`callTbaMetadata: No Nft Metadata`);
 
@@ -34,7 +36,7 @@ const callTbaMetadata = async (
 	const tbaImageOK = await fetchUrlOk(tbaImageAlt);
 	if (tbaImageOK) tbaMetadata.autoSwarm.tbaImage = tbaImage;
 
-	console.info('tbaMetadata:', tbaMetadata);
+	console.info('callTbaMetadata OUT', tbaMetadata);
 	return tbaMetadata;
 };
 

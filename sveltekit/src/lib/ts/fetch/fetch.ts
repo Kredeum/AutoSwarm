@@ -6,17 +6,24 @@ const fetchUrl = async (
 	url: URL | string | undefined,
 	method = 'GET'
 ): Promise<Response | undefined> => {
+	// console.info('fetchUrl:', method, url);
 	if (!url) return;
 
-	const response = await fetch(url, { method });
-	if (fetchSuccess(response.status)) {
-		return response;
-	} else {
-		console.log('fetchSizeHead: response.status', response.status, url);
+	try {
+		// const response = await fetch(url, { method });
+		const response = await fetch(url, { method, mode: 'cors' });
+		if (fetchSuccess(response.status)) {
+			return response;
+		} else {
+			console.warn('fetchUrl: response.status', response.status, url, '\n', response);
+		}
+	} catch (err) {
+		console.error('fetchUrl: ERROR', method, url, '\n', err);
 	}
 };
 
 const fetchSizeHead = async (url: URL | string | undefined): Promise<number | undefined> => {
+	// console.info('fetchSizeHead', url);
 	const response = await fetchUrl(url, 'HEAD');
 	if (!response) return;
 
@@ -25,6 +32,7 @@ const fetchSizeHead = async (url: URL | string | undefined): Promise<number | un
 };
 
 const fetchSizeGet = async (url: URL | string | undefined): Promise<number | undefined> => {
+	// console.info('fetchSizeGet', url);
 	const response = await fetchUrl(url);
 	if (!response) return;
 
@@ -34,8 +42,10 @@ const fetchSizeGet = async (url: URL | string | undefined): Promise<number | und
 	return data.length;
 };
 
-const fetchSize = async (url: URL | string | undefined): Promise<number | undefined> =>
-	(await fetchSizeHead(url)) || (await fetchSizeGet(url));
+const fetchSize = async (url: URL | string | undefined): Promise<number | undefined> => {
+	// console.info('fetchSize', url);
+	return (await fetchSizeHead(url)) || (await fetchSizeGet(url));
+};
 
 const fetchContentTypeHead = async (url: URL | string | undefined): Promise<string | undefined> => {
 	// console.info('fetchContentTypeHead', url);
@@ -54,24 +64,41 @@ const fetchContentTypeGet = async (url: URL | string | undefined): Promise<strin
 	return (await response.blob()).type;
 };
 
-const fetchContentType = async (url: URL | string | undefined): Promise<string | undefined> =>
-	fetchContentTypeHead(url); // TO USE WITH SERVER WITHOUT HEAD => // || fetchContentTypeGet(url);
+const fetchContentType = async (url: URL | string | undefined): Promise<string | undefined> => {
+	// console.info('fetchContentType', url);
+	return (await fetchContentTypeHead(url)) || (await fetchContentTypeGet(url));
+};
 
-const fetchUrlOkHead = async (url: URL | string | undefined): Promise<boolean> =>
-	Boolean(url) && Boolean(await fetchContentType(url));
+const fetchUrlOkHead = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('fetchUrlOkHead', url);
+	return (
+		Boolean(url) &&
+		(Boolean(await fetchContentTypeHead(url)) || ((await fetchSizeHead(url)) || 0) > 0)
+	);
+};
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const fetchUrlOkGet = async (url: URL | string | undefined): Promise<boolean> =>
-	Boolean(url) && ((await fetchSizeGet(url)) || 0) > 0;
+const fetchUrlOkGet = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('fetchUrlOkGet', url);
+	return (
+		Boolean(url) &&
+		(Boolean(await fetchContentTypeGet(url)) || ((await fetchSizeGet(url)) || 0) > 0)
+	);
+};
 
-const fetchUrlOk = async (url: URL | string | undefined): Promise<boolean> => fetchUrlOkHead(url); // TO USE WITH SERVER WITHOUT HEAD => //  || fetchUrlOkGet(url);
+const fetchUrlOk = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('fetchUrlOk', url);
+	return (await fetchUrlOkHead(url)) || (await fetchUrlOkGet(url));
+};
 
-const fetchUriOk = async (url: URL | string | undefined): Promise<boolean> =>
-	fetchUrlOk(urlToUrl(url));
+const fetchUriOk = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('fetchUriOk', url);
+	return await fetchUrlOk(urlToUrl(url));
+};
 
-const fetchUrlAltOk = async (url: URL | string | undefined): Promise<boolean> =>
-	fetchUrlOk(urlToUrlAlt(url));
-
+const fetchUrlAltOk = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('fetchUrlAltOk', url);
+	return await fetchUrlOk(urlToUrlAlt(url));
+};
 export {
 	fetchUrl,
 	fetchSuccess,
