@@ -16,7 +16,7 @@ import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
 import { chainGetExplorer } from '../common/chains';
 import { jsonGetField } from '../common/json';
-import { utilsIsBytes32Null } from '../common/utils';
+import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -142,22 +142,22 @@ const displayBzzURI = (hash: Hex | string | undefined, path?: string): string =>
 	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
 
 	hash = hash?.replace(/^0x/, '');
-	const urlHash = `bzz://${hash}`;
-	const urlPath = `${urlHash}/${path}`;
-	const url = path ? urlPath : urlHash;
+	const urlPath = path ? `${hash}/${path}` : hash;
+	const bzzHash = `bzz://${urlPath}`;
+	const url = `${SWARM_GATEWAY}/${urlPath}`;
 
-	return url;
+	return path ? `<a href="${url}" target="_blank">${utilsTruncate(bzzHash, 50, 30)}</a>` : bzzHash;
 };
 
 const displayBzzURL = (hash: Hex | string | undefined, path?: string): string => {
 	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
+	// console.log('displayBzzURL ', hash, path);
 
 	hash = hash?.replace(/^0x/, '');
-	const urlHash = `${SWARM_GATEWAY}/${hash}`;
-	const urlPath = `${urlHash}/${path}`;
-	const url = path ? urlPath : urlHash;
+	const urlPath = path ? `${hash}/${path}` : hash;
+	const url = `${SWARM_GATEWAY}/${urlPath}`;
 
-	return `<a href="${url}" target="_blank">${url}</a>`;
+	return `<a href="${url}" target="_blank">${utilsTruncate(url, 50, 30)}</a>`;
 };
 
 const displayBalance = (
@@ -182,6 +182,9 @@ const displayNftLink = (chainId: number, collection: string, tokenId: bigint): s
 	return `<a href="${url}" target="_blank">#${tokenId}</a>`;
 };
 
+const displaySizeBytes = (size: bigint | number | undefined): string =>
+	`${size?.toString() || UNDEFINED_DATA} bytes`;
+
 export {
 	displayTxt,
 	displayTtl,
@@ -194,6 +197,7 @@ export {
 	displayBzzURL,
 	displayBzzURI,
 	displaySize,
+	displaySizeBytes,
 	displayDate,
 	displayBatchSize,
 	displayBatchDepthWithSize,

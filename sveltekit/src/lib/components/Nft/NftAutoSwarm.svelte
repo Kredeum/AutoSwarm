@@ -119,7 +119,12 @@
 		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
 
 	const initializeAccount = async () =>
-		await sendTbaInitialize($bzzChainId, tbaAddress, nftMetadata?.autoSwarm?.bzzHash);
+		await sendTbaInitialize(
+			$bzzChainId,
+			tbaAddress,
+			nftMetadata?.autoSwarm?.bzzHash,
+			nftMetadata?.autoSwarm?.bzzSize
+		);
 
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
@@ -134,6 +139,7 @@
 
 		[
 			nftMetadata.autoSwarm.bzzHash,
+			nftMetadata.autoSwarm.bzzSize,
 			[nftMetadata.autoSwarm.tbaImage, nftMetadata.autoSwarm.tbaTokenUri],
 			[nftMetadata.autoSwarm.tbaImageSize, nftMetadata.autoSwarm.tbaTokenUriSize]
 		] = await fetchBzzTar([nftMetadata.autoSwarm.nftImage, nftMetadata.autoSwarm.nftTokenUri]);
@@ -163,10 +169,9 @@
 			await createAccount();
 			resaving = 3;
 			await initializeAccount();
-			resaving = 4;
-			showAlert('Your NFT has been ReSaved on Swarm! 🎉');
+			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
 		} catch (e) {
-			utilsError(`ReSave (${resaving}/4) :`, e);
+			utilsError(`ReSave (${resaving}/3) :`, e);
 		}
 		resaving = 0;
 		refresh();
@@ -182,7 +187,7 @@
 			toping = 1;
 			await topUpStamp();
 			toping = 2;
-			showAlert('Your NFT has been TopUped on Swarm! 🎉');
+			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
 		} catch (e) {
 			utilsError(`TopUp (${toping}/2) :`, e);
 		}
@@ -235,7 +240,7 @@
 							ReSave NFT
 							{#if resaving}
 								&nbsp;
-								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving}/4
+								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving}/3
 							{/if}
 						</button>
 					{/if}

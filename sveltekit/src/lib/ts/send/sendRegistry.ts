@@ -40,12 +40,12 @@ const sendRegistryCreateAccount = async (
 };
 
 // const bzzHash = ZERO_BYTES32;
-// const swarmSize = 0n;
+// const bzzSize = 0n;
 // const bzzAmount = 0n;
 // const data = encodeFunctionData({
 //   abi: autoSwarmAccountAbi,
 //   functionName: 'initialize',
-//   args: [json.PostageStamp as Address, bzzHash as Hex, swarmSize, bzzAmount]
+//   args: [json.PostageStamp as Address, bzzHash as Hex, bzzSize, bzzAmount]
 // });
 
 export { sendRegistryCreateAccount };

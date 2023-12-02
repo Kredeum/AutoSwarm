@@ -1,6 +1,6 @@
-import type { Address  } from 'viem';
+import type { Address } from 'viem';
 import { erc1155Abi, erc165Abi, erc721Abi } from '../constants/abis';
-import {  callPublicClient } from './call';
+import { callPublicClient } from './call';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -32,23 +32,20 @@ const callNftTokenUri = async (
 
 	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);
 
-	let nftTokenUri: string;
+	const nftTokenUri = nftIs1155
+		? await publicClient.readContract({
+				address: nftCollection,
+				abi: erc1155Abi,
+				functionName: 'uri',
+				args: [nftTokenId]
+		  })
+		: await publicClient.readContract({
+				address: nftCollection,
+				abi: erc721Abi,
+				functionName: 'tokenURI',
+				args: [nftTokenId]
+		  });
 
-	if (nftIs1155) {
-		nftTokenUri = await publicClient.readContract({
-			address: nftCollection,
-			abi: erc1155Abi,
-			functionName: 'uri',
-			args: [nftTokenId]
-		});
-	} else {
-		nftTokenUri = await publicClient.readContract({
-			address: nftCollection,
-			abi: erc721Abi,
-			functionName: 'tokenURI',
-			args: [nftTokenId]
-		});
-	}
 	// console.info('callNftTokenUri', nftTokenUri.toString());
 	return nftTokenUri;
 };

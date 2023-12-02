@@ -1,7 +1,12 @@
 import type { Hex } from 'viem';
 import { makeTar, type Collection } from '$lib/ts/swarm/tar';
 
-import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '../constants/constants';
+import {
+	IMAGE_JPEG,
+	METADATA_JSON,
+	SWARM_DEFAULT_API,
+	SWARM_DEFAULT_BATCHID
+} from '../constants/constants';
 import { localConfigGet } from '../common/local';
 import { fetchAltUrl } from './fetchAlt';
 
@@ -11,7 +16,7 @@ import { fetchSuccess, fetchUrl } from './fetch';
 
 const fetchBzzTar = async (
 	urls: (URL | string | undefined)[]
-): Promise<[Hex, string[], number[]]> => {
+): Promise<[Hex, bigint, string[], number[]]> => {
 	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
 
 	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
@@ -39,13 +44,13 @@ const fetchBzzTar = async (
 		// image
 		if (index === 0) {
 			// if (type !== 'image') throw new Error(`fetchBzzTar: Bad Image Content-Type ${contentType} for ${url}`);
-			path = 'image';
+			path = IMAGE_JPEG;
 		}
 		// metadata
 		else if (index === 1) {
 			// if (!(contentType?.startsWith('application/json') || contentType?.startsWith('text/plain')))
 			// 	throw new Error(`fetchBzzTar: Bad Metadata Content-Type ${contentType} for ${url}`);
-			path = 'metadata.json';
+			path = METADATA_JSON;
 			// partName = 'metadata';
 			// const json = JSON.parse(new TextDecoder().decode(data));
 			// json.imageName = imageName;
@@ -58,6 +63,7 @@ const fetchBzzTar = async (
 		collection.push({ data, path });
 	}
 	const body = makeTar(collection);
+	const bodySize = BigInt(body.length);
 
 	const headers = new Headers();
 	headers.append('Content-Type', 'application/x-tar');
@@ -66,13 +72,13 @@ const fetchBzzTar = async (
 	headers.append('swarm-collection', 'true');
 
 	const response = await fetch(swarmApiUrl, { method: 'POST', headers, body });
-	if (!fetchSuccess(response.status)) throw Error(`fetchBzzTar: ${response.status}`);
+	if (!fetchSuccess(response.status)) throw Error(`fetchBzzTar: ${response.status} ${swarmApiUrl}`);
 	const json = await response.json();
 
 	const paths = collection.map((item) => `${swarmApiUrl}/${json.reference}/${item.path}`);
 	const sizes = collection.map((item) => item.data.length);
 
-	return [`0x${json.reference}`, paths, sizes];
+	return [`0x${json.reference}`, bodySize, paths, sizes];
 };
 
 export { fetchBzzTar };

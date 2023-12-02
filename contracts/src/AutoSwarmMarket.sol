@@ -11,7 +11,7 @@ contract AutoSwarmMarket is Ownable {
         // immutable
         address owner;
         bytes32 bzzHash;
-        uint256 swarmSize;
+        uint256 bzzSize;
         // mutable
         bytes32 batchId;
         uint256 unitBalance;
@@ -69,12 +69,13 @@ contract AutoSwarmMarket is Ownable {
         assert(_postageStamp.remainingBalance(batchId) == ttl);
     }
 
-    function createStamp(bytes32 hash, uint256 bzzAmount) public returns (bytes32 stampId) {
-        require(hash != bytes32(0), "Bad Swarm Hash");
+    function createStamp(bytes32 bzzHash, uint256 bzzSize, uint256 bzzAmount) public returns (bytes32 stampId) {
+        require(bzzHash != bytes32(0), "Bad Swarm Hash");
+        require(bzzSize != 0, "Bad Swarm Size");
 
         Stamp memory stamp =
-            Stamp({owner: msg.sender, bzzHash: hash, swarmSize: 1, batchId: "", unitBalance: currentStampUnitPaid()});
-        stampId = keccak256(abi.encode(msg.sender, hash, block.number));
+            Stamp({owner: msg.sender, bzzHash: bzzHash, bzzSize: bzzSize, batchId: "", unitBalance: currentStampUnitPaid()});
+        stampId = keccak256(abi.encode(msg.sender, bzzHash, block.number));
 
         stamps[stampId] = stamp;
         stampIds.push(stampId);
@@ -98,7 +99,7 @@ contract AutoSwarmMarket is Ownable {
         uint256 len = stampIdsToSize.length;
 
         for (uint256 index; index < len; index++) {
-            stamps[stampIdsToSize[index]].swarmSize = size;
+            stamps[stampIdsToSize[index]].bzzSize = size;
         }
     }
 
@@ -195,20 +196,20 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function _topUpStamp(Stamp storage stamp, uint256 bzzAmount) internal {
-        require(stamp.swarmSize > 0, "Bad Swarm size");
+        require(stamp.bzzSize > 0, "Bad Swarm size");
 
-        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.swarmSize);
+        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.bzzSize);
 
-        currentBatchFilling += stamp.swarmSize;
+        currentBatchFilling += stamp.bzzSize;
 
         uint256 unitBalance = stamp.unitBalance;
         unitBalance += bzzAmountUnit;
         stamp.unitBalance = unitBalance;
 
-        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.swarmSize);
+        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.bzzSize);
 
         // bzzAmountTotranfer slightly less than bzzAmount due to div rounding
-        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.swarmSize)));
+        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.bzzSize)));
 
         require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountTotranfer), "Transfer failed");
 
@@ -227,7 +228,7 @@ contract AutoSwarmMarket is Ownable {
     function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {
         require(stamp.owner != address(0), "Stamp not exists");
 
-        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.swarmSize);
+        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.bzzSize);
     }
 
     // _ceilDiv: ceiled integer div (instead of floored)

@@ -4,7 +4,6 @@ import { autoSwarmAccountAbi } from '../constants/abis';
 import { callIsContract, callPublicClient } from './call';
 import { UNDEFINED_DATA, ZERO_BYTES32 } from '../constants/constants';
 
-
 const callTbaStampId = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
 	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
 
@@ -16,6 +15,7 @@ const callTbaStampId = async (bzzChainId: number, tba: Address | undefined): Pro
 		functionName: 'stampId'
 	});
 };
+
 const callTbaBzzHash = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
 	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
 
@@ -28,4 +28,16 @@ const callTbaBzzHash = async (bzzChainId: number, tba: Address | undefined): Pro
 	});
 };
 
-export { callTbaBzzHash, callTbaStampId };
+const callTbaBzzSize = async (bzzChainId: number, tba: Address | undefined): Promise<bigint> => {
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return 0n;
+
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: tba,
+		abi: autoSwarmAccountAbi,
+		functionName: 'bzzSize'
+	});
+};
+
+export { callTbaBzzHash, callTbaBzzSize, callTbaStampId };

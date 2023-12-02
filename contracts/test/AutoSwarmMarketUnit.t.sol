@@ -23,7 +23,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         deal(address(bzzToken), address(this), 4);
         bzzToken.approve(address(autoSwarmMarket), 4);
-        autoSwarmMarket.createStamp("1", 4);
+        autoSwarmMarket.createStamp("1", 1, 4);
 
         uint256 currentStampUnitPaid1 = autoSwarmMarket.currentStampUnitPaid();
         console.log("test_AutoSwarmMarketUnit_getStampsToAttach1 ~ currentStampUnitPaid1:", currentStampUnitPaid1);
@@ -34,7 +34,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         assert(stamp.owner == address(this));
         assert(stamp.bzzHash == "1");
-        assert(stamp.swarmSize == 1);
+        assert(stamp.bzzSize == 1);
         assert(stamp.batchId == "");
         assert(stamp.unitBalance == 4);
     }
@@ -43,15 +43,15 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         deal(address(bzzToken), address(this), 7);
         bzzToken.approve(address(autoSwarmMarket), 7);
 
-        autoSwarmMarket.createStamp("1", 3);
-        autoSwarmMarket.createStamp("2", 4);
+        autoSwarmMarket.createStamp("1", 1, 3);
+        autoSwarmMarket.createStamp("2", 1, 4);
 
         assert(autoSwarmMarket.getStampIdsToAttach(0, 0).length == 0);
         assert(autoSwarmMarket.getStampIdsToAttach(0, 2).length == 2);
         assert(autoSwarmMarket.getStampIdsToAttach(1, 1).length == 1);
 
         vm.expectRevert();
-        autoSwarmMarket.createStamp("3", 1);
+        autoSwarmMarket.createStamp("3", 1, 1);
 
         vm.expectRevert();
         autoSwarmMarket.getStampIdsToAttach(0, 3);
@@ -67,8 +67,8 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         deal(address(bzzToken), address(this), 2);
         bzzToken.approve(address(autoSwarmMarket), 2);
 
-        autoSwarmMarket.createStamp("1", 1);
-        autoSwarmMarket.createStamp("2", 1);
+        autoSwarmMarket.createStamp("1", 1, 1);
+        autoSwarmMarket.createStamp("2", 1, 1);
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 2);
 
         // upload / sync swarm hash to node on currentBatchid

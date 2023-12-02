@@ -30,7 +30,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
             payable(registry.createAccount(address(implementation), salt, chainId, collection, tokenId))
         );
         deal(address(bzzToken), address(tba), 4e8 * BLOCKS_PER_YEAR);
-        tba.initialize(address(autoSwarmMarket), bytes32("1"));
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
     }
 
     function test_AutoSwarmAccount_initialize1() public {
@@ -43,18 +43,18 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(address(tba).code.length != 0);
 
         vm.expectRevert();
-        tba.initialize(address(autoSwarmMarket), bytes32("1"));
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
 
         deal(address(bzzToken), address(tba), 2e8 * BLOCKS_PER_YEAR);
 
-        tba.initialize(address(autoSwarmMarket), bytes32("1"));
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
         assert(tba.bzzHash() == bytes32("1"));
-        // assert(tba.swarmSize() == 1);
+        // assert(tba.bzzSize() == 1);
         assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
         // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
 
         vm.expectRevert();
-        tba.initialize(address(autoSwarmMarket), bytes32("1"));
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
     }
 
     function test_AutoSwarmAccount_initialize2() public {
@@ -65,7 +65,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
         registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
 
-        tba.initialize(address(autoSwarmMarket), bytes32("1"));
+        tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
 
         assert(tba.bzzHash() == bytes32("1"));
         assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
@@ -77,7 +77,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
     }
 
     function test_AutoSwarmAccount_swarmSize() public view {
-        // assert(tba.swarmSize() == 1);
+        // assert(tba.bzzSize() == 1);
     }
 
     function test_AutoSwarmAccount_getTopUpYearPrice() public view {

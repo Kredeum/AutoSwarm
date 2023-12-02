@@ -30,9 +30,10 @@ const _transportEthereum = (): WalletClientConfig<Transport, Chain | undefined> 
 	return { transport: custom(_windowEthereum()) };
 };
 
+const _walletClient = (): WalletClient => createWalletClient(_transportEthereum());
+
 // walletClients Map used as cache
 const _walletClients: Map<number, WalletClient> = new Map();
-const _walletClient: WalletClient = createWalletClient(_transportEthereum());
 
 const _walletClientCreate = (bzzChainId?: number): WalletClient => {
 	const transportPlusOptionalChain: WalletClientConfig<Transport, Chain> = _transportEthereum();
@@ -45,7 +46,7 @@ const _walletClientCreate = (bzzChainId?: number): WalletClient => {
 
 		_walletClients.set(bzzChainId, walletClient);
 	} else {
-		walletClient = _walletClient;
+		walletClient = _walletClient();
 	}
 
 	return walletClient;
@@ -70,16 +71,16 @@ const sendWallet = async (bzzChainId: number): Promise<[PublicClient, WalletClie
 
 const sendWalletAddress = async (force = false, n = 0): Promise<Address> => {
 	return force
-		? (await _walletClient.requestAddresses())[n]
-		: (await _walletClient.getAddresses())[n];
+		? (await _walletClient().requestAddresses())[n]
+		: (await _walletClient().getAddresses())[n];
 };
 
-const sendWalletChainId = async (): Promise<number> => await _walletClient.getChainId();
+const sendWalletChainId = async (): Promise<number> => await _walletClient().getChainId();
 
 const sendWalletSwitchChain = async (bzzChainId: number): Promise<void> =>
-	await _walletClient.switchChain({ id: bzzChainId });
+	await _walletClient().switchChain({ id: bzzChainId });
 
-export {
+  export {
 	sendWallet,
 	sendWalletClient,
 	sendWalletAddress,

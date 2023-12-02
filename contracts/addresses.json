@@ -12,12 +12,12 @@
     "chainName": "gnosis"
   },
   "31337": {
-    "AutoSwarmAccount": "0xD718d5A27a29FF1cD22403426084bA0d479869a0",
-    "AutoSwarmMarket": "0xDEb1E9a6Be7Baf84208BB6E10aC9F9bbE1D70809",
-    "BzzToken": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-    "ERC6551Registry": "0x62c20Aa1e0272312BC100b4e23B4DC1Ed96dD7D1",
-    "NFTCollection": "0x90193C961A926261B756D1E5bb255e67ff9498A1",
-    "PostageStamp": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
+    "AutoSwarmAccount": "0x8aBb8E62Bd73f4c73b2CE7a02631B2dC911Ab720",
+    "AutoSwarmMarket": "0xd771D7C0e1EBE89C9E9F663824851BB89b926d1a",
+    "BzzToken": "0x1Eb835EB7BEEEE9E6bbFe08F16a2d2eF668204bd",
+    "ERC6551Registry": "0x993F00eb9C73e3E4eAe3d6Afb4Ba65A6b8B5E597",
+    "NFTCollection": "0x0116686E2291dbd5e317F47faDBFb43B599786Ef",
+    "PostageStamp": "0x2706A171ECb68E0038378D40Dd1d136361d0cB7d",
     "chainName": "anvil"
   },
   "11155111": {

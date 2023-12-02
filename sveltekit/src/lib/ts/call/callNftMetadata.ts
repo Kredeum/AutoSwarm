@@ -22,6 +22,7 @@ const callNftMetadata = async (
 	if (!nftTokenUri) throw new Error(`callNftMetadata: No Token Uri`);
 
 	const nftTokenUriAlt = await fetchAltUrl(nftTokenUri);
+	console.log("nftTokenUriAlt:", nftTokenUriAlt);
 	if (!nftTokenUriAlt) throw new Error(`callNftMetadata: Broken Token Uri ${nftTokenUri}`);
 
 	const nftMetadata = (await fetchJson(nftTokenUriAlt)) as NftMetadata;

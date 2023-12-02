@@ -8,7 +8,7 @@ import {IAutoSwarmAccount, IAutoSwarmMarket, IERC20} from "./interfaces/IAutoSwa
 
 contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     bytes32 public bzzHash;
-    uint256 public swarmSize = 1;
+    uint256 public bzzSize;
     bytes32 public stampId;
     address public initializer;
 
@@ -25,22 +25,27 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _;
     }
 
-    function initialize(address autoSwarmMarket_, bytes32 swarmHash_) external override(IAutoSwarmAccount) {
+    function initialize(address autoSwarmMarket_, bytes32 bzzHash_, uint256 bzzSize_)
+        external
+        override(IAutoSwarmAccount)
+    {
         require(address(_autoSwarmMarket) == address(0), "Already initialized");
 
         require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
-        require(swarmHash_ != bytes32(0), "Bad Swarm hash");
+        require(bzzHash_ != bytes32(0), "Bad Swarm Hash");
+        require(bzzSize_ != 0, "Bad Swarm Size");
 
         initializer = msg.sender;
 
-        bzzHash = swarmHash_;
+        bzzHash = bzzHash_;
+        bzzSize = bzzSize_;
 
         _autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
         _bzzToken = IERC20(_autoSwarmMarket.bzzToken());
 
         require(address(_bzzToken) != address(0), "Bad BzzToken");
 
-        stampId = _autoSwarmMarket.createStamp(bzzHash, 0);
+        stampId = _autoSwarmMarket.createStamp(bzzHash, bzzSize, 0);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) onlyWhenInitialized {
@@ -58,7 +63,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     }
 
     function getTopUpYearPrice() external view override(IAutoSwarmAccount) onlyWhenInitialized returns (uint256) {
-        return _autoSwarmMarket.getStampPriceOneYear(swarmSize);
+        return _autoSwarmMarket.getStampPriceOneYear(bzzSize);
     }
 
     function owner() public view override returns (address) {

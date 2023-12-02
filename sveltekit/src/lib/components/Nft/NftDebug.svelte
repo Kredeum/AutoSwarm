@@ -3,11 +3,16 @@
 	import { onMount } from 'svelte';
 
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
-	import { UNDEFINED_DATA } from '$lib/ts/constants/constants';
+	import {
+		IMAGE_JPEG,
+		METADATA_JSON,
+		UNDEFINED_DATA,
+		ZERO_BYTES32
+	} from '$lib/ts/constants/constants';
 	import { utilsError } from '$lib/ts/common/utils';
 	import { callIsContract } from '$lib/ts/call/call';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import { callTbaBzzHash, callTbaStampId } from '$lib/ts/call/callTba';
+	import { callTbaBzzHash, callTbaBzzSize, callTbaStampId } from '$lib/ts/call/callTba';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 	import { callRegistryAccount } from '$lib/ts/call/callRegistry';
 	import { sendWalletAddress, sendWalletChainId } from '$lib/ts/send/send';
@@ -18,7 +23,9 @@
 		displayExplorer,
 		displayExplorerAddress,
 		displayExplorerNft,
-		displayLink
+		displayLink,
+		displaySize,
+		displaySizeBytes
 	} from '$lib/ts/display/display';
 	import { fetchSize } from '$lib/ts/fetch/fetch';
 	import { urlToUrlAlt } from '$lib/ts/common/url';
@@ -47,6 +54,7 @@
 	let tbaAddress: Address | undefined;
 	let tbaBalance: bigint | undefined;
 	let tbaBzzHash: Hex | undefined;
+	let tbaBzzSize: bigint | undefined;
 	let tbaStampId: Hex | undefined;
 
 	// State
@@ -75,6 +83,7 @@
 			tbaAddress = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
 			tbaBalance = await callBzzBalance(bzzChainId, tbaAddress);
 			tbaBzzHash = await callTbaBzzHash(bzzChainId, tbaAddress);
+			tbaBzzSize = await callTbaBzzSize(bzzChainId, tbaAddress);
 			tbaStampId = await callTbaStampId(bzzChainId, tbaAddress);
 
 			// STATE
@@ -88,8 +97,9 @@
 
 {#if nftMetadata?.autoSwarm}
 	<div id="debug">
+		<hr />
 		<p>
-			NFT Chain Id / Collection Address / Token Id
+			NFT - Chain Id / Collection Address / Token Id
 			<span>
 				{@html displayExplorer(nftChainId)} /
 				{@html displayExplorerAddress(nftChainId, nftCollection)} /
@@ -98,9 +108,9 @@
 		</p>
 		<hr />
 		<p>
-			NFT Metadata URI / URL  ({nftMetadata.autoSwarm.tbaTokenUriSize ||
-				tokenUriSize ||
-				UNDEFINED_DATA} bytes)
+			NFT - Metadata URI / URL ({displaySizeBytes(
+				nftMetadata.autoSwarm.tbaTokenUriSize || tokenUriSize
+			)})
 			<span>
 				{@html displayLink(nftMetadata.autoSwarm.nftTokenUri)}
 			</span>
@@ -112,7 +122,7 @@
 			</span>
 		</p>
 		<p>
-			NFT Image URI / URL ({nftMetadata.autoSwarm.tbaImageSize || imageSize || UNDEFINED_DATA} bytes)
+			NFT - Image URI / URL ({displaySizeBytes(nftMetadata.autoSwarm.tbaImageSize || imageSize)})
 			<span>
 				{@html displayLink(nftMetadata.autoSwarm.nftImage)}
 			</span>
@@ -125,56 +135,77 @@
 		</p>
 		<hr />
 		<p>
-			NFT Swarm Hash <span>{displayBzzURI(nftMetadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
+			Swarm - NFT Hash <span>{displayBzzURI(nftMetadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
 		</p>
 		<p>
-			NFT Metadata Swarm Path
-			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, 'metadata.json')}</span>
+			Swarm - NFT Size <span
+				>{displaySizeBytes(nftMetadata.autoSwarm.bzzSize) || UNDEFINED_DATA}</span
+			>
 		</p>
 		<p>
-			NFT Image Swarm Path
-			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, 'image')}</span>
+			Swarm - NFT Metadata Path
+			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, METADATA_JSON)}</span>
+		</p>
+		<p>
+			Swarm - NFT Image Path
+			<span>{@html displayBzzURI(nftMetadata.autoSwarm.bzzHash, IMAGE_JPEG)}</span>
 		</p>
 		<hr />
 		<p>
-			Bzz Balance / TBA Deployed? / Chain Id / Address
+			TBA - Deployed? / Chain Id
+			<span>
+				{#if !tbaDeployed}Not{/if} deployed /
+				{@html displayExplorer(bzzChainId)}
+			</span>
+		</p>
+		<p>
+			TBA - Bzz Balance / Address
 			<span>
 				{displayBalance(tbaBalance, 16, 4)} Bzz /
-				{#if !tbaDeployed}Not{/if} deployed /
-				{@html displayExplorer(bzzChainId)} /
 				{@html displayExplorerAddress(bzzChainId, tbaAddress)}
 			</span>
 		</p>
 		<p>
-			TBA Bzz Hash <span>{tbaBzzHash || UNDEFINED_DATA}</span>
+			TBA - Bzz Hash <span>{tbaBzzHash || UNDEFINED_DATA}</span>
 		</p>
 		<p>
-			TBA Metadata URL
-			<span>{@html displayBzzURL(tbaBzzHash, 'metadata.json')}</span>
+			TBA - Bzz Size <span>{tbaBzzSize || UNDEFINED_DATA}</span>
 		</p>
 		<p>
-			TBA Image URL
-			<span> {@html displayBzzURL(tbaBzzHash, 'image')}</span>
+			TBA - Metadata URL
+			<span>{@html displayBzzURL(tbaBzzHash, METADATA_JSON)}</span>
 		</p>
 		<p>
-			TBA Stamp Id <span>{tbaStampId || UNDEFINED_DATA}</span>
+			TBA - Image URL
+			<span> {@html displayBzzURL(tbaBzzHash, IMAGE_JPEG)}</span>
+		</p>
+		<p>
+			TBA - Stamp Id <span>{tbaStampId || UNDEFINED_DATA}</span>
+		</p>
+		<p>
+			TBA - Batch Id <span>{ZERO_BYTES32}</span>
 		</p>
 		<hr />
-
 		<p>
-			Wallet Bzz Balance / Chain Id / Address
+			Wallet - Chain Id
+			<span>
+				{@html displayExplorer(walletChainId)}
+			</span>
+		</p>
+		<p>
+			Wallet Account - Bzz Balance / Address
 			<span>
 				{displayBalance(walletBalance, 16, 4)} Bzz /
-				{@html displayExplorer(walletChainId)} /
 				{@html displayExplorerAddress(bzzChainId, walletAddress)}
 			</span>
 		</p>
+		<hr />
 	</div>
 {/if}
 
 <style>
 	#debug {
-		width: 1200px;
+		width: 1000px;
 		display: block;
 		text-align: left;
 	}
