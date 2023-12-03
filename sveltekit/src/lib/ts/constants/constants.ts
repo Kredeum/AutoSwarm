@@ -20,7 +20,7 @@ const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
 const STAMP_PERIOD = ONE_YEAR;
-const STAMP_UNIT = 1024 ** 2; // 1 Mo
+const STAMP_UNIT = 1024n ** 2n; // 1 Mo
 const STAMP_UNIT_PRICE = 10n ** 15n; // 0.1 Bzz
 
 const BATCH_UNIT_PRICE = 10n ** 17n; // 10 Bzz

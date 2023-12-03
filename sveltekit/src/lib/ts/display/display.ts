@@ -107,25 +107,34 @@ const displayExplorer = (chainId: number | undefined): string => {
 	return `<a href="${explorer}" target="_blank">#${chainId}</a>`;
 };
 
-const displayExplorerNft = (chainId: number, collection: string, tokenId: bigint): string => {
+const displayExplorerNft = (
+	chainId: number | undefined,
+	collection: string | undefined,
+	tokenId: bigint | undefined
+): string => {
+	if (!(chainId && collection && tokenId && tokenId >= 0)) return '';
 	const explorer = chainGetExplorer(chainId);
 	if (!explorer) return `#${chainId}`;
 
 	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${tokenId}</a>`;
 };
 
-const explorerAddress = (chainId: number, addr: Address): URL | Address => {
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return addr;
+const explorerAddress = (
+	chainId: number | undefined,
+	addr: Address | undefined
+): string | undefined => {
+	if (!chainId) return;
 
-	return new URL(`${explorer}/address/${addr}`);
+	const explorer = chainGetExplorer(chainId);
+	if (!explorer) return;
+
+	return `${explorer}/address/${addr}`;
 };
 
-const displayExplorerAddress = (chainId: number, addr: Address | undefined): string => {
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return '';
+const displayExplorerAddress = (chainId: number | undefined, addr: Address | undefined): string => {
+	console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
 
-	return addr && isAddress(addr)
+	return chainId && addr && isAddress(addr)
 		? `<a href="${explorerAddress(chainId, addr)}" target="_blank">${addr}</a>`
 		: UNDEFINED_ADDRESS;
 };
@@ -172,11 +181,16 @@ const displayBalance = (
 	return str.toFixed(Number(toFixed));
 };
 
-const displayLink = (url: URL | string | undefined): string | undefined =>
-	url === undefined ? url : `<a href="${url}" target="_blank">${url}</a>`;
+const displayLink = (url: URL | string | undefined): string =>
+	url === undefined ? '' : `<a href="${url}" target="_blank">${url}</a>`;
 
-const displayNftLink = (chainId: number, collection: string, tokenId: bigint): string => {
-	if (!isAddress(collection)) return UNDEFINED_DATA;
+const displayNftLink = (
+	chainId: number | undefined,
+	collection: string | undefined,
+	tokenId: bigint | undefined
+): string => {
+	if (!(chainId && chainId > 0 && collection && isAddress(collection) && tokenId && tokenId >= 0))
+		return UNDEFINED_DATA;
 
 	const url = `https://app.kredeum.com/#/${chainId}/${collection}/${tokenId}`;
 	return `<a href="${url}" target="_blank">#${tokenId}</a>`;

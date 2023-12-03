@@ -1,34 +1,29 @@
 <script lang="ts">
 	import type { Address } from 'viem';
-	import type { NftMetadata } from '$lib/ts/constants/types';
+	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { displayNftLink } from '$lib/ts/display/display';
 
 	////////////////////// NFT Component ///////////////////////////////////////
-	// <Nft {nftChainId} {nftCollection} {nftTokenId} {nftMetadata} />
+	// <Nft {metadata} />
+	//////////////////////////////////////////////////////////////////////////////
+	export let metadata: NftMetadata;
 	////////////////////////////////////////////////////////////////////////////
-	// - nftChainId    : NFT Chain Id
-	// - nftCollection : NFT Collection Address
-	// - nftTokenId    : NFT Token Id
-	////////////////////////////////////////////////////////////////////////////
-	export let nftChainId: number;
-	export let nftCollection: Address;
-	export let nftTokenId: bigint;
-	export let nftMetadata: NftMetadata;
-	////////////////////////////////////////////////////////////////////////////
+
+	$: data = metadata?.autoSwarm;
 </script>
 
 <article>
 	<div
-		title="NFT Collection Address  @{nftCollection}"
+		title="NFT Collection Address  @{data?.nftCollection || ''}"
 		class="nft-img"
-		style="background-image: url({nftMetadata?.autoSwarm?.nftImageAlt || ''});"
-		aria-label={nftMetadata?.description || ''}
+		style="background-image: url({data?.nftImageAlt || ''});"
+		aria-label={metadata?.description || ''}
 	/>
 	<p class="nft-title">
-		{nftMetadata?.name || ''}
+		{metadata?.name || ''}
 		&nbsp;
 		<span>
-			{@html displayNftLink(nftChainId, nftCollection, nftTokenId)}
+			{@html displayNftLink(data?.nftChainId, data?.nftCollection, data?.nftTokenId)}
 		</span>
 	</p>
 </article>

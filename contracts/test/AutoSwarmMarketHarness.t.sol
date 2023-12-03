@@ -18,8 +18,8 @@ contract AutoSwarmMarketHarness is AutoSwarmMarket {
         console.log("AutoSwarmMarketUnitTest ~ constructor");
     }
 
-    function ceilDiv(uint256 a, uint256 b) public pure returns (uint256) {
-        return _ceilDiv(a, b);
+    function divUp(uint256 a, uint256 b) public pure returns (uint256) {
+        return _divUp(a, b);
     }
 
     function subPos(uint256 a, uint256 b) public pure returns (uint256) {
@@ -40,11 +40,11 @@ contract AutoSwarmMarketHarnessTest {
         assert(true);
     }
 
-    function test_AutoSwarmMarketHarness_ceilDiv() public view {
-        assert(autoSwarmMarketHarness.ceilDiv(0, 100) == 0);
-        assert(autoSwarmMarketHarness.ceilDiv(1, 100) == 1);
-        assert(autoSwarmMarketHarness.ceilDiv(100, 100) == 1);
-        assert(autoSwarmMarketHarness.ceilDiv(101, 100) == 2);
+    function test_AutoSwarmMarketHarness_divUp() public view {
+        assert(autoSwarmMarketHarness.divUp(0, 100) == 0);
+        assert(autoSwarmMarketHarness.divUp(1, 100) == 1);
+        assert(autoSwarmMarketHarness.divUp(100, 100) == 1);
+        assert(autoSwarmMarketHarness.divUp(101, 100) == 2);
     }
 
     function test_AutoSwarmMarketHarness_subPos() public view {

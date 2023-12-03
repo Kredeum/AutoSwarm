@@ -73,8 +73,13 @@ contract AutoSwarmMarket is Ownable {
         require(bzzHash != bytes32(0), "Bad Swarm Hash");
         require(bzzSize != 0, "Bad Swarm Size");
 
-        Stamp memory stamp =
-            Stamp({owner: msg.sender, bzzHash: bzzHash, bzzSize: bzzSize, batchId: "", unitBalance: currentStampUnitPaid()});
+        Stamp memory stamp = Stamp({
+            owner: msg.sender,
+            bzzHash: bzzHash,
+            bzzSize: bzzSize,
+            batchId: "",
+            unitBalance: currentStampUnitPaid()
+        });
         stampId = keccak256(abi.encode(msg.sender, bzzHash, block.number));
 
         stamps[stampId] = stamp;
@@ -192,7 +197,7 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function getMbSize(uint256 size) public pure returns (uint256) {
-        return _ceilDiv(size, STAMP_UNIT_SIZE);
+        return _divUp(size, STAMP_UNIT_SIZE);
     }
 
     function _topUpStamp(Stamp storage stamp, uint256 bzzAmount) internal {
@@ -231,9 +236,9 @@ contract AutoSwarmMarket is Ownable {
         return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.bzzSize);
     }
 
-    // _ceilDiv: ceiled integer div (instead of floored)
+    // _divUp: ceiled integer div (instead of floored)
     // 0/100 = 0  1/100 = 1   100/100 = 1   101/100 = 2
-    function _ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+    function _divUp(uint256 a, uint256 b) internal pure returns (uint256) {
         return a == 0 ? 0 : (a - 1) / b + 1;
     }
 
