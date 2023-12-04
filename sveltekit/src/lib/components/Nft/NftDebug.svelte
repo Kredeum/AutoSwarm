@@ -21,6 +21,7 @@
 		displayExplorerAddress,
 		displayExplorerNft,
 		displayLink,
+		displaySize,
 		displaySizeBytes
 	} from '$lib/ts/display/display';
 
@@ -41,15 +42,11 @@
 	// AutoSwarmMarket
 	let currentBatchId: Hex | undefined;
 
-  $: data = metadata?.autoSwarm;
+	$: data = metadata?.autoSwarm;
 
 	$: bzzChainId > 0 && metadata && refresh();
 	const refresh = async () => {
-		console.info(
-			'<NftDebug refresh  IN',
-			bzzChainId,
-			metadata
-		);
+		console.info('<NftDebug refresh  IN', bzzChainId, metadata);
 		try {
 			// Wallet
 			walletAddress = await sendWalletAddress();
@@ -106,10 +103,16 @@
 			Swarm - NFT Hash <span>{displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
 		</p>
 		<p>
-			Swarm - NFT Size <span>{displaySizeBytes(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA}</span>
+			Swarm - NFT Size
+			<span>
+        {displaySizeBytes(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA} /
+				{displaySize(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA}
+			</span>
 		</p>
 		<p>
-			Swarm - NFT One Year Price <span>{metadata.autoSwarm.bzzPrice || UNDEFINED_DATA}</span>
+			Swarm - NFT One Year Price <span
+				>{displayBalance(metadata.autoSwarm.bzzPrice, 16, 4) || UNDEFINED_DATA} Bzz</span
+			>
 		</p>
 		<p>
 			Swarm - NFT Metadata Path
@@ -137,12 +140,7 @@
 		<p>
 			TBA - Bzz Hash <span>{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}</span>
 		</p>
-		<p>
-			TBA - Bzz Size <span>{metadata?.autoSwarm?.bzzSize || UNDEFINED_DATA}</span>
-		</p>
-		<p>
-			TBA - Bzz Price <span>{metadata?.autoSwarm?.bzzPrice || UNDEFINED_DATA}</span>
-		</p>
+
 		<p>
 			TBA - Metadata URL
 			<span>{@html displayBzzURL(metadata.autoSwarm.bzzHash, METADATA_JSON)}</span>

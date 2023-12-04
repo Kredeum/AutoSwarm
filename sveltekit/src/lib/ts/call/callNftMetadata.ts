@@ -14,8 +14,8 @@ const callNftMetadata = async (
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint
-): Promise<NftMetadata | undefined> => {
-	console.info('callNftMetadata  IN', nftChainId, nftCollection, nftTokenId);
+): Promise<NftMetadata> => {
+	// console.info('callNftMetadata  IN', nftChainId, nftCollection, nftTokenId);
 
 	const nftTokenUri = await callNftTokenUri(nftChainId, nftCollection, nftTokenId);
 	if (!nftTokenUri) throw new Error(`callNftMetadata: No Token Uri`);
@@ -38,7 +38,7 @@ const callNftMetadata = async (
 	nftMetadata.autoSwarm.nftImage = nftImage;
 	nftMetadata.autoSwarm.nftImageAlt = nftImageAlt;
 
-	console.info('callNftMetadata OUT', nftChainId, nftCollection, nftTokenId, nftMetadata);
+	console.info('callNftMetadata', '\n', nftMetadata.autoSwarm, '\n', nftMetadata);
 	return nftMetadata;
 };
 

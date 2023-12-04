@@ -28,6 +28,9 @@ const callNftTokenUri = async (
 ): Promise<string> => {
 	// console.info('callNftTokenUri', nftChainId, nftCollection, nftTokenId);
 
+	if (nftChainId === 1 && nftCollection === '0x5c211B8E4f93F00E2BD68e82F4E00FbB3302b35c')
+		return `ipfs://QmRX12SKvyQh46PfzPMSwgFYGv81Fx8rXFbFXseFi23omy/${nftTokenId}.json`;
+
 	const publicClient = await callPublicClient(nftChainId);
 
 	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);

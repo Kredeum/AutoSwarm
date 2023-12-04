@@ -21,10 +21,15 @@ const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendBzzTransfer = async (bzzChainId: number, to: Address | undefined, bzzAmount: bigint) => {
+const sendBzzTransfer = async (
+	bzzChainId: number,
+	to: Address | undefined,
+	bzzAmount: bigint | undefined
+) => {
 	console.info('sendBzzTransfer', bzzChainId, to, bzzAmount);
 
-	if (to === undefined || to === zeroAddress) throw Error('Bad address');
+	if (bzzAmount === undefined) throw Error('Transfer amount undefined');
+	if (to === undefined || to === zeroAddress || bzzAmount === undefined) throw Error('Bad address');
 	const json = await jsonGet(bzzChainId);
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);

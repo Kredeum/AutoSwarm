@@ -65,16 +65,16 @@ const displayBatchSize = (depth: number | undefined): string => displaySize(batc
 const displaySize = (size: bigint | number | undefined): string => {
 	if (size === undefined) return UNDEFINED_DATA;
 
-	if (size < 1024) return `${size} B`;
+	if (size < 1024) return `${size} bytes`;
 
 	const kbytes = Number(size) / 1024;
-	if (kbytes < 1024) return `${size} KB`;
+	if (kbytes < 1024) return `${kbytes} Kbytes`;
 
 	const mbytes = Number(size) / 1024 ** 2;
-	if (mbytes < 1024) return `${mbytes} MB`;
+	if (mbytes < 1024) return `${mbytes} Mbytes`;
 
 	const gbytes = Number(size) / 1024 ** 3;
-	return `${gbytes} GB`;
+	return `${gbytes} Gbytes`;
 };
 
 const displayDuration = (seconds: bigint | number | undefined): string => {

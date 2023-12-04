@@ -28,18 +28,12 @@
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
 	import { callTbaMetadata } from '$lib/ts/call/callTbaMetadata';
-	import { callNftMetadata } from '$lib/ts/call/callNftMetadata';
+	import { nftIds } from '$lib/ts/common/nft';
 
 	////////////////////// AutoSwarm Component /////////////////////////////////
-	// <AutoSwarm {nftChainId} {nftCollection} {nftTokenId} />
-	////////////////////////////////////////////////////////////////////////////
-	// - nftChainId    : NFT Chain Id
-	// - nftCollection : NFT Collection Address
-	// - nftTokenId    : NFT Token Id
-	////////////////////////////////////////////////////////////////////////////
-	export let nftChainId: number;
-	export let nftCollection: Address;
-	export let nftTokenId: bigint;
+	// <AutoSwarm {metadata} />
+	//////////////////////////////////////////////////////////////////////////////
+	export let nftMetadata: NftMetadata;
 	////////////////////////////////////////////////////////////////////////////
 
 	// Block
@@ -77,19 +71,11 @@
 	};
 
 	const refresh = async () => {
-		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftChainId, nftCollection, nftTokenId);
+		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftMetadata);
 		try {
-			const nftMetadata = await callNftMetadata(nftChainId, nftCollection, nftTokenId);
-			const tbaMetadata = await callTbaMetadata(
-				$bzzChainId,
-				nftChainId,
-				nftCollection,
-				nftTokenId,
-				nftMetadata
-			);
-			if (tbaMetadata) metadata = tbaMetadata;
+			metadata = await callTbaMetadata($bzzChainId, nftMetadata);
 		} catch (e) {
-			utilsError('<NftAutoSwarm refresh', e);
+			utilsError('<NftAutoSwarm TBA refresh', e);
 		}
 
 		if (!metadata?.autoSwarm) return;
@@ -106,16 +92,17 @@
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
-		const tbaBalance = await callBzzBalance($bzzChainId, tbaAddress);
-		if (tbaBalance !== undefined) {
-			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / STAMP_UNIT_PRICE);
+		const tbaBalance = metadata.autoSwarm.tbaBalance;
+		const bzzPrice = metadata.autoSwarm.bzzPrice;
+		if (tbaBalance !== undefined && bzzPrice && bzzPrice > 0) {
+			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / bzzPrice);
 		}
 
 		console.info('<NftAutoSwarm refresh OUT');
 	};
 
 	const createAccount = async () =>
-		await sendRegistryCreateAccount($bzzChainId, nftChainId, nftCollection, nftTokenId);
+		await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata.autoSwarm));
 
 	const initializeAccount = async () =>
 		await sendTbaInitialize(
@@ -124,6 +111,9 @@
 			metadata?.autoSwarm?.bzzHash,
 			metadata?.autoSwarm?.bzzSize
 		);
+
+	const sendBzzTransferOneYear = async () =>
+		await sendBzzTransfer($bzzChainId, tbaAddress, metadata?.autoSwarm?.bzzPrice);
 
 	const sendBzzTransferUnit = async () =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
@@ -164,17 +154,20 @@
 			if (resaving) throw Error('Already ReSaving!');
 			await reSaveNft();
 			resaving = 1;
-			await sendBzzTransferUnit();
+			refresh();
+			await sendBzzTransferOneYear();
 			resaving = 2;
+			refresh();
 			await createAccount();
 			resaving = 3;
+			refresh();
 			await initializeAccount();
 			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
+			refresh();
 		} catch (e) {
 			utilsError(`ReSave (${resaving}/3) :`, e);
 		}
 		resaving = 0;
-		refresh();
 	};
 
 	const topUp = async () => {
@@ -183,11 +176,13 @@
 		try {
 			if (toping) throw Error('Already Topping Up!');
 
-			await sendBzzTransferUnit();
+			await sendBzzTransferOneYear();
 			toping = 1;
+			refresh();
 			await topUpStamp();
 			toping = 2;
 			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
+			refresh();
 		} catch (e) {
 			utilsError(`TopUp (${toping}/2) :`, e);
 		}
@@ -245,8 +240,8 @@
 						</button>
 					{/if}
 					<div class="batch-topUp-below">
-						<p>Price: {displayBalance(metadata?.autoSwarm?.bzzPrice)} Bzz</p>
-						<p><small>({displayBalance(STAMP_UNIT_PRICE, 16)} Bzz / Mo)</small></p>
+						<p>Price: {displayBalance(metadata?.autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
+						<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
 					</div>
 				</div>
 			{/if}
@@ -268,6 +263,6 @@
 	</p>
 
 	{#if debug}
-		<NftDebug bzzChainId={$bzzChainId}   {metadata} />
+		<NftDebug bzzChainId={$bzzChainId} {metadata} />
 	{/if}
 {/key}

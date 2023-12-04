@@ -1,7 +1,7 @@
 import { callTbaBzzHash, callTbaBzzSize } from './callTba';
 import type { NftMetadata, NftMetadataAutoSwarm } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
-import { fetchUrl, fetchUrlOk } from '../fetch/fetch';
+import { fetchUrl } from '../fetch/fetch';
 import { fetchAltUrl } from '../fetch/fetchAlt';
 import { bzz, bzzImage } from '../swarm/bzz';
 import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
@@ -9,59 +9,70 @@ import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
 import { STAMP_UNIT, STAMP_UNIT_PRICE } from '../constants/constants';
 import type { Address } from 'viem';
+import { nftIds } from '../common/nft';
 
-const callTbaMetadata = async (
+const _callTbaMetadata = async (
 	bzzChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint,
 	nftMetadata?: NftMetadata
-): Promise<NftMetadata | undefined> => {
-	console.info('callTbaMetadata  IN', bzzChainId, nftMetadata);
+): Promise<NftMetadata> => {
+	// console.info('_callTbaMetadata  IN\n', nftMetadata);
 
-	const sameNft =
-		nftMetadata &&
-		nftMetadata?.autoSwarm &&
-		nftMetadata.autoSwarm.nftChainId == nftChainId &&
-		nftMetadata.autoSwarm.nftCollection == nftCollection &&
-		nftMetadata.autoSwarm.nftTokenId == nftTokenId;
+	const autoSwarm =
+		nftMetadata?.autoSwarm || ({ nftChainId, nftCollection, nftTokenId } as NftMetadataAutoSwarm);
+	let tbaMetadata = nftMetadata;
 
-	let tbaMetadata: NftMetadata | undefined;
-	let data: NftMetadataAutoSwarm;
-	if (sameNft) {
-		tbaMetadata = nftMetadata;
-		data = nftMetadata.autoSwarm!;
-	} else {
-		data = { nftChainId, nftCollection, nftTokenId };
-	}
+	autoSwarm.tbaAddress ||= await callRegistryAccount(
+		bzzChainId,
+		nftChainId,
+		nftCollection,
+		nftTokenId
+	);
+	autoSwarm.tbaDeployed ||= await callIsContract(bzzChainId, autoSwarm.tbaAddress);
+	autoSwarm.bzzChainId ||= bzzChainId;
+	autoSwarm.tbaBalance = await callBzzBalance(bzzChainId, autoSwarm.tbaAddress);
 
-	if (!data) throw new Error(`callTbaMetadata: No Nft AutoSwarm Metadata`);
+	if (autoSwarm.tbaDeployed) {
+		autoSwarm.bzzHash ||= await callTbaBzzHash(bzzChainId, autoSwarm.tbaAddress);
+		if (!utilsIsBytes32Null(autoSwarm.bzzHash)) {
+			autoSwarm.bzzSize ||= await callTbaBzzSize(bzzChainId, autoSwarm.tbaAddress);
+			autoSwarm.bzzPrice ||= utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
 
-	data.tbaAddress ||= await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
-	data.tbaBalance = await callBzzBalance(bzzChainId, data.tbaAddress);
-	data.tbaDeployed ||= await callIsContract(bzzChainId, data.tbaAddress);
-	data.bzzChainId ||= bzzChainId;
+			autoSwarm.tbaTokenUri ||= bzz(autoSwarm.bzzHash);
+			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 
-	if (data.tbaDeployed) {
-		data.bzzHash ||= await callTbaBzzHash(bzzChainId, data.tbaAddress);
-		if (utilsIsBytes32Null(data.bzzHash)) return tbaMetadata;
+			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash);
+			autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
 
-		data.bzzSize ||= await callTbaBzzSize(bzzChainId, data.tbaAddress);
-		data.bzzPrice ||= utilsDivUp(data.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
-
-		data.tbaTokenUri ||= bzz(data.bzzHash);
-		data.tbaTokenUriAlt ||= await fetchAltUrl(data.tbaTokenUri);
-
-		data.tbaImage ||= bzzImage(data.bzzHash);
-		data.tbaImageAlt ||= await fetchAltUrl(data.tbaImage);
-		if (!sameNft) {
-			tbaMetadata = (await fetchUrl(data.tbaTokenUriAlt)) as unknown as NftMetadata;
-			tbaMetadata.autoSwarm = data;
+			if (!tbaMetadata) {
+				tbaMetadata = (await fetchUrl(autoSwarm.tbaTokenUriAlt)) as unknown as NftMetadata;
+				tbaMetadata.autoSwarm = autoSwarm;
+			}
 		}
 	}
+	if (!tbaMetadata) throw new Error(`_callTbaMetadata: No Metadata found!`);
 
-	console.info('callTbaMetadata OUT', tbaMetadata);
+	console.info('_callTbaMetadata', '\n', tbaMetadata.autoSwarm, '\n', tbaMetadata);
 	return tbaMetadata;
 };
 
-export { callTbaMetadata };
+const callTbaMetadata = async (
+	bzzChainId: number,
+	nftMetadata: NftMetadata
+): Promise<NftMetadata> => {
+	if (!nftMetadata?.autoSwarm) throw new Error(`callTbaMetadataFromNft: No Nft AutoSwarm Metadata`);
+	return _callTbaMetadata(bzzChainId, ...nftIds(nftMetadata.autoSwarm), nftMetadata);
+};
+
+const callTbaMetadataWithoutNft = async (
+	bzzChainId: number,
+	nftChainId: number,
+	nftCollection: Address,
+	nftTokenId: bigint
+): Promise<NftMetadata> => {
+	return _callTbaMetadata(bzzChainId, nftChainId, nftCollection, nftTokenId);
+};
+
+export { callTbaMetadata, callTbaMetadataWithoutNft };
