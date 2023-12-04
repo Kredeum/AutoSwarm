@@ -15,8 +15,7 @@
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
 	import { callBlock } from '$lib/ts/call/call.js';
 	import { callTbaBzzHash } from '$lib/ts/call/callTba';
-	import { callBzzBalance } from '$lib/ts/call/callBzz.js';
-	import { callPostageLastPrice } from '$lib/ts/call/callPostage.js';
+
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
@@ -41,6 +40,7 @@
 	let blockNumber: number = 0;
 
 	let metadata: NftMetadata;
+	let autoSwarm: NftMetadataAutoSwarm;
 
 	let tbaAddress: Address | undefined;
 
@@ -74,15 +74,15 @@
 		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftMetadata);
 		try {
 			metadata = await callTbaMetadata($bzzChainId, nftMetadata);
+			autoSwarm = metadata.autoSwarm!;
 		} catch (e) {
 			utilsError('<NftAutoSwarm TBA refresh', e);
 		}
 
-		if (!metadata?.autoSwarm) return;
 		reset();
 		console.info('<NftAutoSwarm refresh ongoing...');
 
-		tbaAddress = metadata.autoSwarm.tbaAddress;
+		tbaAddress = autoSwarm.tbaAddress;
 
 		const tbaBzzHash = await callTbaBzzHash($bzzChainId, tbaAddress);
 		nftResaved = !utilsIsBytes32Null(tbaBzzHash);
@@ -92,8 +92,8 @@
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
-		const tbaBalance = metadata.autoSwarm.tbaBalance;
-		const bzzPrice = metadata.autoSwarm.bzzPrice;
+		const tbaBalance = autoSwarm.tbaBalance;
+		const bzzPrice = autoSwarm.bzzPrice;
 		if (tbaBalance !== undefined && bzzPrice && bzzPrice > 0) {
 			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / bzzPrice);
 		}
@@ -105,46 +105,31 @@
 		await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata.autoSwarm));
 
 	const initializeAccount = async () =>
-		await sendTbaInitialize(
-			$bzzChainId,
-			tbaAddress,
-			metadata?.autoSwarm?.bzzHash,
-			metadata?.autoSwarm?.bzzSize
-		);
+		await sendTbaInitialize($bzzChainId, tbaAddress, autoSwarm?.bzzHash, autoSwarm?.bzzSize);
 
-	const sendBzzTransferOneYear = async () =>
-		await sendBzzTransfer($bzzChainId, tbaAddress, metadata?.autoSwarm?.bzzPrice);
+	const sendBzzTransferAmount = async (amount: bigint | undefined) =>
+		await sendBzzTransfer($bzzChainId, tbaAddress, amount);
 
-	const sendBzzTransferUnit = async () =>
-		await sendBzzTransfer($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
+	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(autoSwarm?.bzzPrice);
 
 	const topUpStamp = async () => {
 		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
 	};
 
 	const reSaveNft = async () => {
-		if (!metadata?.autoSwarm) return;
+		if (!autoSwarm) return;
 
 		[
-			metadata.autoSwarm.bzzHash,
-			metadata.autoSwarm.bzzSize,
-			[metadata.autoSwarm.tbaImage, metadata.autoSwarm.tbaTokenUri],
-			[metadata.autoSwarm.nftImageSize, metadata.autoSwarm.nftTokenUriSize]
-		] = await fetchBzzTar([metadata.autoSwarm.nftImage, metadata.autoSwarm.nftTokenUri]);
+			autoSwarm.bzzHash,
+			autoSwarm.bzzSize,
+			[autoSwarm.tbaImage, autoSwarm.tbaTokenUri],
+			[autoSwarm.nftImageSize, autoSwarm.nftTokenUriSize]
+		] = await fetchBzzTar([autoSwarm.nftImage, autoSwarm.nftTokenUri]);
 
-		console.log('reSaveNft ~ bzzHash:', metadata.autoSwarm.bzzHash);
-		console.log(
-			'reSaveNft ~ tbaImage:',
-			metadata.autoSwarm.tbaImage,
-			metadata.autoSwarm.nftImageSize
-		);
-		console.log(
-			'reSaveNft ~ tbaTokenUri:',
-			metadata.autoSwarm.tbaTokenUri,
-			metadata.autoSwarm.nftTokenUriSize
-		);
-		metadata.autoSwarm.bzzPrice =
-			utilsDivUp(metadata.autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
+		console.log('reSaveNft ~ bzzHash:', autoSwarm.bzzHash);
+		console.log('reSaveNft ~ tbaImage:', autoSwarm.tbaImage, autoSwarm.nftImageSize);
+		console.log('reSaveNft ~ tbaTokenUri:', autoSwarm.tbaTokenUri, autoSwarm.nftTokenUriSize);
+		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
 	};
 
 	const reSave = async () => {
@@ -152,20 +137,21 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
-			await reSaveNft();
 			resaving = 1;
-			refresh();
-			await sendBzzTransferOneYear();
+			await reSaveNft();
 			resaving = 2;
 			refresh();
-			await createAccount();
+			await sendBzzTransferOneYear();
 			resaving = 3;
+			refresh();
+			await createAccount();
+			resaving = 4;
 			refresh();
 			await initializeAccount();
 			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
 			refresh();
 		} catch (e) {
-			utilsError(`ReSave (${resaving}/3) :`, e);
+			utilsError(`ReSave (${resaving - 1}/3) :`, e);
 		}
 		resaving = 0;
 	};
@@ -175,20 +161,15 @@
 
 		try {
 			if (toping) throw Error('Already Topping Up!');
-
-			await sendBzzTransferOneYear();
 			toping = 1;
-			refresh();
-			await topUpStamp();
-			toping = 2;
+			await sendBzzTransferOneYear();
 			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
 			refresh();
 		} catch (e) {
-			utilsError(`TopUp (${toping}/2) :`, e);
+			utilsError(`TopUp :`, e);
 		}
 
 		toping = 0;
-		refresh();
 	};
 
 	onMount(async () => {
@@ -197,7 +178,7 @@
 	});
 </script>
 
-{#key [toping, resaving, nftResaved]}
+
 	<section id="resaver">
 		<div class="nfts-grid">
 			<Nft {metadata} />
@@ -227,7 +208,7 @@
 							TopUp 1 Year
 							{#if toping}
 								&nbsp;
-								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {toping}/2
+								<i class="fa-solid fa-spinner fa-spin-pulse" />
 							{/if}
 						</button>
 					{:else}
@@ -240,7 +221,7 @@
 						</button>
 					{/if}
 					<div class="batch-topUp-below">
-						<p>Price: {displayBalance(metadata?.autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
+						<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
 						<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
 					</div>
 				</div>
@@ -265,4 +246,4 @@
 	{#if debug}
 		<NftDebug bzzChainId={$bzzChainId} {metadata} />
 	{/if}
-{/key}
+

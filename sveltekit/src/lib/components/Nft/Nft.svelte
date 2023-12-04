@@ -9,21 +9,21 @@
 	export let metadata: NftMetadata;
 	////////////////////////////////////////////////////////////////////////////
 
-	$: data = metadata?.autoSwarm;
+	$: autoSwarm = metadata?.autoSwarm;
 </script>
 
 <article>
 	<div
-		title="NFT Collection Address  @{data?.nftCollection || ''}"
+		title="NFT Collection Address  @{autoSwarm?.nftCollection || ''}"
 		class="nft-img"
-		style="background-image: url({data?.nftImageAlt || ''});"
+		style="background-image: url({autoSwarm?.nftImageAlt || ''});"
 		aria-label={metadata?.description || ''}
 	/>
 	<p class="nft-title">
 		{metadata?.name || ''}
 		&nbsp;
 		<span>
-			{@html displayNftLink(data?.nftChainId, data?.nftCollection, data?.nftTokenId)}
+			{@html displayNftLink(autoSwarm?.nftChainId, autoSwarm?.nftCollection, autoSwarm?.nftTokenId)}
 		</span>
 	</p>
 </article>

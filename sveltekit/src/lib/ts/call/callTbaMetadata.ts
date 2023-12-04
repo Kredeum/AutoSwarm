@@ -1,4 +1,4 @@
-import { callTbaBzzHash, callTbaBzzSize } from './callTba';
+import { callTbaBzzHash, callTbaBzzSize, callTbaBzzStampId } from './callTba';
 import type { NftMetadata, NftMetadataAutoSwarm } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchUrl } from '../fetch/fetch';
@@ -40,10 +40,13 @@ const _callTbaMetadata = async (
 			autoSwarm.bzzSize ||= await callTbaBzzSize(bzzChainId, autoSwarm.tbaAddress);
 			autoSwarm.bzzPrice ||= utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
 
-			autoSwarm.tbaTokenUri ||= bzz(autoSwarm.bzzHash);
+			if (utilsIsBytes32Null(autoSwarm.bzzStampId))
+				autoSwarm.bzzStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
+
+			autoSwarm.tbaTokenUri ||= bzz(autoSwarm.bzzHash!);
 			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 
-			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash);
+			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash!);
 			autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
 
 			if (!tbaMetadata) {
@@ -52,7 +55,7 @@ const _callTbaMetadata = async (
 			}
 		}
 	}
-	if (!tbaMetadata) throw new Error(`_callTbaMetadata: No Metadata found!`);
+	if (!tbaMetadata?.autoSwarm) throw new Error(`_callTbaMetadata: No Metadata found!`);
 
 	console.info('_callTbaMetadata', '\n', tbaMetadata.autoSwarm, '\n', tbaMetadata);
 	return tbaMetadata;

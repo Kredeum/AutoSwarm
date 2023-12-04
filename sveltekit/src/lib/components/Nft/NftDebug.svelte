@@ -42,7 +42,7 @@
 	// AutoSwarmMarket
 	let currentBatchId: Hex | undefined;
 
-	$: data = metadata?.autoSwarm;
+	$: autoSwarm = metadata?.autoSwarm;
 
 	$: bzzChainId > 0 && metadata && refresh();
 	const refresh = async () => {
@@ -68,9 +68,13 @@
 		<p>
 			NFT - Chain Id / Collection Address / Token Id
 			<span>
-				{@html displayExplorer(data?.nftChainId)} /
-				{@html displayExplorerAddress(data?.nftChainId, data?.nftCollection)} /
-				{@html displayExplorerNft(data?.nftChainId, data?.nftCollection, data?.nftTokenId)}
+				{@html displayExplorer(autoSwarm?.nftChainId)} /
+				{@html displayExplorerAddress(autoSwarm?.nftChainId, autoSwarm?.nftCollection)} /
+				{@html displayExplorerNft(
+					autoSwarm?.nftChainId,
+					autoSwarm?.nftCollection,
+					autoSwarm?.nftTokenId
+				)}
 			</span>
 		</p>
 		<hr />
@@ -105,7 +109,7 @@
 		<p>
 			Swarm - NFT Size
 			<span>
-        {displaySizeBytes(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA} /
+				{displaySizeBytes(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA} /
 				{displaySize(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA}
 			</span>
 		</p>
