@@ -17,6 +17,7 @@ import { batchSizeBatch } from '../swarm/batch';
 import { chainGetExplorer } from '../common/chains';
 import { jsonGetField } from '../common/json';
 import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
+import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -62,19 +63,19 @@ const displayBatchDepthWithSize = (depth: number | undefined): string => {
 
 const displayBatchSize = (depth: number | undefined): string => displaySize(batchSizeBatch(depth));
 
-const displaySize = (size: bigint | number | undefined): string => {
+const displaySize = (size: bigint | number | undefined, toFixed: number = 3): string => {
 	if (size === undefined) return UNDEFINED_DATA;
 
 	if (size < 1024) return `${size} bytes`;
 
 	const kbytes = Number(size) / 1024;
-	if (kbytes < 1024) return `${kbytes} Kbytes`;
+	if (kbytes < 1024) return `${kbytes.toFixed(toFixed)} Kbytes`;
 
 	const mbytes = Number(size) / 1024 ** 2;
-	if (mbytes < 1024) return `${mbytes} Mbytes`;
+	if (mbytes < 1024) return `${mbytes.toFixed(toFixed)} Mbytes`;
 
 	const gbytes = Number(size) / 1024 ** 3;
-	return `${gbytes} Gbytes`;
+	return `${gbytes.toFixed(toFixed)} Gbytes`;
 };
 
 const displayDuration = (seconds: bigint | number | undefined): string => {
@@ -147,24 +148,25 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 	return displayBalance(utilsNBalToBzz(balance, depth), BZZ_DECIMALS);
 };
 
-const displayBzzURI = (hash: Hex | string | undefined, path?: string): string => {
-	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
+const displayBzzURI = (str: Hex | string | undefined, path?: string): string => {
+	const hash = bzzTrim(str);
+	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
-	hash = hash?.replace(/^0x/, '');
-	const urlPath = path ? `${hash}/${path}` : hash;
-	const bzzHash = `bzz://${urlPath}`;
-	const url = `${SWARM_GATEWAY}/${urlPath}`;
+	const hashPath = path ? `${hash}/${path}` : hash;
+	const url = `${SWARM_GATEWAY}/${hashPath}`;
 
-	return path ? `<a href="${url}" target="_blank">${utilsTruncate(bzzHash, 50, 30)}</a>` : bzzHash;
+	return path
+		? `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath), 50, 30)}</a>`
+		: bzz(hashPath);
 };
 
-const displayBzzURL = (hash: Hex | string | undefined, path?: string): string => {
-	if (utilsIsBytes32Null(hash)) return UNDEFINED_DATA;
+const displayBzzURL = (str: Hex | string | undefined, path?: string): string => {
+	const hash = bzzTrim(str);
+	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 	// console.log('displayBzzURL ', hash, path);
 
-	hash = hash?.replace(/^0x/, '');
-	const urlPath = path ? `${hash}/${path}` : hash;
-	const url = `${SWARM_GATEWAY}/${urlPath}`;
+	const hashPath = path ? `${hash}/${path}` : hash;
+	const url = `${SWARM_GATEWAY}/${hashPath}`;
 
 	return `<a href="${url}" target="_blank">${utilsTruncate(url, 50, 30)}</a>`;
 };
@@ -178,7 +180,7 @@ const displayBalance = (
 
 	const str = Number(formatUnits(balance, Number(decimals)));
 
-	return str.toFixed(Number(toFixed));
+	return str.toFixed(toFixed);
 };
 
 const displayLink = (url: URL | string | undefined): string =>

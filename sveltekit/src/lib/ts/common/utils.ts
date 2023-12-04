@@ -7,8 +7,7 @@ const utilsError = (label: string, err?: unknown) => {
 	// alert(message);
 };
 
-const utilsIsBytes32Null = (b32: Hex | string | undefined): boolean =>
-	Boolean(!b32 || b32 === ZERO_BYTES32);
+const utilsIsBytes32Null = (b32: Hex | undefined): boolean => Boolean(!b32 || b32 === ZERO_BYTES32);
 
 const utilsTruncate = (str: string | undefined, start: number, end: number): string | undefined => {
 	if (str === undefined) return;

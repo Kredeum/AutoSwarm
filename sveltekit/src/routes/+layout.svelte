@@ -12,15 +12,9 @@
 	// Layout for all AutoSwamr pages
 	/////////////////////////////////////////////////////////////////////////////
 
-	// let chainId: number = 100;
-	let chainId: number = 11155111;
-	// let chainId: number = 31337;
-	$: chainId, onChainChange();
-
-	const onChainChange = () => {
-		bzzChainId.set(chainId);
-		invalidateAll();
-	};
+	const chainId = localStorage.getItem('swarm.chainId') || '11155111'; //  "31337" // "100";
+	localStorage.setItem('swarm.chainId', chainId);
+	bzzChainId.set(Number(chainId));
 
 	$: document.body.style.backgroundColor = ['/monitor', '/config'].includes($page.route.id || '')
 		? '#444'

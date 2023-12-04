@@ -3,7 +3,7 @@ import type { NftMetadata, NftMetadataAutoSwarm } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchUrl } from '../fetch/fetch';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { bzz, bzzImage } from '../swarm/bzz';
+import {  bzzImage, bzzTokenUri } from '../swarm/bzz';
 import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
@@ -43,7 +43,7 @@ const _callTbaMetadata = async (
 			if (utilsIsBytes32Null(autoSwarm.bzzStampId))
 				autoSwarm.bzzStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
 
-			autoSwarm.tbaTokenUri ||= bzz(autoSwarm.bzzHash!);
+			autoSwarm.tbaTokenUri ||= bzzTokenUri(autoSwarm.bzzHash!);
 			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 
 			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash!);

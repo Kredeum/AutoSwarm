@@ -8,7 +8,8 @@
 		DEFAULT_PRICE,
 		ONE_DAY,
 		SECONDS_PER_BLOCK,
-		STAMP_UNIT
+		STAMP_UNIT,
+		UNDEFINED_DATA
 	} from '$lib/ts/constants/constants.js';
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { localConfigInit } from '$lib/ts/common/local';
@@ -19,7 +20,12 @@
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
-	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
+	import {
+		displayBalance,
+		displayDate,
+		displayDuration,
+		displaySize
+	} from '$lib/ts/display/display';
 
 	import { utilsDivUp, utilsError, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
