@@ -216,7 +216,7 @@
 							ReSave NFT
 							{#if resaving}
 								&nbsp;
-								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving}/3
+								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving-1}/3
 							{/if}
 						</button>
 					{/if}

@@ -22,7 +22,7 @@
 
 {#await asyncNftMetadata()}
 	<p>Loading NFT metadata...</p>
-	<p>${nftChainId} ${nftCollection} ${nftTokenId}</p>
+	<p>NFT #{nftChainId} / @{nftCollection} / #{nftTokenId}</p>
 {:then nftMetadata}
 	<AutoSwarm {nftMetadata} />
 {:catch error}
