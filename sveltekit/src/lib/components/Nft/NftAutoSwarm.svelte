@@ -96,6 +96,7 @@
 		const bzzPrice = autoSwarm.bzzPrice;
 		if (tbaBalance !== undefined && bzzPrice && bzzPrice > 0) {
 			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / bzzPrice);
+			until = blockTimestamp + duration;
 		}
 
 		console.info('<NftAutoSwarm refresh OUT');
@@ -178,72 +179,70 @@
 	});
 </script>
 
+<section id="resaver">
+	<div class="nfts-grid">
+		<Nft {metadata} />
 
-	<section id="resaver">
-		<div class="nfts-grid">
-			<Nft {metadata} />
+		{#if nftResaved !== undefined}
+			<div class="batch-topUp">
+				{#if nftResaved}
+					<br />
 
-			{#if nftResaved !== undefined}
-				<div class="batch-topUp">
-					{#if nftResaved}
+					{#if duration == 0}
+						<button class="btn btn-storage">Storage NOT Guaranteed</button>
 						<br />
-
-						{#if duration == 0}
-							<button class="btn btn-storage">Storage NOT Guaranteed</button>
-							<br />
-						{:else}
-							<button class="btn btn-storage">Storage Guaranteed</button>
-							<br />
-							<div class="batch-topUp-infos">
-								<p>for</p>
-								<p>{displayDuration(duration)}</p>
-								<p>until</p>
-								<p>{displayDate(until)}</p>
-							</div>
-						{/if}
-
-						<br />
-
-						<button class="btn btn-topup" on:click={topUp}>
-							TopUp 1 Year
-							{#if toping}
-								&nbsp;
-								<i class="fa-solid fa-spinner fa-spin-pulse" />
-							{/if}
-						</button>
 					{:else}
-						<button class="btn btn-topup" on:click={reSave}>
-							ReSave NFT
-							{#if resaving}
-								&nbsp;
-								<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving-1}/3
-							{/if}
-						</button>
+						<button class="btn btn-storage">Storage Guaranteed</button>
+						<br />
+						<div class="batch-topUp-infos">
+							<p>for</p>
+							<p>{displayDuration(duration)}</p>
+							<p>until</p>
+							<p>{displayDate(until)}</p>
+						</div>
 					{/if}
-					<div class="batch-topUp-below">
-						<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
-						<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
-					</div>
+
+					<br />
+
+					<button class="btn btn-topup" on:click={topUp}>
+						TopUp 1 Year
+						{#if toping}
+							&nbsp;
+							<i class="fa-solid fa-spinner fa-spin-pulse" />
+						{/if}
+					</button>
+				{:else}
+					<button class="btn btn-topup" on:click={reSave}>
+						ReSave NFT
+						{#if resaving}
+							&nbsp;
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/3
+						{/if}
+					</button>
+				{/if}
+				<div class="batch-topUp-below">
+					<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
+					<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
 				</div>
-			{/if}
-		</div>
-	</section>
+			</div>
+		{/if}
+	</div>
+</section>
 
-	<br />
-	{#if nftResaved}
-		<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
-	{:else}
-		<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
-	{/if}
-	<br />
+<br />
+{#if nftResaved}
+	<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
+{:else}
+	<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
+{/if}
+<br />
 
-	<p>
-		<button class="btn" on:click={() => (debug = !debug)}>
-			{#if debug}hide{/if} debug
-		</button>
-	</p>
+<p>
+	<button class="btn" on:click={() => (debug = !debug)}>
+		{#if debug}hide{/if} debug
+	</button>
+</p>
 
-	{#if debug}
-		<NftDebug bzzChainId={$bzzChainId} {metadata} />
-	{/if}
-
+{#if debug}
+	<NftDebug bzzChainId={$bzzChainId} {metadata} />
+{/if}
