@@ -1,119 +1,34 @@
-<script lang="ts">
-	import { onMount } from 'svelte';
-	import { gnosis } from 'viem/chains';
-	import { createPublicClient, http, type Address } from 'viem';
-
-	import { ONE_YEAR, SECONDS_PER_BLOCK, type NftMetadata } from '$lib/ts/constants.js';
-	import { getBatchId } from '$lib/ts/get';
-	import {
-		displayAddress,
-		displayBalance,
-		displayBzzFromBalance,
-		displayDuration,
-		displayTxt
-	} from '$lib/ts/display';
-	import {
-		readAccount,
-		readBatchLegacy,
-		readBzzBalance,
-		readLastPrice,
-		readNftMetadata,
-		readRemainingBalance
-	} from '$lib/ts/read.js';
-	import { writeStampsTopUp } from '$lib/ts/writeStamps.js';
-
-	let nftMetadataJson: NftMetadata;
-
-	let batchId = getBatchId(100);
-	let autoSwarmAddress: Address;
-	let autoSwarmBalance: bigint;
-	let remainingBalance: bigint;
-	let lastPrice = 0n;
-	let duration: bigint;
-	let oneYearBzz: bigint;
-	let depth: number;
-	let disabled: boolean = true;
-
-	let topping = false;
-
-	const publicClient = createPublicClient({ chain: gnosis, transport: http() });
-
-	const topUp = async () => {
-		if (topping) return;
-		console.info('topUp');
-
-		await writeStampsTopUp(
-			gnosis,
-			publicClient,
-			(BigInt(ONE_YEAR) * lastPrice) / SECONDS_PER_BLOCK
-		);
-
-		topping = false;
-		refreshDisplay();
-	};
-
-	const refreshDisplay = async () => {
-		if (!publicClient) return;
-
-		autoSwarmAddress = await readAccount(publicClient);
-		autoSwarmBalance = await readBzzBalance(publicClient, autoSwarmAddress);
-		remainingBalance = await readRemainingBalance(publicClient);
-		lastPrice = await readLastPrice(publicClient);
-		oneYearBzz = (lastPrice * BigInt(ONE_YEAR)) / SECONDS_PER_BLOCK;
-		[, depth] = await readBatchLegacy(publicClient);
-
-    disabled = autoSwarmBalance < oneYearBzz;
-
-		const secondsPerBlock = 5n;
-		if (lastPrice > 0) duration = (remainingBalance * secondsPerBlock) / lastPrice;
-	};
-
-	onMount(async () => {
-		nftMetadataJson = await readNftMetadata(publicClient);
-		autoSwarmAddress = await readAccount(publicClient);
-		refreshDisplay();
-	});
+<script>
+	////////////////////// Demo Home Page ///////////////////////////////////////
+	// Demo Page : select NFTs on multiple CHain
+	/////////////////////////////////////////////////////////////////////////////
 </script>
 
-<section>
-	<div class="nfts-grid">
-		{#if nftMetadataJson}
-			<article>
-				<div
-					title="NFT Collection Address  @{nftMetadataJson.address}"
-					class="nft-img"
-					style="background-image: url({nftMetadataJson.image});"
-					aria-label={nftMetadataJson.description}
-				/>
-				<p class="nft-title">{nftMetadataJson.name} <span># {nftMetadataJson.tokenId}</span></p>
-			</article>
-		{/if}
-	</div>
-	<section class="user-config">
-		<p class="intro-text">NFT selected, click on TopUp to increase NFT lifespan on Swarm</p>
-		<p>
-			<a class="details-link" href="./gnosis">see details</a>
-		</p>
-	</section>
-	<div class="batch-topUp">
-		<div class="batch-topUp-infos">
-			<p title="NFT AutoSwarm {displayAddress(autoSwarmAddress)}">NFT AutoSwarm balance</p>
-			<p title="{autoSwarmBalance} bzz">
-				{displayBalance(autoSwarmBalance, 16)} Bzz
-			</p>
-			<p title="batchId {batchId}">Swarm Storage ends in</p>
-			<p title="{displayTxt(remainingBalance)} seconds">{displayDuration(duration)}</p>
-		</div>
-		<button {disabled} class="btn btn-topup" on:click={topUp}>
-			TopUp 1 Year
-			{#if topping}
-				<i class="fa-solid fa-spinner fa-spin-pulse" />
-			{/if}
-		</button>
-		<div class="batch-topUp-below">
-			<p>
-				Price: {displayBzzFromBalance(oneYearBzz, depth)} Bzz
-			</p>
-		</div>
-	</div>
-</section>
+<h2>Select NFT</h2>
+<p>
+	<a href="10/0x1B36291fF8F503CfB4E3baBe198a40398BCF54AD/1">Bedrock - optimism ipfs</a>
+</p>
+<p>
+	<a href="100/0x22C1f6050E56d2876009903609a2cC3fEf83B415/6927432">TheGraph - gnosis</a>
+</p>
+<p>
+	<a href="1/0xa406489360A47Af2C74fc1004316A64e469646A5/6265">Surreal - mainnet ipfs</a>
+</p>
+<p>
+	<a href="1/0x5c211B8E4f93F00E2BD68e82F4E00FbB3302b35c/7108">zapaz.eth - mainnet ipfs</a>
+</p>
+<p>
+	<a href="137/0x4f1AC217A0D3515e0FD174B2a65ea431af30D212/2">Red Rocks - polygon ipfs</a>
+</p>
+<p>
+	<a href="137/0x543C5d5F8BB47CEEfc8Da62836b77689435Bc3A1/13">Uncut - polygon arweave</a>
+</p>
+<p>
+	<a href="42161/0xfAe39eC09730CA0F14262A636D2d7C5539353752/228603">Odissey - arbitrum ipfs</a>
+</p>
+<p>
+	<a href="10/0xfA14e1157F35E1dAD95dC3F822A9d18c40e360E2/166984">Op Quest - optimism ipfs</a>
+</p>
+<p>
+	<a href="100/0x7dD24ACB40AeE48c79358009ed86CC292e8f9991/4">Rocks - gnosis swarm</a>
+</p>

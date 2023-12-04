@@ -1,12 +1,10 @@
-# SvelteKit Front
-
-Documentation at : [`sveltekit doc`](https://kit.svelte.dev/docs/introduction).
+# AutoSwarm UI
 
 ## Install project
 
 ```bash
 # Install
-pnpm i
+pnpm install
 
 # Run dev server
 pnpm dev
@@ -21,6 +19,7 @@ pnpm build
 ```
 
 You can preview the production build with `pnpm preview`.
+
 ```bash
 pnpm preview
 

@@ -1,9 +1,4 @@
-# Compiler files
-cache/
-out/
-
-# Ignores development broadcast logs
-broadcast
-
-# Dotenv file
-.env
+.env*
+node_modules
+.aider*
+.vscode

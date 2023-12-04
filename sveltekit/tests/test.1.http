@@ -1,0 +1,20 @@
+###
+HEAD https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+
+###
+OPTIONS https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+
+###
+HEAD http://localhost:9000
+
+
+###
+OPTIONS http://localhost:9000
+
+
+###
+OPTIONS https://app.kredeum.com
+
+
+###
+GET https://google.com

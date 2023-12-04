@@ -1,22 +1,17 @@
 {
   "name": "autoswarm",
   "version": "0.0.2",
-  "description": "autoswarm",
-  "main": "",
+  "main": "index.js",
   "scripts": {
-    "all": "pnpm clean && pnpm format && pnpm build && pnpm test && pnpm run deploy",
-    "clean": "forge clean",
-    "format": "forge fmt",
-    "build": "forge build",
-    "test": "forge test",
-    "deploy": "forge script script/DeployAll.s.sol",
-    "broadcast": "forge script script/DeployCounter.s.sol --private-key $PRIVATE_KEY --rpc-url $CHAIN_NAME --broadcast --verify"
+    "all": "pnpm -r all",
+    "update-all": "pnpm -r update",
+    "clean": "pnpm -r clean",
+    "format": "pnpm -r format",
+    "check": "pnpm -r check",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test"
   },
-  "keywords": [
-    "forge",
-    "deployment",
-    "addresses"
-  ],
-  "author": "Kredeum",
-  "license": "MIT"
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

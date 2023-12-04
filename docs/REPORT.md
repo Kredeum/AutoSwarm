@@ -3,12 +3,19 @@ marp: true
 theme: default
 backgroundColor: #fff
 paginate: true
-footer: Swarm GRANT #XX — Swarm GRANT #xx
+footer: AutoSwarm PoC - Swarm GRANT J11
+_footer: 26th September 2023
+_paginate: false
+_backgroundColor: rgb(4,38,79)
+_color: white
 ---
+<style scoped>
+  footer { color: white; font-size: 25px; }
+  h2 { color: rgb(17,142,255); }
+</style>
 
 
-
-# AutoSwarm NFTs
+# AutoSwarm NFTs PoC
 ## _Empowering Eternal Digital Ownership_
 
 ---
