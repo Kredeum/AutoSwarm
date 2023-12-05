@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 
+	import AlertModal from '$lib/components/AlertModal/AlertModal.svelte';
 	import Header from '$lib/components/Layout/LayoutHeader.svelte';
 	import Footer from '$lib/components/Layout/LayoutFooter.svelte';
 	import '$lib/css/styles.css';
@@ -22,6 +23,8 @@
 </script>
 
 <div class="app">
+	<AlertModal />
+
 	<header>
 		<Header />
 	</header>

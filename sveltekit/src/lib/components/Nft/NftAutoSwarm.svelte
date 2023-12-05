@@ -29,6 +29,7 @@
 
 	import { utilsDivUp, utilsError, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { alertMessage } from '$lib/ts/stores/alerts';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
@@ -155,6 +156,7 @@
 			resaving = 4;
 			refresh();
 			await initializeAccount();
+			$alertMessage = { status: 'success', message: 'Your NFT has been ReSaved on Swarm! 🎉' };
 			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
 			refresh();
 		} catch (e) {
@@ -170,6 +172,7 @@
 			if (toping) throw Error('Already Topping Up!');
 			toping = 1;
 			await sendBzzTransferOneYear();
+			$alertMessage = { status: 'success', message: 'Your NFT has been TopUped on Swarm! 🎉' };
 			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
 			refresh();
 		} catch (e) {
