@@ -4,12 +4,12 @@ import {
 	batchBzzToNBal,
 	batchNBalToBzz
 } from '$lib/ts/swarm/batch';
-import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants/constants';
+import { BUCKET_DEPTH, CHUNK_SIZE } from '$lib/ts/constants/constants';
 import { expect, test } from 'vitest';
 
-test('BUCKET_DEPTH and BUCKET_SIZE', () => {
+test('BUCKET_DEPTH and CHUNK_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);
-	expect(BUCKET_SIZE).toBe(4_096n);
+	expect(CHUNK_SIZE).toBe(4_096n);
 });
 
 test('batchBzzToNBal should convert BZZ to NBal', () => {
@@ -23,7 +23,7 @@ test('batchBzzToNBal should convert BZZ to NBal', () => {
 });
 
 test('batchSize', () => {
-	expect(batchSizeBatch(0)).toBe(BUCKET_SIZE);
+	expect(batchSizeBatch(0)).toBe(CHUNK_SIZE);
 
 	expect(batchSizeBatch(BUCKET_DEPTH)).toBe(268_435_456n);
 

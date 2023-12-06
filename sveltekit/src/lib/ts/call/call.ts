@@ -21,6 +21,12 @@ const _publicClient = (chainId: number): PublicClient => {
 const callPublicClient = (chainId: number): PublicClient =>
 	_publicClients.get(chainId) || _publicClient(chainId);
 
+const callBlockNumber = async (chainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(chainId);
+
+	return await publicClient.getBlockNumber();
+};
+
 const callBlock = async (chainId: number, blockNumber?: bigint): Promise<Block> => {
 	const publicClient = await callPublicClient(chainId);
 
@@ -51,4 +57,4 @@ const callChainId = async (chain: Chain) => {
 	return await publicClient.getChainId();
 };
 
-export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock };
+export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock, callBlockNumber};

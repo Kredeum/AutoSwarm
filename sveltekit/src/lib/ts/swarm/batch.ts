@@ -1,4 +1,4 @@
-import { BUCKET_DEPTH, BUCKET_SIZE } from '../constants/constants';
+import { BUCKET_DEPTH, CHUNK_SIZE } from '../constants/constants';
 import { utilsNBalToTtl } from './utils';
 
 const batchBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): bigint | undefined => {
@@ -11,7 +11,7 @@ const batchBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): big
 const batchSizeBatch = (depth: number | undefined): bigint | undefined => {
 	if (depth === undefined) return;
 
-	return 2n ** BigInt(depth) * BUCKET_SIZE;
+	return 2n ** BigInt(depth) * CHUNK_SIZE;
 };
 
 const batchSizeBucket = (): bigint => batchSizeBatch(BUCKET_DEPTH)!;

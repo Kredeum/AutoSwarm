@@ -22,18 +22,18 @@ const ONE_YEAR = ONE_DAY * 365;
 const DEFAULT_PRICE = 24000n;
 const SECONDS_PER_BLOCK = 5;
 
+const CHUNK_SIZE = 2n ** 12n; // 4096 bytes / 4 Kb
 const BUCKET_DEPTH = 16;
-const BUCKET_SIZE = 4096n;
 
 const STAMP_TTL = ONE_YEAR;
 const STAMP_SIZE = 1024n ** 1n; // 1 Ko for TESTS
-const STAMP_PRICE = 10n ** 13n; // 0.001 Bzz
+const STAMP_PRICE = 10n ** 12n; // 0.001 Bzz
 // const STAMP_SIZE = 1024n ** 2n; // 1 Mo
 // const STAMP_PRICE = 10n ** 15n; // 0.1 Bzz
 
 const BATCH_TTL = ONE_MONTH; // 30 days
 const BATCH_DEPTH = 23; // 2**23
-const BATCH_SIZE = BUCKET_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go
+const BATCH_SIZE = CHUNK_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go
 const BATCH_PRICE =
 	(2n ** BigInt(BATCH_DEPTH) * BigInt(BATCH_TTL) * DEFAULT_PRICE) / BigInt(SECONDS_PER_BLOCK);
 
@@ -49,7 +49,7 @@ export {
 	ONE_MONTH,
 	ONE_YEAR,
 	BUCKET_DEPTH,
-	BUCKET_SIZE,
+	CHUNK_SIZE,
 	BZZ_DECIMALS,
 	DEFAULT_PRICE,
 	SECONDS_PER_BLOCK,

@@ -31,6 +31,14 @@
     {
       "filePath": "contracts/addresses.json",
       "group": "Default"
+    },
+    {
+      "filePath": "contracts/lib",
+      "group": "Default"
+    },
+    {
+      "filePath": "contracts/lib/storage-incentives/src/PostageStamp.sol",
+      "group": "Default"
     }
   ],
   "workbench.colorTheme": "Night Owl Light (No Italics)",

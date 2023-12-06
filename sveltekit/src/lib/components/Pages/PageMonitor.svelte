@@ -11,7 +11,8 @@
 		STAMP_TTL,
 		STAMP_PRICE,
 		UNDEFINED_DATA,
-		UNDEFINED_ADDRESS
+		UNDEFINED_ADDRESS,
+		CHUNK_SIZE
 	} from '$lib/ts/constants/constants';
 	import { jsonGetField } from '$lib/ts/common/json';
 	import { utilsError } from '$lib/ts/common/utils';
@@ -26,13 +27,15 @@
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendMarketNewBatch } from '$lib/ts/send/sendMarket';
 	import { sendWalletAddress } from '$lib/ts/send/send';
+	import { callBlockNumber } from '$lib/ts/call/call';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import {
 		callPostageBatches,
 		callPostageBatchesLegacy,
-		callPostageRemainingBalance
+		callPostageRemainingBalance,
+		callPostageTotalOutPayment
 	} from '$lib/ts/call/callPostage';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
@@ -40,6 +43,9 @@
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Daily Cron and Monthly Cron
 	/////////////////////////////////////////////////////////////////////////////////////
+
+	// Block
+	let lastBlockNumber: bigint | undefined;
 
 	// Wallet
 	let walletAddress: Address | undefined;
@@ -52,10 +58,16 @@
 
 	// Postage
 	let currentBatchOwner: Address | undefined;
-	let currentBatchTtl: bigint | undefined;
 	let currentBatchDepth: number | undefined;
-	let currentBatchRemainingBalance: bigint | undefined;
+	let currentBatchBucketDepth: number | undefined;
+	let currentBatchImmutableFlag: boolean | undefined;
 	let currentBatchNormalisedBalance: bigint | undefined;
+	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
+
+	let currentBatchTtl: bigint | undefined;
+	let currentBatchRemainingBalance: bigint | undefined;
+
+	let lastTotalOutPayment: bigint | undefined;
 
 	// State
 	let monthlyCroning = 0;
@@ -67,6 +79,8 @@
 
 	const refresh = async () => {
 		try {
+			// Block
+			lastBlockNumber = await callBlockNumber($bzzChainId);
 			// Wallet
 			walletAddress = await sendWalletAddress();
 			walletBalance = await callBzzBalance($bzzChainId, walletAddress);
@@ -78,7 +92,16 @@
 				jsonGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
 
-			[currentBatchOwner, currentBatchDepth, currentBatchNormalisedBalance] =
+			lastTotalOutPayment = await callPostageTotalOutPayment($bzzChainId);
+
+			[
+				currentBatchOwner,
+				currentBatchDepth,
+				currentBatchBucketDepth,
+				currentBatchImmutableFlag,
+				currentBatchNormalisedBalance,
+				currentBatchLastUpdatedBlockNumber
+			] =
 				$bzzChainId == 100
 					? await callPostageBatchesLegacy($bzzChainId, currentBatchId)
 					: await callPostageBatches($bzzChainId, currentBatchId);
@@ -155,10 +178,10 @@
 	<div id="monitor-content">
 		<hr />
 		<p>
-			All Batchs - Depth / Size / TTL / Price
+			All Batchs - Size = Chunk Size * Depth  / TTL / Price
 			<span>
-				depth {BATCH_DEPTH} /
-				{displaySize(BATCH_SIZE, 2)} /
+				{displaySize(BATCH_SIZE, 2)} =
+				{displaySize(CHUNK_SIZE, 0)} * 2<sup>{BATCH_DEPTH}</sup> /
 				{displayDuration(BATCH_TTL)} /
 				{displayBalance(BATCH_PRICE, 16, 4)} Bzz
 			</span>
@@ -167,27 +190,45 @@
 			All Stamps - TTL / Price per Unit
 			<span>
 				{displayDuration(STAMP_TTL)} /
-				{displayBalance(STAMP_PRICE, 16, 3)} Bzz per {displaySize(STAMP_SIZE, 0)}
+				{displayBalance(STAMP_PRICE, 16, 4)} Bzz per {displaySize(STAMP_SIZE, 0)}
 			</span>
 		</p>
-
+		<p>lastTotalOutPayment<span>{lastTotalOutPayment}</span></p>
 		<hr />
 		<p>Market - Balance <span>{displayBalance(marketBalance, 16, 4)} Bzz</span></p>
-		<p>Market - Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
+		<hr />
+		<p>Swarm - Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
+		<p>
+			Swarm - Current Batch NormalisedBalance
+			<span>{currentBatchNormalisedBalance || UNDEFINED_DATA}</span>
+		</p>
+		<p>
+			Swarm - Current Current Batch Block - Last Updated Block = Delta
+			<span>
+				#{lastBlockNumber || UNDEFINED_DATA}
+				- #{currentBatchLastUpdatedBlockNumber || UNDEFINED_DATA}
+				= &#916;{lastBlockNumber && currentBatchLastUpdatedBlockNumber
+					? lastBlockNumber - currentBatchLastUpdatedBlockNumber
+					: UNDEFINED_DATA}
+			</span>
+		</p>
 		<hr />
 		<p>Swarm - Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
-		<p>Swarm - Current Batch Depth<span>depth {currentBatchDepth || UNDEFINED_DATA}</span></p>
 		<p>
-			Swarm - Current Batch NormalisedBalance <span
-				>{currentBatchNormalisedBalance || UNDEFINED_DATA}</span
-			>
+			Swarm - Current Batch Immutable Flag / BucketDepth / Depth
+			<span>
+				{currentBatchImmutableFlag ? 'immutable' : 'mutable'}
+				/ 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
+				/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup>
+			</span>
 		</p>
 		<p>
-			Swarm - Current Batch RemainingBalance <span
-				>{currentBatchRemainingBalance || UNDEFINED_DATA}</span
-			>
+			Swarm - Current Batch RemainingBalance / TTL
+			<span>
+				{currentBatchRemainingBalance || UNDEFINED_DATA} /
+				{displayDuration(currentBatchTtl) || UNDEFINED_DATA}
+			</span>
 		</p>
-		<p>Swarm - Current Batch TTL <span>{currentBatchTtl || UNDEFINED_DATA}</span></p>
 		<hr />
 		<p>Bzz Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
 		<p>Bzz Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>
