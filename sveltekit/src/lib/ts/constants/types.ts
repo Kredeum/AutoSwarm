@@ -1,7 +1,7 @@
 import type { Address, Hex } from 'viem';
 
 type NftMetadataAutoSwarm = {
-  nftChainId: number;
+	nftChainId: number;
 	nftCollection: Address;
 	nftTokenId: bigint;
 	nftTokenUri?: string;

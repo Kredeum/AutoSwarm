@@ -163,10 +163,10 @@
 		</p>
 		<hr />
 		<p>
-			Postage - Current Batch Id <span>{currentBatchId}</span>
+			Postage - Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span>
 		</p>
 		<p>
-			Postage - Current Price <span>{currentPrice}</span>
+			Postage - Current Price<span>{displayBalance(currentPrice, 0, 0)}</span>
 		</p>
 		<hr />
 		<p>

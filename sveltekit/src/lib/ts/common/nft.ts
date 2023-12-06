@@ -1,5 +1,5 @@
-import type { Address } from "viem";
-import type { NftMetadataAutoSwarm } from "../constants/types";
+import type { Address } from 'viem';
+import type { NftMetadataAutoSwarm } from '../constants/types';
 
 const nftIds = (autoSwarm: NftMetadataAutoSwarm | undefined): [number, Address, bigint] => {
 	if (!autoSwarm) throw Error(`No NFT Identification`);

@@ -9,7 +9,9 @@
 		BATCH_PRICE,
 		STAMP_SIZE,
 		STAMP_TTL,
-		STAMP_PRICE
+		STAMP_PRICE,
+		UNDEFINED_DATA,
+		UNDEFINED_ADDRESS
 	} from '$lib/ts/constants/constants';
 	import { jsonGetField } from '$lib/ts/common/json';
 	import { utilsError } from '$lib/ts/common/utils';
@@ -171,13 +173,21 @@
 
 		<hr />
 		<p>Market - Balance <span>{displayBalance(marketBalance, 16, 4)} Bzz</span></p>
-		<p>Market - Current Batch Id <span>{currentBatchId}</span></p>
+		<p>Market - Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
 		<hr />
-		<p>Swarm - Current Batch Owner <span>{currentBatchOwner}</span></p>
-		<p>Swarm - Current Batch Depth<span>depth {currentBatchDepth}</span></p>
-		<p>Swarm - Current Batch NormalisedBalance <span>{currentBatchNormalisedBalance}</span></p>
-		<p>Swarm - Current Batch RemainingBalance <span>{currentBatchRemainingBalance}</span></p>
-		<p>Swarm - Current Batch TTL <span>{currentBatchTtl}</span></p>
+		<p>Swarm - Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
+		<p>Swarm - Current Batch Depth<span>depth {currentBatchDepth || UNDEFINED_DATA}</span></p>
+		<p>
+			Swarm - Current Batch NormalisedBalance <span
+				>{currentBatchNormalisedBalance || UNDEFINED_DATA}</span
+			>
+		</p>
+		<p>
+			Swarm - Current Batch RemainingBalance <span
+				>{currentBatchRemainingBalance || UNDEFINED_DATA}</span
+			>
+		</p>
+		<p>Swarm - Current Batch TTL <span>{currentBatchTtl || UNDEFINED_DATA}</span></p>
 		<hr />
 		<p>Bzz Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
 		<p>Bzz Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>

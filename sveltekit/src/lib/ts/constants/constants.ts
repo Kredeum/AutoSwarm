@@ -34,7 +34,8 @@ const STAMP_PRICE = 10n ** 13n; // 0.001 Bzz
 const BATCH_TTL = ONE_MONTH; // 30 days
 const BATCH_DEPTH = 23; // 2**23
 const BATCH_SIZE = BUCKET_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go
-const BATCH_PRICE = (2n ** BigInt(BATCH_DEPTH) * BigInt(BATCH_TTL) * DEFAULT_PRICE) / BigInt(SECONDS_PER_BLOCK);
+const BATCH_PRICE =
+	(2n ** BigInt(BATCH_DEPTH) * BigInt(BATCH_TTL) * DEFAULT_PRICE) / BigInt(SECONDS_PER_BLOCK);
 
 const DIVISION_BY_ZERO = '?????';
 const UNDEFINED_ADDRESS = '0x****************************************';

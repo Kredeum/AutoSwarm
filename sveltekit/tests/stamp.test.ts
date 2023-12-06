@@ -6,7 +6,7 @@ import { utilsNBalToTtl } from '$lib/ts/swarm/utils';
 
 test('BUCKET_DEPTH and BUCKET_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);
-	expect(BUCKET_SIZE).toBe(4_096);
+	expect(BUCKET_SIZE).toBe(4_096n);
 });
 
 test('stampBzzToNBal should convert BZZ to NBal', () => {

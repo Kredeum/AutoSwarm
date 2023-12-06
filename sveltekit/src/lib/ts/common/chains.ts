@@ -52,7 +52,7 @@ const chainGetWithTransport = (
 		rpcUrl = `https://sepolia.infura.io/v3/${INFURA_API_KEY}`;
 	} else if (chainId === mainnet.id) {
 		rpcUrl = `https://mainnet.infura.io/v3/${INFURA_API_KEY}`;
-    // rpcUrl = `https://rpc.ankr.com/eth`;
+		// rpcUrl = `https://rpc.ankr.com/eth`;
 	} else if (chainId === polygon.id) {
 		rpcUrl = `https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}`;
 	} else if (chainId === arbitrum.id) {

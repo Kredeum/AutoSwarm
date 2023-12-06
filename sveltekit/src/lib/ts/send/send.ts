@@ -80,7 +80,7 @@ const sendWalletChainId = async (): Promise<number> => await _walletClient().get
 const sendWalletSwitchChain = async (bzzChainId: number): Promise<void> =>
 	await _walletClient().switchChain({ id: bzzChainId });
 
-  export {
+export {
 	sendWallet,
 	sendWalletClient,
 	sendWalletAddress,

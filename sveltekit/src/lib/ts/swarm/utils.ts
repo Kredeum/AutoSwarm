@@ -46,11 +46,4 @@ const utilsTtlToNBal = (
 	return (BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
 };
 
-
-export {
-	utilsBzzToTtl,
-	utilsNBalToTtl,
-	utilsTtlToNBal,
-	utilsNBalToBzz,
-	utilsBzzToNBal
-};
+export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal };

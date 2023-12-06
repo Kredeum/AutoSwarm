@@ -18,7 +18,7 @@
 	const displayMessage = () => {
 		clearTimeout(timeoutId);
 		modalOpen = true;
-		timeoutId = setTimeout(() => resetMessage(), 5000);
+		if (messageStatus !== 'error') timeoutId = setTimeout(() => resetMessage(), 5000);
 	};
 
 	const easingMode = () => (messageStatus === 'error' ? bounceOut : quintOut);
@@ -39,7 +39,7 @@
 		<button on:click={resetMessage} on:keydown={resetMessage} title="Close" class="modal-close"
 			><i class="fa fa-times" />
 		</button>
-		<p>{messageStatus === 'error' ? 'Oooups !' : 'Great !'}</p>
+		<p>{messageStatus === 'error' ? 'Ooops !' : 'Great !'}</p>
 		<pre>{message}</pre>
 	</div>
 {/if}
