@@ -8,7 +8,6 @@
     "NFTCollection": "0x7dD24ACB40AeE48c79358009ed86CC292e8f9991",
     "PostageStamp": "0x30d155478eF27Ab32A1D578BE7b84BC5988aF381",
     "PriceOracle": "0x344A2CC7304B32A87EfDC5407cD4bEC7cf98F035",
-    "batchId": "0x1b65ea1a8e546cc3009bce9a1534d01fc5e09f04603be6a067de97db81614970",
     "chainName": "gnosis"
   },
   "31337": {
@@ -26,9 +25,8 @@
     "BzzToken": "0xd01265b48fAe010C49378fA9bA9D3a53C6389130",
     "ERC6551Registry": "0x59C3180d004123b7128A13B8E4D380066c018aaD",
     "NFTCollection": "0x98F643c5a5171B7b05c8118E3246CDdEE4b9BC55",
-    "PostageStamp": "0xEe0612fe352630fc9a44543Ba14eC991d0d464c9",
+    "PostageStamp": "0xdd5638cbffc7b941e6619287f845669a9e68cfec",
     "PriceOracle": "0x201dcde5c2D14CE03Fa74b0158488122FcA673B8",
-    "batchId": "0x49042fac7d898d51cff1b5724bc394fa97a0256bf6d74ace62e35ec2c48110bd",
     "chainName": "sepolia"
   }
 }

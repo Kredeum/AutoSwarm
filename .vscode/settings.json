@@ -27,6 +27,10 @@
     {
       "filePath": "contracts/src",
       "group": "Default"
+    },
+    {
+      "filePath": "contracts/addresses.json",
+      "group": "Default"
     }
   ],
   "workbench.colorTheme": "Night Owl Light (No Italics)",

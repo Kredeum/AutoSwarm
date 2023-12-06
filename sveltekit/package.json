@@ -1,6 +1,6 @@
 {
 	"name": "autoswarm-frontend",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"private": true,
 	"scripts": {
 		"all": "pnpm clean && pnpm install && pnpm format && pnpm build && pnpm test-run",
