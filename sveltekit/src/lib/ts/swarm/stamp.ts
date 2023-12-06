@@ -11,13 +11,13 @@ const stampBzzToNBal = (bzz: bigint | undefined, size: number | undefined): bigi
 	if (bzz === undefined || size === undefined) return undefined;
 	if (size === 0) return 0n;
 
-	return (bzz * BigInt(BUCKET_SIZE)) / BigInt(size);
+	return (bzz * BUCKET_SIZE) / BigInt(size);
 };
 
 const stampNBalToBzz = (nBal: bigint | undefined, size: number | undefined): bigint | undefined => {
 	if (nBal === undefined || size === undefined) return undefined;
 
-	return (nBal * BigInt(size)) / BigInt(BUCKET_SIZE);
+	return (nBal * BigInt(size)) / BUCKET_SIZE;
 };
 
 const stampBzzToTtl = (

@@ -69,13 +69,13 @@ const displaySize = (size: bigint | number | undefined, toFixed: number = 3): st
 	if (size < 1024) return `${size} bytes`;
 
 	const kbytes = Number(size) / 1024;
-	if (kbytes < 1024) return `${kbytes.toFixed(toFixed)} Kbytes`;
+	if (kbytes < 1024) return `${kbytes.toFixed(toFixed)} Kb`;
 
 	const mbytes = Number(size) / 1024 ** 2;
-	if (mbytes < 1024) return `${mbytes.toFixed(toFixed)} Mbytes`;
+	if (mbytes < 1024) return `${mbytes.toFixed(toFixed)} Mb`;
 
 	const gbytes = Number(size) / 1024 ** 3;
-	return `${gbytes.toFixed(toFixed)} Gbytes`;
+	return `${gbytes.toFixed(toFixed)} Gb`;
 };
 
 const displayDuration = (seconds: bigint | number | undefined): string => {
@@ -85,10 +85,10 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours > 1 ? 's' : ''}`;
 
 	const days = Number(seconds) / ONE_DAY;
-	if (days < 7) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;
+	if (days < 31) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;
 
 	const weeks = Number(seconds) / ONE_WEEK;
-	if (weeks < 5) return `${Number(weeks).toFixed(2)} week${weeks > 1 ? 's' : ''}`;
+	if (weeks < 10) return `${Number(weeks).toFixed(2)} week${weeks > 1 ? 's' : ''}`;
 
 	const months = Number(seconds) / ONE_MONTH;
 	if (days < 365) return `${Number(months).toFixed(2)} month${months > 1 ? 's' : ''}`;
@@ -101,7 +101,7 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 };
 
 const displayExplorer = (chainId: number | undefined): string => {
-	if (chainId === undefined) return '';
+	if (!chainId) return '';
 	const explorer = chainGetExplorer(chainId);
 	if (!explorer) return `#${chainId}`;
 
@@ -117,26 +117,29 @@ const displayExplorerNft = (
 	const explorer = chainGetExplorer(chainId);
 	if (!explorer) return `#${chainId}`;
 
-	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${tokenId}</a>`;
+	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${utilsTruncate(
+		tokenId.toString()
+	)}</a>`;
 };
 
-const explorerAddress = (
+const _displayExplorerAddress = (
 	chainId: number | undefined,
 	addr: Address | undefined
-): string | undefined => {
-	if (!chainId) return;
+): string => {
+	if (!chainId) return '';
 
 	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return;
+	console.log('explorer:', explorer);
+	if (!explorer) return `${addr}`;
 
-	return `${explorer}/address/${addr}`;
+	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;
 };
 
 const displayExplorerAddress = (chainId: number | undefined, addr: Address | undefined): string => {
 	console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
 
 	return chainId && addr && isAddress(addr)
-		? `<a href="${explorerAddress(chainId, addr)}" target="_blank">${addr}</a>`
+		? _displayExplorerAddress(chainId, addr)
 		: UNDEFINED_ADDRESS;
 };
 const displayExplorerField = (chainId: number, field: string): string =>
@@ -156,7 +159,7 @@ const displayBzzURI = (str: Hex | string | undefined, path?: string): string => 
 	const url = `${SWARM_GATEWAY}/${hashPath}`;
 
 	return path
-		? `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath), 50, 30)}</a>`
+		? `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`
 		: bzz(hashPath);
 };
 
@@ -168,7 +171,7 @@ const displayBzzURL = (str: Hex | string | undefined, path?: string): string => 
 	const hashPath = path ? `${hash}/${path}` : hash;
 	const url = `${SWARM_GATEWAY}/${hashPath}`;
 
-	return `<a href="${url}" target="_blank">${utilsTruncate(url, 50, 30)}</a>`;
+	return `<a href="${url}" target="_blank">${utilsTruncate(url)}</a>`;
 };
 
 const displayBalance = (
@@ -184,7 +187,7 @@ const displayBalance = (
 };
 
 const displayLink = (url: URL | string | undefined): string =>
-	url === undefined ? '' : `<a href="${url}" target="_blank">${url}</a>`;
+	url === undefined ? '' : `<a href="${url}" target="_blank">${utilsTruncate(url.toString())}</a>`;
 
 const displayNftLink = (
 	chainId: number | undefined,
@@ -219,7 +222,6 @@ export {
 	displayBatchDepthWithSize,
 	displayExplorer,
 	displayExplorerNft,
-	explorerAddress,
 	displayExplorerAddress,
 	displayExplorerField,
 	displayBzzFromNBal

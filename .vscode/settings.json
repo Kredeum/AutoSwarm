@@ -1,0 +1,34 @@
+{
+  "favorites.resources": [
+    {
+      "filePath": "contracts/src/AutoSwarmAccount.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "contracts/src/AutoSwarmMarket.sol",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/ts",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components/Pages/AutoSwarm.svelte",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components/Nft/NftAutoSwarm.svelte",
+      "group": "Default"
+    },
+    {
+      "filePath": "contracts/src",
+      "group": "Default"
+    }
+  ],
+  "workbench.colorTheme": "Night Owl Light (No Italics)",
+  "local-history.browser.descending": false
+}

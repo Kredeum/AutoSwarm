@@ -23,7 +23,7 @@ test('batchBzzToNBal should convert BZZ to NBal', () => {
 });
 
 test('batchSize', () => {
-	expect(batchSizeBatch(0)).toBe(BigInt(BUCKET_SIZE));
+	expect(batchSizeBatch(0)).toBe(BUCKET_SIZE);
 
 	expect(batchSizeBatch(BUCKET_DEPTH)).toBe(268_435_456n);
 

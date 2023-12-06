@@ -4,11 +4,11 @@
 
 	import {
 		ONE_YEAR,
-		STAMP_UNIT_PRICE,
+		STAMP_PRICE,
 		DEFAULT_PRICE,
 		ONE_DAY,
 		SECONDS_PER_BLOCK,
-		STAMP_UNIT,
+		STAMP_SIZE,
 		UNDEFINED_DATA
 	} from '$lib/ts/constants/constants.js';
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
@@ -121,7 +121,7 @@
 	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(autoSwarm?.bzzPrice);
 
 	const topUpStamp = async () => {
-		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
+		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_PRICE);
 	};
 
 	const reSaveNft = async () => {
@@ -137,7 +137,7 @@
 		console.log('reSaveNft ~ bzzHash:', autoSwarm.bzzHash);
 		console.log('reSaveNft ~ tbaImage:', autoSwarm.tbaImage, autoSwarm.nftImageSize);
 		console.log('reSaveNft ~ tbaTokenUri:', autoSwarm.tbaTokenUri, autoSwarm.nftTokenUriSize);
-		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
+		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 	};
 
 	const reSave = async () => {
@@ -231,7 +231,7 @@
 				{/if}
 				<div class="batch-topUp-below">
 					<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
-					<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
+					<p><small>({displayBalance(STAMP_PRICE, 16, 3)} Bzz / Kb / Year)</small></p>
 				</div>
 			</div>
 		{/if}

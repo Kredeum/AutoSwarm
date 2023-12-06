@@ -24,6 +24,7 @@
 		displaySize,
 		displaySizeBytes
 	} from '$lib/ts/display/display';
+	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
 
 	///////////////////////////// Debug Component ///////////////////////////////////////
 	// <Debug {bzzChainId}   {metadata} />
@@ -41,6 +42,7 @@
 
 	// AutoSwarmMarket
 	let currentBatchId: Hex | undefined;
+	let currentPrice: bigint | undefined;
 
 	$: autoSwarm = metadata?.autoSwarm;
 
@@ -55,6 +57,7 @@
 
 			// AutoSwarmMarket
 			currentBatchId = await callMarketCurrentBatchId(bzzChainId);
+			currentPrice = await callPostageLastPrice(bzzChainId);
 		} catch (e) {
 			utilsError('<Debug refresh', e);
 		}
@@ -79,32 +82,34 @@
 		</p>
 		<hr />
 		<p>
-			NFT - Metadata URI / URL ({displaySizeBytes(metadata.autoSwarm.nftTokenUriSize)})
+			NFT - Metadata URI / URL
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftTokenUri)}
 			</span>
 		</p>
-		<p>
-			&nbsp;
+		<p class="shift">
+			{displaySizeBytes(metadata.autoSwarm.nftTokenUriSize)}
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftTokenUriAlt)}
 			</span>
 		</p>
 		<p>
-			NFT - Image URI / URL ({displaySizeBytes(metadata.autoSwarm.nftImageSize)})
+			NFT - Image URI / URL
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftImage)}
 			</span>
 		</p>
-		<p>
-			&nbsp;
+		<p class="shift">
+			{displaySizeBytes(metadata.autoSwarm.nftImageSize)}
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftImageAlt)}
 			</span>
 		</p>
 		<hr />
 		<p>
-			Swarm - NFT Hash <span>{displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
+			Swarm - NFT Hash <span
+				>{@html displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span
+			>
 		</p>
 		<p>
 			Swarm - NFT Size
@@ -156,8 +161,12 @@
 		<p>
 			TBA - Stamp Id <span>{metadata.autoSwarm.bzzStampId || UNDEFINED_DATA}</span>
 		</p>
+		<hr />
 		<p>
-			TBA - Batch Id <span>{ZERO_BYTES32}</span>
+			Postage - Current Batch Id <span>{currentBatchId}</span>
+		</p>
+		<p>
+			Postage - Current Price <span>{currentPrice}</span>
 		</p>
 		<hr />
 		<p>
@@ -185,5 +194,9 @@
 	}
 	#debug p span {
 		float: right;
+		font-family: Monaco;
+	}
+	#debug p.shift {
+		margin-left: 50px;
 	}
 </style>
