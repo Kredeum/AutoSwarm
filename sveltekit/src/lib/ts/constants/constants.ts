@@ -19,7 +19,7 @@ const ONE_WEEK = ONE_DAY * 7;
 const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
-const DEFAULT_PRICE = 24000n;
+const CHUNK_PRICE_DEFAULT = 24000n;
 const SECONDS_PER_BLOCK = 5;
 
 const CHUNK_SIZE = 2n ** 12n; // 4096 bytes / 4 Kb
@@ -34,8 +34,6 @@ const STAMP_PRICE = 10n ** 12n; // 0.001 Bzz
 const BATCH_TTL = ONE_MONTH; // 30 days
 const BATCH_DEPTH = 23; // 2**23
 const BATCH_SIZE = CHUNK_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go
-const BATCH_PRICE =
-	(2n ** BigInt(BATCH_DEPTH) * BigInt(BATCH_TTL) * DEFAULT_PRICE) / BigInt(SECONDS_PER_BLOCK);
 
 const DIVISION_BY_ZERO = '?????';
 const UNDEFINED_ADDRESS = '0x****************************************';
@@ -51,7 +49,7 @@ export {
 	BUCKET_DEPTH,
 	CHUNK_SIZE,
 	BZZ_DECIMALS,
-	DEFAULT_PRICE,
+	CHUNK_PRICE_DEFAULT,
 	SECONDS_PER_BLOCK,
 	DIVISION_BY_ZERO,
 	UNDEFINED_ADDRESS,
@@ -68,7 +66,6 @@ export {
 	BATCH_TTL,
 	BATCH_DEPTH,
 	BATCH_SIZE,
-	BATCH_PRICE,
 	METADATA_JSON,
 	IMAGE_JPEG
 };

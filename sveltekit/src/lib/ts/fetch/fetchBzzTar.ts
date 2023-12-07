@@ -22,7 +22,7 @@ const fetchBzzTar = async (
 
 	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = bzzTrim(localConfigGet('batchId') || SWARM_DEFAULT_BATCHID);
-	if (utilsIsBytes32Null(bzz0(batchId))) throw new Error('fetchBzzTar: No BatchId defined!');
+	if (!(bzz0(batchId))) throw new Error('fetchBzzTar: No BatchId defined!');
 
 	const collection: Collection = [];
 	for (let index = 0; index < urls.length; index++) {

@@ -27,6 +27,7 @@ const callPostageBatches = async (
 	return [owner, depth, bucketDepth, immutableFlag, normalisedBalance, lastUpdatedBlockNumber];
 };
 
+// OLD POSTAGE VERSION < 0.6
 const callPostageBatchesLegacy = async (
 	bzzChainId: number,
 	batchId: Hex
@@ -43,7 +44,7 @@ const callPostageBatchesLegacy = async (
 	return [owner, depth, BUCKET_DEPTH, immutableFlag, normalisedBalance, undefined];
 };
 
-const callPostageTotalOutPayment = async (bzzChainId: number): Promise<bigint> => {
+const callPostageCurrentTotalOutPayment = async (bzzChainId: number): Promise<bigint> => {
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
@@ -80,5 +81,5 @@ export {
 	callPostageBatchesLegacy,
 	callPostageLastPrice,
 	callPostageRemainingBalance,
-  callPostageTotalOutPayment
+	callPostageCurrentTotalOutPayment
 };

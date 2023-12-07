@@ -70,8 +70,8 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function createStamp(bytes32 bzzHash, uint256 bzzSize, uint256 bzzAmount) public returns (bytes32 stampId) {
-        require(bzzHash != bytes32(0), "Bad Swarm Hash");
-        require(bzzSize != 0, "Bad Swarm Size");
+        require(bzzHash != bytes32(0), "Bad Swarm Hash!");
+        require(bzzSize != 0, "Bad Swarm Size!");
 
         Stamp memory stamp = Stamp({
             owner: msg.sender,
@@ -129,6 +129,10 @@ contract AutoSwarmMarket is Ownable {
         // 3/ If batch expires or semi full: Create new batch
         // another solution for semi fulla ction would be to extends batch...
         if (aboutToExpire || aboutToBeSemiFull) newBatch();
+    }
+
+    function setBatch(bytes32 batchId) public onlyOwner {
+        currentBatchId = batchId;
     }
 
     function newBatch() public returns (bytes32 batchId) {

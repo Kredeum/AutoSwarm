@@ -6,13 +6,13 @@
 		BATCH_DEPTH,
 		BATCH_SIZE,
 		BATCH_TTL,
-		BATCH_PRICE,
 		STAMP_SIZE,
 		STAMP_TTL,
 		STAMP_PRICE,
 		UNDEFINED_DATA,
 		UNDEFINED_ADDRESS,
-		CHUNK_SIZE
+		CHUNK_SIZE,
+		CHUNK_PRICE_DEFAULT
 	} from '$lib/ts/constants/constants';
 	import { jsonGetField } from '$lib/ts/common/json';
 	import { utilsError } from '$lib/ts/common/utils';
@@ -33,10 +33,11 @@
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import {
 		callPostageBatches,
-		callPostageBatchesLegacy,
+		callPostageLastPrice,
 		callPostageRemainingBalance,
-		callPostageTotalOutPayment
+		callPostageCurrentTotalOutPayment
 	} from '$lib/ts/call/callPostage';
+	import { batchPrice } from '$lib/ts/swarm/batch';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <Monitor />
@@ -64,10 +65,12 @@
 	let currentBatchNormalisedBalance: bigint | undefined;
 	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
 
+	let currentBatchPrice: bigint | undefined;
 	let currentBatchTtl: bigint | undefined;
 	let currentBatchRemainingBalance: bigint | undefined;
 
-	let lastTotalOutPayment: bigint | undefined;
+	let currentTotalOutPayment: bigint | undefined;
+	let chunckPrice: bigint | undefined;
 
 	// State
 	let monthlyCroning = 0;
@@ -92,7 +95,9 @@
 				jsonGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
 
-			lastTotalOutPayment = await callPostageTotalOutPayment($bzzChainId);
+			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
+			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($bzzChainId);
+			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
 			[
 				currentBatchOwner,
@@ -101,10 +106,7 @@
 				currentBatchImmutableFlag,
 				currentBatchNormalisedBalance,
 				currentBatchLastUpdatedBlockNumber
-			] =
-				$bzzChainId == 100
-					? await callPostageBatchesLegacy($bzzChainId, currentBatchId)
-					: await callPostageBatches($bzzChainId, currentBatchId);
+			] = await callPostageBatches($bzzChainId, currentBatchId);
 
 			currentBatchRemainingBalance = await callPostageRemainingBalance($bzzChainId, currentBatchId);
 		} catch (e) {
@@ -137,7 +139,7 @@
 			refresh();
 
 			const autoSwarmMarket = jsonGetField($bzzChainId, 'AutoSwarmMarket') as Address;
-			await sendBzzTransfer($bzzChainId, autoSwarmMarket, BATCH_PRICE);
+			await sendBzzTransfer($bzzChainId, autoSwarmMarket, currentBatchPrice);
 
 			monthlyCroning = 2;
 			refresh();
@@ -178,22 +180,23 @@
 	<div id="monitor-content">
 		<hr />
 		<p>
-			All Batchs - Size = Chunk Size * Depth  / TTL / Price
+			Batchs - Size = Chunk Size * Depth / TTL / Price
 			<span>
 				{displaySize(BATCH_SIZE, 2)} =
 				{displaySize(CHUNK_SIZE, 0)} * 2<sup>{BATCH_DEPTH}</sup> /
 				{displayDuration(BATCH_TTL)} /
-				{displayBalance(BATCH_PRICE, 16, 4)} Bzz
+				{displayBalance(currentBatchPrice, 16, 4)} Bzz
 			</span>
 		</p>
 		<p>
-			All Stamps - TTL / Price per Unit
+			Stamps - TTL / Price per Unit
 			<span>
 				{displayDuration(STAMP_TTL)} /
 				{displayBalance(STAMP_PRICE, 16, 4)} Bzz per {displaySize(STAMP_SIZE, 0)}
 			</span>
 		</p>
-		<p>lastTotalOutPayment<span>{lastTotalOutPayment}</span></p>
+
+		<p>Chunks - Size / Last Price<span>{CHUNK_SIZE} bytes / {chunckPrice} Plur per block</span></p>
 		<hr />
 		<p>Market - Balance <span>{displayBalance(marketBalance, 16, 4)} Bzz</span></p>
 		<hr />
@@ -215,7 +218,7 @@
 		<hr />
 		<p>Swarm - Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
 		<p>
-			Swarm - Current Batch Immutable Flag / BucketDepth / Depth
+			Swarm - Current Batch Immutable Flag / Bucket Depth / Depth
 			<span>
 				{currentBatchImmutableFlag ? 'immutable' : 'mutable'}
 				/ 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
@@ -229,6 +232,8 @@
 				{displayDuration(currentBatchTtl) || UNDEFINED_DATA}
 			</span>
 		</p>
+		<hr />
+		<p>Postage - Last Total Out Payment<span>{currentTotalOutPayment}</span></p>
 		<hr />
 		<p>Bzz Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
 		<p>Bzz Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>

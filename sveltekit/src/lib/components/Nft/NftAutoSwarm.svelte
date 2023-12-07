@@ -2,15 +2,7 @@
 	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
 
-	import {
-		ONE_YEAR,
-		STAMP_PRICE,
-		DEFAULT_PRICE,
-		ONE_DAY,
-		SECONDS_PER_BLOCK,
-		STAMP_SIZE,
-		UNDEFINED_DATA
-	} from '$lib/ts/constants/constants.js';
+	import { ONE_YEAR, STAMP_PRICE, STAMP_SIZE } from '$lib/ts/constants/constants.js';
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { localConfigInit } from '$lib/ts/common/local';
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
