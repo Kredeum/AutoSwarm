@@ -3,11 +3,11 @@ import type { NftMetadata, NftMetadataAutoSwarm } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchUrl } from '../fetch/fetch';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { bzz, bzzImage } from '../swarm/bzz';
+import { bzzImage, bzzTokenUri } from '../swarm/bzz';
 import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
-import { STAMP_UNIT, STAMP_UNIT_PRICE } from '../constants/constants';
+import { STAMP_SIZE, STAMP_PRICE } from '../constants/constants';
 import type { Address } from 'viem';
 import { nftIds } from '../common/nft';
 
@@ -38,12 +38,12 @@ const _callTbaMetadata = async (
 		autoSwarm.bzzHash ||= await callTbaBzzHash(bzzChainId, autoSwarm.tbaAddress);
 		if (!utilsIsBytes32Null(autoSwarm.bzzHash)) {
 			autoSwarm.bzzSize ||= await callTbaBzzSize(bzzChainId, autoSwarm.tbaAddress);
-			autoSwarm.bzzPrice ||= utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
+			autoSwarm.bzzPrice ||= utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 
 			if (utilsIsBytes32Null(autoSwarm.bzzStampId))
 				autoSwarm.bzzStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
 
-			autoSwarm.tbaTokenUri ||= bzz(autoSwarm.bzzHash!);
+			autoSwarm.tbaTokenUri ||= bzzTokenUri(autoSwarm.bzzHash!);
 			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 
 			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash!);

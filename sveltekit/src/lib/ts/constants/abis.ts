@@ -11,7 +11,8 @@ const postageStampAbi = parseAbi([
 	'function remainingBalance(bytes32) external view returns(uint256)',
 	'function batches(bytes32) external view returns(address,uint8,uint8,bool,uint256,uint256)',
 	'function lastPrice() external view returns (uint64)',
-	'function topUp(bytes32,uint256) external'
+	'function topUp(bytes32,uint256) external',
+	'function currentTotalOutPayment() external view returns (uint256)'
 ]);
 const erc165Abi = parseAbi(['function supportsInterface(bytes4) external view returns (bool)']);
 const erc20Abi = parseAbi([
@@ -42,6 +43,7 @@ const autoSwarmAccountAbi = parseAbi([
 const autoSwarmMarketAbi = parseAbi([
 	'function newBatch() public returns (bytes32)',
 	'function currentBatchId() external view returns (bytes32)',
+	'function lastPrice() external view returns(uint64)',
 	'function extendsBatch(bytes32,uint8) external'
 ]);
 

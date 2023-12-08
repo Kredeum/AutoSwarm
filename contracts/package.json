@@ -1,6 +1,6 @@
 {
   "name": "autoswarm-backend",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "main": "",
   "scripts": {
     "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy-test",

@@ -1,0 +1,10 @@
+
+### EX1 : GET OK => HTTP/1.1 200 OK
+GET https://api.poap.tech/metadata/159706/6927432
+
+### EX2
+GET https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
+Origin: http://localhost:5173
+
+###
+GET https://google.com

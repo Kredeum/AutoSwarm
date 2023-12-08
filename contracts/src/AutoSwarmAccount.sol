@@ -43,7 +43,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
         _bzzToken = IERC20(_autoSwarmMarket.bzzToken());
 
-        require(address(_bzzToken) != address(0), "Bad BzzToken");
+        require(address(_bzzToken) != address(0), "Bad BzzToken!");
 
         stampId = _autoSwarmMarket.createStamp(bzzHash, bzzSize, 0);
     }

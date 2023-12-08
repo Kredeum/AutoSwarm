@@ -1,4 +1,10 @@
-import { BUCKET_DEPTH, BUCKET_SIZE } from '../constants/constants';
+import { callPostageLastPrice } from '../call/callPostage';
+import {
+	BUCKET_DEPTH,
+	CHUNK_SIZE,
+	CHUNK_PRICE_DEFAULT,
+	SECONDS_PER_BLOCK
+} from '../constants/constants';
 import { utilsNBalToTtl } from './utils';
 
 const batchBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): bigint | undefined => {
@@ -11,7 +17,7 @@ const batchBzzToNBal = (bzz: bigint | undefined, depth: number | undefined): big
 const batchSizeBatch = (depth: number | undefined): bigint | undefined => {
 	if (depth === undefined) return;
 
-	return 2n ** BigInt(depth) * BigInt(BUCKET_SIZE);
+	return 2n ** BigInt(depth) * CHUNK_SIZE;
 };
 
 const batchSizeBucket = (): bigint => batchSizeBatch(BUCKET_DEPTH)!;
@@ -26,10 +32,22 @@ const batchNBalToBzz = (
 	return batchNBal * 2n ** BigInt(depth - BUCKET_DEPTH);
 };
 
+const batchPrice = async (bzzChaind: number, depth: number, ttl: number) => {
+	const lastPrice = (await callPostageLastPrice(bzzChaind)) || CHUNK_PRICE_DEFAULT;
+	return (2n ** BigInt(depth) * BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
+};
+
 const batchBzzToTtl = (
 	bzz: bigint | undefined,
 	lastPrice: bigint | undefined,
 	depth: number | undefined
 ): bigint | undefined => utilsNBalToTtl(batchBzzToNBal(bzz, depth), lastPrice);
 
-export { batchNBalToBzz, batchBzzToNBal, batchBzzToTtl, batchSizeBatch, batchSizeBucket };
+export {
+	batchPrice,
+	batchNBalToBzz,
+	batchBzzToNBal,
+	batchBzzToTtl,
+	batchSizeBatch,
+	batchSizeBucket
+};

@@ -1,16 +1,18 @@
 import type { Hex } from 'viem';
 import { ZERO_BYTES32 } from '../constants/constants';
 
+import { alertMessage } from '$lib/ts/stores/alerts';
+
 const utilsError = (label: string, err?: unknown) => {
-	const message = `${label} : ${err}`;
+	const message = `${label} ${err}`;
 	console.error(message);
 	// alert(message);
+	alertMessage.set({ status: 'error', message });
 };
 
-const utilsIsBytes32Null = (b32: Hex | string | undefined): boolean =>
-	Boolean(!b32 || b32 === ZERO_BYTES32);
+const utilsIsBytes32Null = (b32: Hex | undefined): boolean => Boolean(!b32 || b32 === ZERO_BYTES32);
 
-const utilsTruncate = (str: string | undefined, start: number, end: number): string | undefined => {
+const utilsTruncate = (str: string | undefined, start = 45, end = 25): string | undefined => {
 	if (str === undefined) return;
 	if (str.length <= start + end) return str;
 	return str.slice(0, start) + '...' + str.slice(str.length - end);

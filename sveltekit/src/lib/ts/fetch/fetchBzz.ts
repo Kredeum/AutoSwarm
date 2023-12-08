@@ -5,12 +5,13 @@ import { fetchSuccess, fetchUrl, fetchUrlOk } from './fetch';
 import { fetchAltUrl } from './fetchAlt';
 
 import type { Hex } from 'viem';
+import { bzzTrim } from '../swarm/bzz';
 
 const fetchBzzPost = async (url: URL | string | undefined): Promise<string | undefined> => {
 	if (!(url && fetchUrlOk(url))) throw new Error(`fetchBzzPost: Bad URL ${url}`);
 
 	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
-	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
+	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID) as Hex;
 	if (utilsIsBytes32Null(batchId)) throw new Error('fetchBzzPost: No BatchId defined!');
 
 	const urlAlt = await fetchAltUrl(url);
@@ -22,7 +23,7 @@ const fetchBzzPost = async (url: URL | string | undefined): Promise<string | und
 
 	const headers = new Headers();
 	headers.append('Content-Type', body.type);
-	headers.append('swarm-postage-batch-id', batchId);
+	headers.append('swarm-postage-batch-id', bzzTrim(batchId));
 
 	const response = await fetch(swarmApiUrl, { method: 'POST', headers, body });
 	if (!fetchSuccess(response.status)) throw Error(`fetchBzzPost: ${response.status}`);

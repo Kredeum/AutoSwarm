@@ -3,6 +3,7 @@
 	import { localConfigGet, localConfigSet } from '$lib/ts/common/local';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
+	import { bzz } from '$lib/ts/swarm/bzz';
 
 	////////////////////// Swarm Config Component ///////////////////////////////
 	// <Config />
@@ -16,7 +17,7 @@
 	let successMessage = '';
 
 	$: swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
-	$: batchId = localConfigGet('batchId');
+	$: batchId = localConfigGet('batchId') || undefined;
 
 	const isUrlValid = (url: string): boolean => {
 		if (!url) return false;
@@ -28,8 +29,8 @@
 		}
 	};
 
-	const isBatchIdValid = (batchId: string | null): boolean =>
-		!batchId || batchId.replace(/^0x/, '').length === 64;
+	const isBatchIdValid = (batchId: string | undefined): boolean =>
+		Boolean(batchId?.replace(/^0x/, '').length === 64);
 
 	const resetMessages = () => {
 		errMessage = '';
@@ -47,17 +48,17 @@
 		}
 		localConfigSet('api', swarmApi);
 
-		batchId = batchId?.trim() || null;
-		batchId = batchId?.replace(/^0x/, '') || null;
-		if (batchId !== null) batchId = `0x${batchId}`;
-		if (!(batchId && isBatchIdValid(batchId))) {
+		batchId = batchId?.trim();
+		console.log('storeUserSettings ~ batchId:', batchId);
+		if (isBatchIdValid(batchId)) {
+			successMessage = 'Swarm config stored';
+			localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
+		} else {
 			errMessage = `Invalid batchId '${batchId}'`;
-			batchId = localConfigGet('batchId') || null;
+			batchId = localConfigGet('batchId') || SWARM_DEFAULT_BATCHID;
 			return;
 		}
-		localConfigSet('batchId', batchId);
 
-		successMessage = 'Swarm config stored';
 		setTimeout(() => resetMessages(), 2000);
 	};
 </script>
@@ -75,7 +76,7 @@
 			on:input={resetMessages}
 		/>
 
-		<label class="input-label" for="batch-id">BatchID</label>
+		<label class="input-label" for="batch-id">Batch Id</label>
 		<input
 			type="text"
 			class="input-field"

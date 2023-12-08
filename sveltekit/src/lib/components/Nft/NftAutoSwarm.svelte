@@ -2,14 +2,7 @@
 	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
 
-	import {
-		ONE_YEAR,
-		STAMP_UNIT_PRICE,
-		DEFAULT_PRICE,
-		ONE_DAY,
-		SECONDS_PER_BLOCK,
-		STAMP_UNIT
-	} from '$lib/ts/constants/constants.js';
+	import { ONE_YEAR, STAMP_PRICE, STAMP_SIZE } from '$lib/ts/constants/constants.js';
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { localConfigInit } from '$lib/ts/common/local';
 	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
@@ -19,10 +12,16 @@
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
-	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
+	import {
+		displayBalance,
+		displayDate,
+		displayDuration,
+		displaySize
+	} from '$lib/ts/display/display';
 
 	import { utilsDivUp, utilsError, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { alertMessage } from '$lib/ts/stores/alerts';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
@@ -114,7 +113,7 @@
 	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(autoSwarm?.bzzPrice);
 
 	const topUpStamp = async () => {
-		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_UNIT_PRICE);
+		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_PRICE);
 	};
 
 	const reSaveNft = async () => {
@@ -130,7 +129,7 @@
 		console.log('reSaveNft ~ bzzHash:', autoSwarm.bzzHash);
 		console.log('reSaveNft ~ tbaImage:', autoSwarm.tbaImage, autoSwarm.nftImageSize);
 		console.log('reSaveNft ~ tbaTokenUri:', autoSwarm.tbaTokenUri, autoSwarm.nftTokenUriSize);
-		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_UNIT) * STAMP_UNIT_PRICE;
+		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 	};
 
 	const reSave = async () => {
@@ -149,6 +148,7 @@
 			resaving = 4;
 			refresh();
 			await initializeAccount();
+			$alertMessage = { status: 'success', message: 'Your NFT has been ReSaved on Swarm! 🎉' };
 			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
 			refresh();
 		} catch (e) {
@@ -164,6 +164,7 @@
 			if (toping) throw Error('Already Topping Up!');
 			toping = 1;
 			await sendBzzTransferOneYear();
+			$alertMessage = { status: 'success', message: 'Your NFT has been TopUped on Swarm! 🎉' };
 			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
 			refresh();
 		} catch (e) {
@@ -222,7 +223,7 @@
 				{/if}
 				<div class="batch-topUp-below">
 					<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
-					<p><small>({displayBalance(STAMP_UNIT_PRICE, 16, 3)} Bzz / Ko / Year)</small></p>
+					<p><small>({displayBalance(STAMP_PRICE, 16, 4)} Bzz / Kb / Year)</small></p>
 				</div>
 			</div>
 		{/if}

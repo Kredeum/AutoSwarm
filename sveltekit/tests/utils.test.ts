@@ -7,11 +7,11 @@ import {
 	utilsNBalToTtl,
 	utilsTtlToNBal
 } from '$lib/ts/swarm/utils';
-import { BUCKET_DEPTH, BUCKET_SIZE } from '$lib/ts/constants/constants';
+import { BUCKET_DEPTH, CHUNK_SIZE } from '$lib/ts/constants/constants';
 
-test('BUCKET_DEPTH and BUCKET_SIZE', () => {
+test('BUCKET_DEPTH and CHUNK_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);
-	expect(BUCKET_SIZE).toBe(4_096);
+	expect(CHUNK_SIZE).toBe(4_096n);
 });
 
 test('pow pow', () => {

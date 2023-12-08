@@ -13,6 +13,7 @@ import { fetchAltUrl } from './fetchAlt';
 import { utilsIsBytes32Null } from '../common/utils';
 import { urlToUrl } from '../common/url';
 import { fetchSuccess, fetchUrl } from './fetch';
+import { bzz0, bzzTrim } from '../swarm/bzz';
 
 const fetchBzzTar = async (
 	urls: (URL | string | undefined)[]
@@ -20,8 +21,8 @@ const fetchBzzTar = async (
 	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
 
 	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
-	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID).replace(/^0x/, '');
-	if (utilsIsBytes32Null(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
+	const batchId = bzzTrim(localConfigGet('batchId') || SWARM_DEFAULT_BATCHID);
+	if (!(bzz0(batchId))) throw new Error('fetchBzzTar: No BatchId defined!');
 
 	const collection: Collection = [];
 	for (let index = 0; index < urls.length; index++) {
