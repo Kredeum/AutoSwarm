@@ -1,12 +1,11 @@
 ### EX1 : HEAD KO => HTTP/1.1 403 Forbidden
 HEAD https://api.poap.tech/metadata/159706/6927432
 
-### EX1 : GET OK => HTTP/1.1 200 OK
-GET https://api.poap.tech/metadata/159706/6927432
+###
+HEAD https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
 
-### EX2
-GET https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif
-Origin: http://localhost:5173
+###
+HEAD http://localhost:9000
 
 ### EX2
 HEAD https://cdn-2.galxe.com/galaxy/images/optimism/1662985708644086051.gif

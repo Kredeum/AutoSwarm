@@ -223,7 +223,7 @@
 				{/if}
 				<div class="batch-topUp-below">
 					<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
-					<p><small>({displayBalance(STAMP_PRICE, 16, 3)} Bzz / Kb / Year)</small></p>
+					<p><small>({displayBalance(STAMP_PRICE, 16, 4)} Bzz / Kb / Year)</small></p>
 				</div>
 			</div>
 		{/if}

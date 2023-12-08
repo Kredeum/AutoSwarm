@@ -47,7 +47,8 @@ const chainGetWithTransport = (
 		rpcUrl = 'http://127.0.0.1:8545';
 	} else if (chainId === gnosis.id) {
 		// rpcUrl = 'https://rpc.ankr.com/gnosis';
-		rpcUrl = 'https://gnosis.publicnode.com';
+		// rpcUrl = 'https://gnosis.publicnode.com';
+    rpcUrl = 'https://rpc.gnosis.gateway.fm';
 	} else if (chainId === sepolia.id) {
 		rpcUrl = `https://sepolia.infura.io/v3/${INFURA_API_KEY}`;
 	} else if (chainId === mainnet.id) {

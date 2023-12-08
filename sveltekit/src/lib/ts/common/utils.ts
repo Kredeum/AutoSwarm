@@ -4,7 +4,7 @@ import { ZERO_BYTES32 } from '../constants/constants';
 import { alertMessage } from '$lib/ts/stores/alerts';
 
 const utilsError = (label: string, err?: unknown) => {
-	const message = `${label} : ${err}`;
+	const message = `${label} ${err}`;
 	console.error(message);
 	// alert(message);
 	alertMessage.set({ status: 'error', message });

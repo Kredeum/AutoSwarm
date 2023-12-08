@@ -17,7 +17,7 @@
 	localStorage.setItem('swarm.chainId', chainId);
 	bzzChainId.set(Number(chainId));
 
-	$: document.body.style.backgroundColor = ['/monitor', '/config'].includes($page.route.id || '')
+	$: document.body.style.backgroundColor = ['/monitor'].includes($page.route.id || '')
 		? '#444'
 		: '#000';
 </script>
