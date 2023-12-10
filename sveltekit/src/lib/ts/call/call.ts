@@ -57,4 +57,4 @@ const callChainId = async (chain: Chain) => {
 	return await publicClient.getChainId();
 };
 
-export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock, callBlockNumber};
+export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock, callBlockNumber };

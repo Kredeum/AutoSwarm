@@ -17,14 +17,12 @@
 		displayBalance,
 		displayBzzURI,
 		displayBzzURL,
-		displayExplorer,
-		displayExplorerAddress,
-		displayExplorerNft,
 		displayLink,
 		displaySize,
 		displaySizeBytes
 	} from '$lib/ts/display/display';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
+	import { displayExplorer, displayExplorerAddress, displayExplorerNft } from '$lib/ts/display/displayExplorer';
 
 	///////////////////////////// Debug Component ///////////////////////////////////////
 	// <Debug {bzzChainId}   {metadata} />

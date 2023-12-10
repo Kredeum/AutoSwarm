@@ -1,0 +1,32 @@
+###
+POST http://127.0.0.1:1633/bzz
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+Content-Type: text/plain
+
+012
+
+###
+POST http://127.0.0.1:1633/bzz
+Swarm-Postage-Batch-Id: 0000000000000000000000000000000000000000000000000000000000000000
+Content-Type: text/plain
+
+BZZ
+
+
+###
+GET https://api.gateway.ethswarm.org/bzz/ac8445cf1fd7999eec135ef087b9cfeebfd2297734eee64092381da1ddc3e2d8
+
+###
+
+POST https://api.gateway.ethswarm.org/bzz
+Content-Type: text/plain
+
+BZZ
+
+
+###
+POST https://api.gateway.ethswarm.org/bzz
+Swarm-Postage-Batch-Id: 0000000000000000000000000000000000000000000000000000000000000000
+Content-Type: text/plain
+
+BZZ

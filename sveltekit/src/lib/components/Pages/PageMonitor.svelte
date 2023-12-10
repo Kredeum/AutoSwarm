@@ -20,8 +20,6 @@
 	import {
 		displayBalance,
 		displayDuration,
-		displayExplorer,
-		displayExplorerField,
 		displaySize,
 		displayTtl
 	} from '$lib/ts/display/display';
@@ -39,6 +37,7 @@
 		callPostageCurrentTotalOutPayment
 	} from '$lib/ts/call/callPostage';
 	import { batchPrice } from '$lib/ts/swarm/batch';
+	import { displayExplorer, displayExplorerField } from '$lib/ts/display/displayExplorer';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <Monitor />
@@ -202,40 +201,40 @@
 		<p>Market | Balance <span>{displayBalance(marketBalance, 16, 4)} Bzz</span></p>
 		<p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
 		<hr />
-    <p>Swarm | Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
+		<p>Swarm | Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
 		<p>
-      Swarm | Current Batch Block - Last Updated Block = Delta
+			Swarm | Current Batch Block - Last Updated Block = Delta
 			<span>
-        #{lastBlockNumber || UNDEFINED_DATA}
+				#{lastBlockNumber || UNDEFINED_DATA}
 				- #{currentBatchLastUpdatedBlockNumber || UNDEFINED_DATA}
 				= &#916;{lastBlockNumber && currentBatchLastUpdatedBlockNumber
 					? lastBlockNumber - currentBatchLastUpdatedBlockNumber
 					: UNDEFINED_DATA}
 			</span>
 		</p>
-    <p>
-      Swarm | Current Batch Immutable Flag / Bucket Depth / Depth
-      <span>
-        {currentBatchImmutableFlag ? 'immutable' : 'mutable'}
-        / 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
-        / 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup>
-      </span>
-    </p>
-    <p>
-      Swarm | Current Batch NormalisedBalance
-      <span>
-        {currentBatchNormalisedBalance || UNDEFINED_DATA} /
-        {displayTtl(currentBatchNormalisedBalance, chunckPrice)}
-      </span>
-    </p>
-    <p>
-      Swarm | Current Batch RemainingBalance / TTL
-      <span>
-        {currentBatchRemainingBalance || UNDEFINED_DATA} /
-        {displayTtl(currentBatchRemainingBalance, chunckPrice)}
-      </span>
-    </p>
-    <hr />
+		<p>
+			Swarm | Current Batch Immutable Flag / Bucket Depth / Depth
+			<span>
+				{currentBatchImmutableFlag ? 'immutable' : 'mutable'}
+				/ 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
+				/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup>
+			</span>
+		</p>
+		<p>
+			Swarm | Current Batch NormalisedBalance
+			<span>
+				{currentBatchNormalisedBalance || UNDEFINED_DATA} /
+				{displayTtl(currentBatchNormalisedBalance, chunckPrice)}
+			</span>
+		</p>
+		<p>
+			Swarm | Current Batch RemainingBalance / TTL
+			<span>
+				{currentBatchRemainingBalance || UNDEFINED_DATA} /
+				{displayTtl(currentBatchRemainingBalance, chunckPrice)}
+			</span>
+		</p>
+		<hr />
 		<p>Bzz Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
 		<p>Bzz Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>
 		<p>ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>

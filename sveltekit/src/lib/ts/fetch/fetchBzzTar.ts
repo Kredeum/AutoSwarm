@@ -9,20 +9,19 @@ import {
 } from '../constants/constants';
 import { localConfigGet } from '../common/local';
 import { fetchAltUrl } from './fetchAlt';
-
-import { utilsIsBytes32Null } from '../common/utils';
 import { urlToUrl } from '../common/url';
-import { fetchSuccess, fetchUrl } from './fetch';
+import { fetchUrl } from '../fetch/fetch';
 import { bzz0, bzzTrim } from '../swarm/bzz';
+import { fetchBzzPost } from './fetchBzz';
 
 const fetchBzzTar = async (
 	urls: (URL | string | undefined)[]
 ): Promise<[Hex, bigint, string[], number[]]> => {
 	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
 
-	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
+	const api = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = bzzTrim(localConfigGet('batchId') || SWARM_DEFAULT_BATCHID);
-	if (!(bzz0(batchId))) throw new Error('fetchBzzTar: No BatchId defined!');
+	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
 
 	const collection: Collection = [];
 	for (let index = 0; index < urls.length; index++) {
@@ -33,10 +32,10 @@ const fetchBzzTar = async (
 		// const [type, subtype] = contentType?.split('/') || [];
 
 		const urlAlt = await fetchAltUrl(url);
-		if (!urlAlt) throw new Error(`fetchBzzPost: Bad URL ${url}`);
+		if (!urlAlt) throw new Error(`fetchBzzTar: Bad URL ${url}`);
 
 		const response = await fetchUrl(urlAlt);
-		if (!response) throw new Error(`fetchBzzPost: Bad URL ${urlAlt}`);
+		if (!response) throw new Error(`fetchBzzTar: Bad URL ${urlAlt}`);
 
 		const blob = await response.blob();
 		const data = new Uint8Array(await blob.arrayBuffer());
@@ -68,18 +67,17 @@ const fetchBzzTar = async (
 
 	const headers = new Headers();
 	headers.append('Content-Type', 'application/x-tar');
-	headers.append('swarm-postage-batch-id', batchId);
-	headers.append('swarm-pin', 'true');
-	headers.append('swarm-collection', 'true');
+	headers.append('Swarm-Postage-Batch-Id', batchId);
+	headers.append('Swarm-Pin', 'true');
+	headers.append('Swarm-Collection', 'true');
 
-	const response = await fetch(swarmApiUrl, { method: 'POST', headers, body });
-	if (!fetchSuccess(response.status)) throw Error(`fetchBzzTar: ${response.status} ${swarmApiUrl}`);
-	const json = await response.json();
+	const hash = await fetchBzzPost(api, body, headers);
+	console.log('fetchBzzTar hash:', hash);
 
-	const paths = collection.map((item) => `${swarmApiUrl}/${json.reference}/${item.path}`);
+	const paths = collection.map((item) => `${api}/${bzzTrim(hash)}/${item.path}`);
 	const sizes = collection.map((item) => item.data.length);
 
-	return [`0x${json.reference}`, bodySize, paths, sizes];
+	return [hash, bodySize, paths, sizes];
 };
 
 export { fetchBzzTar };

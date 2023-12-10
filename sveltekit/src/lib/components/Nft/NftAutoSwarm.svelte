@@ -58,10 +58,9 @@
 	let resaving = 0;
 	let toping = 0;
 
-	const showAlert = (message: string) =>
-		setTimeout(() => {
-			alert(message);
-		}, 0);
+	$: resaving, toping, refresh();
+
+	const alert = (status: string, message: string) => ($alertMessage = { status, message });
 
 	const reset = () => {
 		remainingBalance = undefined;
@@ -137,20 +136,26 @@
 
 		try {
 			if (resaving) throw Error('Already ReSaving!');
+
 			resaving = 1;
 			await reSaveNft();
+
 			resaving = 2;
-			refresh();
+			alert(
+				'info',
+				`Confirm transaction to transfer ${displayBalance(autoSwarm?.bzzPrice, 16, 3)} BZZ`
+			);
 			await sendBzzTransferOneYear();
+
 			resaving = 3;
-			refresh();
+			alert('info', `Confirm transaction to create token bound account`);
 			await createAccount();
+
 			resaving = 4;
-			refresh();
+			alert('info', `Confirm transaction to initialize token bound account`);
 			await initializeAccount();
-			$alertMessage = { status: 'success', message: 'Your NFT has been ReSaved on Swarm! 🎉' };
-			// showAlert('Your NFT has been ReSaved on Swarm! 🎉');
-			refresh();
+
+			alert('success', `Your NFT has been ReSaved on Swarm! 🎉'`);
 		} catch (e) {
 			utilsError(`ReSave (${resaving - 1}/3) :`, e);
 		}
@@ -163,10 +168,14 @@
 		try {
 			if (toping) throw Error('Already Topping Up!');
 			toping = 1;
+			alert(
+				'info',
+				`Confirm transaction and pay ${displayBalance(autoSwarm?.bzzPrice, 16, 3)} BZZ to TopUp`
+			);
 			await sendBzzTransferOneYear();
-			$alertMessage = { status: 'success', message: 'Your NFT has been TopUped on Swarm! 🎉' };
-			// showAlert('Your NFT has been TopUped on Swarm! 🎉');
-			refresh();
+
+			toping = 1;
+			alert('success', 'Your NFT has been TopUped on Swarm! 🎉');
 		} catch (e) {
 			utilsError(`TopUp :`, e);
 		}
@@ -176,7 +185,6 @@
 
 	onMount(async () => {
 		localConfigInit();
-		await refresh();
 	});
 </script>
 

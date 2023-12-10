@@ -14,8 +14,6 @@ import {
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import { chainGetExplorer } from '../common/chains';
-import { jsonGetField } from '../common/json';
 import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
 import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
 
@@ -100,51 +98,6 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	return ret;
 };
 
-const displayExplorer = (chainId: number | undefined): string => {
-	if (!chainId) return '';
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return `#${chainId}`;
-
-	return `<a href="${explorer}" target="_blank">#${chainId}</a>`;
-};
-
-const displayExplorerNft = (
-	chainId: number | undefined,
-	collection: string | undefined,
-	tokenId: bigint | undefined
-): string => {
-	if (!(chainId && collection && tokenId && tokenId >= 0)) return '';
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return `#${chainId}`;
-
-	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${utilsTruncate(
-		tokenId.toString()
-	)}</a>`;
-};
-
-const _displayExplorerAddress = (
-	chainId: number | undefined,
-	addr: Address | undefined
-): string => {
-	if (!chainId) return '';
-
-	const explorer = chainGetExplorer(chainId);
-	console.log('explorer:', explorer);
-	if (!explorer) return `${addr}`;
-
-	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;
-};
-
-const displayExplorerAddress = (chainId: number | undefined, addr: Address | undefined): string => {
-	console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
-
-	return chainId && addr && isAddress(addr)
-		? _displayExplorerAddress(chainId, addr)
-		: UNDEFINED_ADDRESS;
-};
-const displayExplorerField = (chainId: number, field: string): string =>
-	displayExplorerAddress(chainId, jsonGetField(chainId, field) as Address);
-
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
 
@@ -152,6 +105,7 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 };
 
 const displayBzzURI = (str: Hex | string | undefined, path?: string): string => {
+  console.log("displayBzzURI", str, bzzTrim(str) );
 	const hash = bzzTrim(str);
 	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
@@ -220,9 +174,5 @@ export {
 	displayDate,
 	displayBatchSize,
 	displayBatchDepthWithSize,
-	displayExplorer,
-	displayExplorerNft,
-	displayExplorerAddress,
-	displayExplorerField,
 	displayBzzFromNBal
 };

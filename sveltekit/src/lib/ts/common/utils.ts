@@ -22,4 +22,11 @@ const utilsDivUp = (a: bigint | number, b: bigint | number): bigint => {
 	return BigInt(a) == 0n ? 0n : (BigInt(a) - 1n) / BigInt(b) + 1n;
 };
 
-export { utilsError, utilsDivUp, utilsIsBytes32Null, utilsTruncate };
+const utilsUint8ArrayToHex = (bytes: Uint8Array): Hex => {
+	const hexByte = (n: number) => n.toString(16).padStart(2, '0');
+	const hex = Array.from(bytes, hexByte).join('') as Hex;
+
+	return `0x${hex}` as Hex;
+};
+
+export { utilsError, utilsDivUp, utilsIsBytes32Null, utilsTruncate, utilsUint8ArrayToHex };

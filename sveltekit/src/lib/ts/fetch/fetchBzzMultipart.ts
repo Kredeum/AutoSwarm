@@ -5,6 +5,7 @@ import { fetchAltUrl } from './fetchAlt';
 import { utilsIsBytes32Null } from '../common/utils';
 import type { Hex } from 'viem';
 import { bzzTrim } from '../swarm/bzz';
+import { fetchBzzPost } from './fetchBzz';
 
 const _Uint8ArrayToBinary = (u8Array: Uint8Array): string => {
 	let bin = '';
@@ -13,10 +14,10 @@ const _Uint8ArrayToBinary = (u8Array: Uint8Array): string => {
 };
 
 // TOO BUGGY
-const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<string> => {
+const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<Hex> => {
 	const boundary = `AUTOSWARM${Math.random().toString().substr(8)}`;
 
-	const swarmApiUrl = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
+	const api = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
 	const batchId = (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID) as Hex;
 	if (utilsIsBytes32Null(batchId))
 		throw new Error('fetchBzzMultipartTooBuggy: No BatchId defined!');
@@ -51,21 +52,11 @@ const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<
 
 	const headers = new Headers();
 	headers.append('Content-Type', `multipart/form-data; boundary=${boundary}`);
-	headers.append('swarm-postage-batch-id', bzzTrim(batchId));
+	headers.append('Swarm-Postage-Batch-Id', bzzTrim(batchId));
 	headers.append('swarm-pin', 'true');
 	headers.append('swarm-collection', 'true');
 
-	const response = await fetch(swarmApiUrl, { method: 'POST', headers, body });
-	if (!fetchSuccess(response.status)) throw Error(`fetchBzzMultipartTooBuggy: ${response.status}`);
-	const json = await response.json();
-
-	if (!response.ok) {
-		throw Error(`${response.statusText}\n${JSON.stringify(json, null, 2)}`);
-	}
-
-	console.log('fetchBzzMultipart', await response.json());
-
-	return `${SWARM_GATEWAY}/${json.reference}/`;
+	return fetchBzzPost(api, body, headers);
 };
 
 export { fetchBzzMultipartTooBuggy };

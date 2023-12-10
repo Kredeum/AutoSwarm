@@ -41,13 +41,13 @@ const callNftTokenUri = async (
 				abi: erc1155Abi,
 				functionName: 'uri',
 				args: [nftTokenId]
-		  })
+			})
 		: await publicClient.readContract({
 				address: nftCollection,
 				abi: erc721Abi,
 				functionName: 'tokenURI',
 				args: [nftTokenId]
-		  });
+			});
 
 	// console.info('callNftTokenUri', nftTokenUri.toString());
 	return nftTokenUri;

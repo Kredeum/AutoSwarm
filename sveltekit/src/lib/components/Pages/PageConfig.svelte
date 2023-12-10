@@ -124,6 +124,7 @@
 
 	#config-content {
 		width: 650px;
+		max-width: 90vw;
 		display: flex;
 		align-items: center;
 		flex-direction: column;

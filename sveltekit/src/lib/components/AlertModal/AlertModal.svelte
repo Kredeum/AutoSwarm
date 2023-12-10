@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
+	import { clickOutside } from '$lib/ts/common/clickOutside';
 
 	import { alertMessage } from '$lib/ts/stores/alerts';
 
@@ -18,7 +19,7 @@
 	const displayMessage = () => {
 		clearTimeout(timeoutId);
 		modalOpen = true;
-		if (messageStatus !== 'error') timeoutId = setTimeout(() => resetMessage(), 5000);
+		if (messageStatus === 'success') timeoutId = setTimeout(() => resetMessage(), 5000);
 	};
 
 	const easingMode = () => (messageStatus === 'error' ? bounceOut : quintOut);
@@ -33,45 +34,83 @@
 {#if modalOpen}
 	<div
 		class="alert-message alert-{messageStatus}-message"
+		role="alert"
 		in:fly={{ delay: 0, duration: 300, x: 100, y: 0, opacity: 0.5, easing: easingMode() }}
 		out:fade={{ duration: 500 }}
+		use:clickOutside={resetMessage}
 	>
-		<button on:click={resetMessage} on:keydown={resetMessage} title="Close" class="modal-close"
-			><i class="fa fa-times" />
+		<button
+			on:click={resetMessage}
+			on:keydown={resetMessage}
+			class="modal-close"
+			title="Close"
+			aria-label="Close"
+		>
+			<i class="fa fa-times" />
 		</button>
-		<p>{messageStatus === 'error' ? 'Ooops !' : 'Great !'}</p>
+
+		<p>
+			{#if messageStatus === 'error'}
+				<i class="fa-solid fa-circle-exclamation" /> Ooops !
+			{:else if messageStatus === 'success'}
+				<!-- <i class="fa-regular fa-circle-check" /> -->
+				<i class="fa-solid fa-circle-check" /> Great !
+			{:else}
+				<i class="fa-solid fa-circle-info" />
+			{/if}
+		</p>
 		<pre>{message}</pre>
 	</div>
 {/if}
 
 <style>
 	.alert-message {
-		background-color: #fff;
-		border-radius: 6px;
+		/* background-color: #fff; */
+		background-color: #000;
+		border-radius: 1.5em;
 		position: fixed;
-		left: 5em;
+		left: 50%;
+		transform: translateX(-50%);
 		top: 3em;
-		padding: 0em 2em;
+		padding: 0em 2.5em;
+		max-width: 90%;
+		color: #fff;
+		border: 2px solid var(--color-link);
 	}
 
-	.alert-error-message {
+	/* .alert-error-message {
 		color: red;
 	}
 
 	.alert-success-message {
 		color: rgb(16, 163, 16);
-	}
+	} */
 
 	.modal-close {
 		position: absolute;
-		top: 1em;
-		right: 1em;
+		top: 0.3em;
+		right: 0.3em;
 		border: none;
 		background-color: transparent;
 		cursor: pointer;
 	}
 
+	.modal-close i {
+		font-size: 2em;
+		color: #fff;
+	}
+
+	.fa-circle-exclamation {
+		color: red;
+	}
+
+	.fa-circle-check {
+		color: rgb(16, 163, 16);
+	}
+
 	pre {
 		white-space: pre-line;
+		word-wrap: break-word;
+		font-family: var(--font-body);
 	}
 </style>
