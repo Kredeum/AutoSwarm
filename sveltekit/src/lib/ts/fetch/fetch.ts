@@ -10,8 +10,8 @@ const fetchUrl = async (
 	if (!url) return;
 
 	try {
-		// const response = await fetch(url, { method });
-		const response = await fetch(url, { method, mode: 'cors' });
+		const response = await fetch(url, { method });
+		// const response = await fetch(url, { method, mode: 'cors' });
 		if (fetchSuccess(response.status)) {
 			return response;
 		} else {

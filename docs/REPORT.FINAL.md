@@ -4,7 +4,7 @@ theme: default
 backgroundColor: #fff
 paginate: true
 footer: AutoSwarm: NFT's Second Life
-_footer: Kredeum - 11th December 2023
+_footer: Kredeum - 12th December 2023
 _paginate: false
 _backgroundColor: rgb(4,38,79)
 _color: white
@@ -126,7 +126,7 @@ launch, roughtly every month, at the beginning of the overlapping period
 - Integration of AutoSwarm with Swarm Desktop
 
 ### Q2-Q4 2024
-- Decentralization of AutoSwarm BackOffice
+- Full Decentralization of AutoSwarm, mainly BackOffice
 
 ---
 <style scoped>

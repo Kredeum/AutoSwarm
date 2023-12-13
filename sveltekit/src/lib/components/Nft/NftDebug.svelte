@@ -22,7 +22,11 @@
 		displaySizeBytes
 	} from '$lib/ts/display/display';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
-	import { displayExplorer, displayExplorerAddress, displayExplorerNft } from '$lib/ts/display/displayExplorer';
+	import {
+		displayExplorer,
+		displayExplorerAddress,
+		displayExplorerNft
+	} from '$lib/ts/display/displayExplorer';
 
 	///////////////////////////// Debug Component ///////////////////////////////////////
 	// <Debug {bzzChainId}   {metadata} />
@@ -86,7 +90,7 @@
 			</span>
 		</p>
 		<p class="shift">
-			{displaySizeBytes(metadata.autoSwarm.nftTokenUriSize)}
+			{displaySize(metadata.autoSwarm.nftTokenUriSize)}
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftTokenUriAlt)}
 			</span>
@@ -98,23 +102,30 @@
 			</span>
 		</p>
 		<p class="shift">
-			{displaySizeBytes(metadata.autoSwarm.nftImageSize)}
+			{displaySize(metadata.autoSwarm.nftImageSize)}
 			<span>
 				{@html displayLink(metadata.autoSwarm.nftImageAlt)}
 			</span>
 		</p>
+		<p>
+			NFT - Total Estimated Size
+			<span>
+				{displaySizeBytes(metadata.autoSwarm.nftSize)} /
+				{displaySize(metadata.autoSwarm.nftSize)}
+			</span>
+		</p>
 		<hr />
+		<p>
+			Swarm - NFT Size
+			<span>
+				{displaySizeBytes(metadata.autoSwarm.bzzSize)} /
+				{displaySize(metadata.autoSwarm.bzzSize)}
+			</span>
+		</p>
 		<p>
 			Swarm - NFT Hash <span
 				>{@html displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span
 			>
-		</p>
-		<p>
-			Swarm - NFT Size
-			<span>
-				{displaySizeBytes(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA} /
-				{displaySize(metadata.autoSwarm.bzzSize) || UNDEFINED_DATA}
-			</span>
 		</p>
 		<p>
 			Swarm - NFT One Year Price <span

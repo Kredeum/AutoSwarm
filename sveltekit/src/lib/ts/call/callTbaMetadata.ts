@@ -57,7 +57,6 @@ const _callTbaMetadata = async (
 	}
 	if (!tbaMetadata?.autoSwarm) throw new Error(`_callTbaMetadata: No Metadata found!`);
 
-	console.info('_callTbaMetadata', '\n', tbaMetadata.autoSwarm, '\n', tbaMetadata);
 	return tbaMetadata;
 };
 
@@ -66,7 +65,15 @@ const callTbaMetadata = async (
 	nftMetadata: NftMetadata
 ): Promise<NftMetadata> => {
 	if (!nftMetadata?.autoSwarm) throw new Error(`callTbaMetadataFromNft: No Nft AutoSwarm Metadata`);
-	return _callTbaMetadata(bzzChainId, ...nftIds(nftMetadata.autoSwarm), nftMetadata);
+
+	const tbaMetadata = await _callTbaMetadata(
+		bzzChainId,
+		...nftIds(nftMetadata.autoSwarm),
+		nftMetadata
+	);
+
+	console.info('callTbaMetadata', '\n', Object.assign({}, tbaMetadata.autoSwarm));
+	return tbaMetadata;
 };
 
 const callTbaMetadataWithoutNft = async (

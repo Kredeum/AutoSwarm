@@ -2,7 +2,7 @@ import type { Address } from 'viem';
 import type { NftMetadata } from '$lib/ts/constants/types';
 import { fetchJson } from '../fetch/fetchJson';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import type { NftMetadataAutoSwarm } from '../constants/types';
+import { fetchSize } from '../fetch/fetch';
 
 import { callNftTokenUri } from './callNft';
 
@@ -25,20 +25,30 @@ const callNftMetadata = async (
 
 	const nftMetadata = (await fetchJson(nftTokenUriAlt)) as NftMetadata;
 	if (!nftMetadata) throw new Error(`callNftMetadata: No Metadata for Token Uri ${nftTokenUri}`);
+	const nftTokenUriSize = nftTokenUriAlt.length;
 
 	const nftImage = nftMetadata.image || nftMetadata.image_url;
 	const nftImageAlt = await fetchAltUrl(nftImage);
+	const nftImageSize = await fetchSize(nftImageAlt);
 
-	nftMetadata.autoSwarm = {} as NftMetadataAutoSwarm;
-	nftMetadata.autoSwarm.nftChainId = nftChainId;
-	nftMetadata.autoSwarm.nftCollection = nftCollection;
-	nftMetadata.autoSwarm.nftTokenId = nftTokenId;
-	nftMetadata.autoSwarm.nftTokenUri = nftTokenUri;
-	nftMetadata.autoSwarm.nftTokenUriAlt = nftTokenUriAlt;
-	nftMetadata.autoSwarm.nftImage = nftImage;
-	nftMetadata.autoSwarm.nftImageAlt = nftImageAlt;
+	// nftSize estimated 10% larger than sum of both sizes
+	const nftSize = Math.ceil(((nftTokenUriSize + (nftImageSize || 0)) * 11) / 10);
 
-	console.info('callNftMetadata', '\n', nftMetadata.autoSwarm, '\n', nftMetadata);
+	nftMetadata.autoSwarm = {
+		nftChainId,
+		nftCollection,
+		nftTokenId,
+		nftSize,
+		nftTokenUri,
+		nftTokenUriAlt,
+		nftTokenUriSize,
+		nftImage,
+		nftImageAlt,
+		nftImageSize
+	};
+
+	console.info('callNftMetadata', '\n', Object.assign({}, nftMetadata.autoSwarm));
+	// console.info('callNftMetadata', '\n', nftMetadata);
 	return nftMetadata;
 };
 

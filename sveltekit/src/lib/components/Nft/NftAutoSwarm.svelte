@@ -42,7 +42,6 @@
 	let autoSwarm: NftMetadataAutoSwarm;
 
 	let tbaAddress: Address | undefined;
-
 	let nftResaved: boolean;
 
 	let owner: Address | undefined;
@@ -69,7 +68,7 @@
 	};
 
 	const refresh = async () => {
-		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftMetadata);
+		console.info('<NftAutoSwarm refresh  IN', $bzzChainId, nftMetadata, resaving, toping);
 		try {
 			metadata = await callTbaMetadata($bzzChainId, nftMetadata);
 			autoSwarm = metadata.autoSwarm!;
@@ -89,6 +88,9 @@
 		const block = await callBlock($bzzChainId);
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
+
+		const size = autoSwarm.bzzSize || autoSwarm.nftSize || 0;
+		if (size > 0) autoSwarm.bzzPrice = utilsDivUp(size, STAMP_SIZE) * STAMP_PRICE;
 
 		const tbaBalance = autoSwarm.tbaBalance;
 		const bzzPrice = autoSwarm.bzzPrice;
@@ -116,7 +118,7 @@
 	};
 
 	const reSaveNft = async () => {
-		if (!autoSwarm) return;
+		if (!autoSwarm.tbaDeployed) return;
 
 		[
 			autoSwarm.bzzHash,
@@ -124,11 +126,6 @@
 			[autoSwarm.tbaImage, autoSwarm.tbaTokenUri],
 			[autoSwarm.nftImageSize, autoSwarm.nftTokenUriSize]
 		] = await fetchBzzTar([autoSwarm.nftImage, autoSwarm.nftTokenUri]);
-
-		console.log('reSaveNft ~ bzzHash:', autoSwarm.bzzHash);
-		console.log('reSaveNft ~ tbaImage:', autoSwarm.tbaImage, autoSwarm.nftImageSize);
-		console.log('reSaveNft ~ tbaTokenUri:', autoSwarm.tbaTokenUri, autoSwarm.nftTokenUriSize);
-		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 	};
 
 	const reSave = async () => {
