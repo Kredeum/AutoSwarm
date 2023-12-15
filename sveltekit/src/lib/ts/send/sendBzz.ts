@@ -28,8 +28,9 @@ const sendBzzTransfer = async (
 ) => {
 	console.info('sendBzzTransfer', bzzChainId, to, bzzAmount);
 
-	if (bzzAmount === undefined) throw Error('Transfer amount undefined');
-	if (to === undefined || to === zeroAddress || bzzAmount === undefined) throw Error('Bad address');
+	if (bzzAmount === undefined) throw new Error('Transfer amount undefined');
+	if (to === undefined || to === zeroAddress || bzzAmount === undefined)
+		throw new Error('Bad address');
 	const json = await jsonGet(bzzChainId);
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);

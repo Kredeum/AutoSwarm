@@ -5,6 +5,8 @@ import { fetchAltUrl } from '../fetch/fetchAlt';
 import { fetchSize } from '../fetch/fetch';
 
 import { callNftTokenUri } from './callNft';
+import { utilsDivUp } from '../common/utils';
+import { STAMP_PRICE, STAMP_SIZE } from '../constants/constants';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -32,19 +34,21 @@ const callNftMetadata = async (
 	const nftImageSize = await fetchSize(nftImageAlt);
 
 	// nftSize estimated 10% larger than sum of both sizes
-	const nftSize = Math.ceil(((nftTokenUriSize + (nftImageSize || 0)) * 11) / 10);
+	const nftSizeEstimation = Math.ceil(((nftTokenUriSize + (nftImageSize || 0)) * 11) / 10);
+	const nftPriceEstimation = utilsDivUp(nftSizeEstimation, STAMP_SIZE) * STAMP_PRICE;
 
 	nftMetadata.autoSwarm = {
 		nftChainId,
 		nftCollection,
 		nftTokenId,
-		nftSize,
 		nftTokenUri,
 		nftTokenUriAlt,
 		nftTokenUriSize,
 		nftImage,
 		nftImageAlt,
-		nftImageSize
+		nftImageSize,
+		nftSizeEstimation,
+		nftPriceEstimation
 	};
 	Object.freeze(nftMetadata);
 

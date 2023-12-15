@@ -22,7 +22,7 @@ const fetchBzzPost = async (
 ): Promise<Hex> => {
 	const response = await fetch(api, { method: 'POST', body, headers });
 	console.log('response:', response);
-	if (!fetchSuccess(response.status)) throw Error(`fetchBzzPost: ${response.status}`);
+	if (!fetchSuccess(response.status)) throw new Error(`fetchBzzPost: ${response.status}`);
 
 	const json = await response.json();
 	// console.info("fetchBzzPost", json);

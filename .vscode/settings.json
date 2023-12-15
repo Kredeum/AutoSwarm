@@ -39,6 +39,10 @@
     {
       "filePath": "contracts/lib/storage-incentives/src/PostageStamp.sol",
       "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/routes",
+      "group": "Default"
     }
   ]
 }

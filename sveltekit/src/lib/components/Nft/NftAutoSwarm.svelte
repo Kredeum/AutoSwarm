@@ -19,9 +19,9 @@
 		displaySize
 	} from '$lib/ts/display/display';
 
-	import { utilsDivUp, utilsError, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
+	import { utilsDivUp, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import { alertMessage } from '$lib/ts/stores/alerts';
+	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
@@ -42,7 +42,8 @@
 	let autoSwarm: NftMetadataAutoSwarm;
 
 	let tbaAddress: Address | undefined;
-	let nftResaved: boolean;
+	let tbaDeployed: boolean | undefined;
+	let resaveGaranteed: boolean;
 
 	let owner: Address | undefined;
 	let depth: number;
@@ -53,13 +54,12 @@
 
 	// State
 	let debug = false;
+	let oneYearPrice: bigint | undefined;
 
 	let resaving = 0;
 	let toping = 0;
 
 	$: resaving, toping, refresh();
-
-	const alert = (status: string, message: string) => ($alertMessage = { status, message });
 
 	const reset = () => {
 		remainingBalance = undefined;
@@ -73,29 +73,29 @@
 			metadata = await callTbaMetadata($bzzChainId, nftMetadata);
 			autoSwarm = metadata.autoSwarm!;
 		} catch (e) {
-			utilsError('<NftAutoSwarm TBA refresh', e);
+			alertError('<NftAutoSwarm TBA refresh', e);
 		}
 
 		reset();
 		console.info('<NftAutoSwarm refresh ongoing...');
-
-		tbaAddress = autoSwarm.tbaAddress;
-
-		const tbaBzzHash = await callTbaBzzHash($bzzChainId, tbaAddress);
-		nftResaved = !utilsIsBytes32Null(tbaBzzHash);
 
 		// Block
 		const block = await callBlock($bzzChainId);
 		blockTimestamp = Number(block.timestamp) || 0;
 		blockNumber = Number(block.number) || 0;
 
-		const size = autoSwarm.bzzSize || autoSwarm.nftSize || 0;
-		if (size > 0) autoSwarm.bzzPrice = utilsDivUp(size, STAMP_SIZE) * STAMP_PRICE;
+		tbaAddress = autoSwarm.tbaAddress;
+		tbaDeployed = autoSwarm.tbaDeployed;
+
+		if (tbaDeployed) {
+			const tbaBzzHash = await callTbaBzzHash($bzzChainId, tbaAddress);
+			resaveGaranteed = !utilsIsBytes32Null(tbaBzzHash);
+		}
 
 		const tbaBalance = autoSwarm.tbaBalance;
-		const bzzPrice = autoSwarm.bzzPrice;
-		if (tbaBalance !== undefined && bzzPrice && bzzPrice > 0) {
-			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / bzzPrice);
+		oneYearPrice = autoSwarm.bzzPrice || autoSwarm.nftPriceEstimation || 0n;
+		if (tbaBalance !== undefined && oneYearPrice && oneYearPrice > 0n) {
+			duration = Number((tbaBalance * BigInt(ONE_YEAR)) / oneYearPrice);
 			until = blockTimestamp + duration;
 		}
 
@@ -111,14 +111,14 @@
 	const sendBzzTransferAmount = async (amount: bigint | undefined) =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, amount);
 
-	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(autoSwarm?.bzzPrice);
+	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(oneYearPrice);
 
 	const topUpStamp = async () => {
 		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_PRICE);
 	};
 
 	const reSaveNft = async () => {
-		if (!autoSwarm.tbaDeployed) return;
+		if (!tbaDeployed) return;
 
 		[
 			autoSwarm.bzzHash,
@@ -132,29 +132,22 @@
 		console.info('reSave');
 
 		try {
-			if (resaving) throw Error('Already ReSaving!');
+			if (resaving) throw new Error('Already ReSaving!');
 
 			resaving = 1;
 			await reSaveNft();
 
 			resaving = 2;
-			alert(
-				'info',
-				`Confirm transaction to transfer ${displayBalance(autoSwarm?.bzzPrice, 16, 3)} BZZ`
-			);
+			alertInfo(`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ`);
 			await sendBzzTransferOneYear();
 
 			resaving = 3;
-			alert('info', `Confirm transaction to create token bound account`);
+			alertInfo(`Confirm transaction to create token bound account`);
 			await createAccount();
 
-			resaving = 4;
-			alert('info', `Confirm transaction to initialize token bound account`);
-			await initializeAccount();
-
-			alert('success', `Your NFT has been ReSaved on Swarm! 🎉'`);
+			alertSuccess(`Your NFT has been ReSaved on Swarm! 🎉'`);
 		} catch (e) {
-			utilsError(`ReSave (${resaving - 1}/3) :`, e);
+			alertError(`ReSave (${resaving - 1}/2) :`, e);
 		}
 		resaving = 0;
 	};
@@ -163,18 +156,15 @@
 		console.info('topUp');
 
 		try {
-			if (toping) throw Error('Already Topping Up!');
+			if (toping) throw new Error('Already Topping Up!');
 			toping = 1;
-			alert(
-				'info',
-				`Confirm transaction and pay ${displayBalance(autoSwarm?.bzzPrice, 16, 3)} BZZ to TopUp`
-			);
+			alertInfo(`Confirm transaction and pay ${displayBalance(oneYearPrice, 16, 3)} BZZ to TopUp`);
 			await sendBzzTransferOneYear();
 
 			toping = 1;
-			alert('success', 'Your NFT has been TopUped on Swarm! 🎉');
+			alertSuccess('Your NFT has been TopUped on Swarm! 🎉');
 		} catch (e) {
-			utilsError(`TopUp :`, e);
+			alertError(`TopUp`, e);
 		}
 
 		toping = 0;
@@ -189,16 +179,18 @@
 	<div class="nfts-grid">
 		<Nft {metadata} />
 
-		{#if nftResaved !== undefined}
+		{#if tbaDeployed !== undefined}
 			<div class="batch-topUp">
-				{#if nftResaved}
+				{#if tbaDeployed}
 					<br />
 
 					{#if duration == 0}
 						<button class="btn btn-storage">Storage NOT Guaranteed</button>
 						<br />
 					{:else}
-						<button class="btn btn-storage">Storage Guaranteed</button>
+						<button class="btn btn-storage"
+							>Storage {resaveGaranteed ? 'Guaranteed' : 'Estimation'}</button
+						>
 						<br />
 						<div class="batch-topUp-infos">
 							<p>for</p>
@@ -222,13 +214,13 @@
 						ReSave NFT
 						{#if resaving}
 							&nbsp;
-							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/3
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/2
 						{/if}
 					</button>
 				{/if}
 				<div class="batch-topUp-below">
-					<p>Price: {displayBalance(autoSwarm?.bzzPrice, 16, 3)} Bzz</p>
-					<p><small>({displayBalance(STAMP_PRICE, 16, 4)} BZZ / Kb / Year)</small></p>
+					<p>Price: {displayBalance(oneYearPrice, 16, 2)} Bzz</p>
+					<p><small>({displayBalance(STAMP_PRICE, 16, 2)} BZZ / Mb / Year)</small></p>
 				</div>
 			</div>
 		{/if}
@@ -236,7 +228,7 @@
 </section>
 
 <br />
-{#if nftResaved}
+{#if tbaDeployed}
 	<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
 {:else}
 	<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>

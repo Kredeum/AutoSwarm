@@ -10,7 +10,8 @@ type NftMetadataAutoSwarm = {
 	nftImage?: string;
 	nftImageSize?: number;
 	nftImageAlt?: string;
-	nftSize?: number;
+	nftSizeEstimation?: number;
+  nftPriceEstimation?: bigint;
 	bzzChainId?: number;
 	bzzHash?: Hex;
 	bzzSize?: bigint;

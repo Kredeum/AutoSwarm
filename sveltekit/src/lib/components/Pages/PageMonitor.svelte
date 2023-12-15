@@ -15,7 +15,6 @@
 		CHUNK_PRICE_DEFAULT
 	} from '$lib/ts/constants/constants';
 	import { jsonGetField } from '$lib/ts/common/json';
-	import { utilsError } from '$lib/ts/common/utils';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import {
 		displayBalance,
@@ -38,6 +37,7 @@
 	} from '$lib/ts/call/callPostage';
 	import { batchPrice } from '$lib/ts/swarm/batch';
 	import { displayExplorer, displayExplorerField } from '$lib/ts/display/displayExplorer';
+	import { alertError } from '$lib/ts/stores/alertMessage';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <Monitor />
@@ -110,7 +110,7 @@
 
 			currentBatchRemainingBalance = await callPostageRemainingBalance($bzzChainId, currentBatchId);
 		} catch (e) {
-			utilsError('<Monitor Refresh', e);
+			alertError('<Monitor Refresh', e);
 		}
 		console.log('refresh ~ monthlyCroning:', monthlyCroning);
 	};
@@ -119,10 +119,10 @@
 		console.info('DailyCron');
 
 		try {
-			if (dailyCroning) throw Error('Already running!');
+			if (dailyCroning) throw new Error('Already running!');
 			dailyCroning = 1;
 		} catch (e) {
-			utilsError('<Monitor Daily Cron:', e);
+			alertError('<Monitor Daily Cron:', e);
 		}
 
 		dailyCroning = 0;
@@ -132,7 +132,7 @@
 		console.info('MonthlyCron');
 
 		try {
-			if (monthlyCroning) throw Error('Already running!');
+			if (monthlyCroning) throw new Error('Already running!');
 
 			monthlyCroning = 1;
 			console.log('monthlyCron ~ monthlyCroning:', monthlyCroning);
@@ -146,7 +146,7 @@
 
 			await sendMarketNewBatch($bzzChainId);
 		} catch (e) {
-			utilsError('<Monitor Monthly Cron:', e);
+			alertError('<Monitor Monthly Cron:', e);
 		}
 		monthlyCroning = 0;
 		refresh();

@@ -6,9 +6,7 @@
 		IMAGE_JPEG,
 		METADATA_JSON,
 		UNDEFINED_DATA,
-		ZERO_BYTES32
 	} from '$lib/ts/constants/constants';
-	import { utilsError } from '$lib/ts/common/utils';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 
@@ -27,6 +25,7 @@
 		displayExplorerAddress,
 		displayExplorerNft
 	} from '$lib/ts/display/displayExplorer';
+	import { alertError } from '$lib/ts/stores/alertMessage';
 
 	///////////////////////////// Debug Component ///////////////////////////////////////
 	// <Debug {bzzChainId}   {metadata} />
@@ -61,7 +60,7 @@
 			currentBatchId = await callMarketCurrentBatchId(bzzChainId);
 			currentPrice = await callPostageLastPrice(bzzChainId);
 		} catch (e) {
-			utilsError('<Debug refresh', e);
+			alertError('<Debug refresh', e);
 		}
 		console.info('<NftDebug refresh OUT');
 	};
@@ -108,10 +107,11 @@
 			</span>
 		</p>
 		<p>
-			NFT - Total Estimated Size
+			NFT - Total Estimated Size / Price
 			<span>
-				{displaySizeBytes(metadata.autoSwarm.nftSize)} /
-				{displaySize(metadata.autoSwarm.nftSize)}
+				{displaySizeBytes(metadata.autoSwarm.nftSizeEstimation)} /
+				{displaySize(metadata.autoSwarm.nftSizeEstimation)} /
+				{displayBalance(metadata.autoSwarm.nftPriceEstimation, 16, 2) || UNDEFINED_DATA} BZZ
 			</span>
 		</p>
 		<hr />
@@ -128,31 +128,32 @@
 			>
 		</p>
 		<p>
-			Swarm - NFT One Year Price <span
-				>{displayBalance(metadata.autoSwarm.bzzPrice, 16, 4) || UNDEFINED_DATA} Bzz</span
-			>
-		</p>
-		<p>
-			Swarm - NFT Metadata Path
+      Swarm - NFT Metadata Path
 			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, METADATA_JSON)}</span>
 		</p>
 		<p>
-			Swarm - NFT Image Path
+      Swarm - NFT Image Path
 			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, IMAGE_JPEG)}</span>
 		</p>
+    <p>
+      Swarm - NFT One Year Price <span
+        >{displayBalance(metadata.autoSwarm.bzzPrice, 16, 4) || UNDEFINED_DATA} BZZ</span
+      >
+    </p>
 		<hr />
 		<p>
-			TBA - Deployed? / Chain Id
+			TBA - Balance / ChainId / Address
 			<span>
-				{#if !metadata.autoSwarm.tbaDeployed}Not{/if} deployed /
-				{@html displayExplorer(bzzChainId)}
+        {#if !metadata.autoSwarm.tbaDeployed}Not{/if} deployed /
+				{displayBalance(metadata.autoSwarm.tbaBalance, 16, 4)} BZZ /
+				{@html displayExplorer(bzzChainId)} /
+				{@html displayExplorerAddress(bzzChainId, metadata?.autoSwarm?.tbaAddress)}
 			</span>
 		</p>
 		<p>
-			TBA - BZZ Balance / Address
+			TBA - Size
 			<span>
-				{displayBalance(metadata.autoSwarm.tbaBalance, 16, 4)} BZZ /
-				{@html displayExplorerAddress(bzzChainId, metadata?.autoSwarm?.tbaAddress)}
+				{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}
 			</span>
 		</p>
 		<p>
@@ -172,22 +173,18 @@
 		</p>
 		<hr />
 		<p>
-			Postage - Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span>
-		</p>
-		<p>
-			Postage - Current Price<span>{displayBalance(currentPrice, 0, 0)}</span>
+			Postage - Latest Price / Batch Id
+      <span>
+        {displayBalance(currentPrice, 0, 0)} PLUR /
+        {currentBatchId || UNDEFINED_DATA}
+      </span>
 		</p>
 		<hr />
 		<p>
-			Wallet - Chain Id
-			<span>
-				{@html displayExplorer(walletChainId)}
-			</span>
-		</p>
-		<p>
-			Wallet Account - BZZ Balance / Address
+			Wallet - Balance / Chain Id / Address
 			<span>
 				{displayBalance(walletBalance, 16, 4)} BZZ /
+        {@html displayExplorer(walletChainId)} /
 				{@html displayExplorerAddress(bzzChainId, walletAddress)}
 			</span>
 		</p>
@@ -197,7 +194,7 @@
 
 <style>
 	#debug {
-		width: 1000px;
+		width: 1100px;
 		display: block;
 		text-align: left;
 	}

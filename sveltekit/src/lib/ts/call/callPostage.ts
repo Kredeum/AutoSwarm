@@ -1,8 +1,7 @@
 import type { Address, Hex } from 'viem';
 import { postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis';
-import { utilsError } from '../common/utils';
 
-import { jsonGet, jsonGetField } from '../common/json';
+import { jsonGetField } from '../common/json';
 import { callPublicClient } from './call';
 import { BUCKET_DEPTH } from '../constants/constants';
 

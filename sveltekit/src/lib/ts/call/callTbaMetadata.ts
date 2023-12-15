@@ -30,8 +30,8 @@ const _callTbaMetadata = async (
 		nftCollection,
 		nftTokenId
 	);
-	autoSwarm.tbaDeployed ||= await callIsContract(bzzChainId, autoSwarm.tbaAddress);
 	autoSwarm.bzzChainId ||= bzzChainId;
+	autoSwarm.tbaDeployed ||= await callIsContract(bzzChainId, autoSwarm.tbaAddress);
 	autoSwarm.tbaBalance = await callBzzBalance(bzzChainId, autoSwarm.tbaAddress);
 
 	if (autoSwarm.tbaDeployed) {

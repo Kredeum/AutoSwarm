@@ -18,7 +18,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     address private _autoSwarmMarket; // only implementation can set this
 
     modifier onlyBzzAdmin() {
-        require(msg.sender == IERC173(autoSwarmMarket()).owner(), "Not BZZ admin");
+        require(msg.sender == bzzAdmin(), "Not BZZ admin");
         _;
     }
 
@@ -41,7 +41,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _autoSwarmMarket = autoSwarmMarket_;
     }
 
-    function setBzz(bytes32 bzzHash_, uint256 bzzSize_) external onlyBzzAdmin {
+    function setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) external onlyBzzAdmin {
         require(bzzHash_ != bytes32(0), "Bad Swarm Hash");
         require(bzzSize_ != 0, "Bad Swarm Size");
 
@@ -72,7 +72,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     function owner() public view override returns (address) {
         address superOwner = super.owner();
 
-        return (superOwner == address(0)) ? autoSwarmAdmin() : superOwner;
+        return (superOwner == address(0)) ? bzzAdmin() : superOwner;
     }
 
     function implementation() public view returns (address addr) {
@@ -86,7 +86,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         return _autoSwarmMarket == address(0) ? IAutoSwarmAccount(implementation()).autoSwarmMarket() : _autoSwarmMarket;
     }
 
-    function autoSwarmAdmin() internal view returns (address) {
+    function bzzAdmin() public view returns (address) {
         return IERC173(autoSwarmMarket()).owner();
     }
 

@@ -1,15 +1,6 @@
 import type { Hex } from 'viem';
 import { ZERO_BYTES32 } from '../constants/constants';
 
-import { alertMessage } from '$lib/ts/stores/alerts';
-
-const utilsError = (label: string, err?: unknown) => {
-	const message = `${label} ${err}`;
-	console.error(message);
-	// alert(message);
-	alertMessage.set({ status: 'error', message });
-};
-
 const utilsIsBytes32Null = (b32: Hex | undefined): boolean => Boolean(!b32 || b32 === ZERO_BYTES32);
 
 const utilsTruncate = (str: string | undefined, start = 45, end = 25): string | undefined => {
@@ -29,4 +20,4 @@ const utilsUint8ArrayToHex = (bytes: Uint8Array): Hex => {
 	return `0x${hex}` as Hex;
 };
 
-export { utilsError, utilsDivUp, utilsIsBytes32Null, utilsTruncate, utilsUint8ArrayToHex };
+export { utilsDivUp, utilsIsBytes32Null, utilsTruncate, utilsUint8ArrayToHex };

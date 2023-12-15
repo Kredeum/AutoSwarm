@@ -10,7 +10,7 @@ const _publicClients: Map<number, PublicClient> = new Map();
 
 const _publicClient = (chainId: number): PublicClient => {
 	const chainWithTransport = chainGetWithTransport(chainId);
-	if (!chainWithTransport) throw Error(`No chain with transport for ${chainId}`);
+	if (!chainWithTransport) throw new Error(`No chain with transport for ${chainId}`);
 
 	const publicClient = createPublicClient(chainWithTransport);
 	_publicClients.set(chainId, publicClient);

@@ -3,7 +3,6 @@ import type { Address } from 'viem';
 import { erc6551RegistryAbi } from '$lib/ts/constants/abis';
 import { callIsContract } from '$lib/ts/call/call';
 import { SALT } from '../constants/constants';
-import { utilsError } from '../common/utils';
 import { jsonGetField } from '../common/json';
 import { sendWallet } from './send';
 import { callRegistryAccount } from '../call/callRegistry';
@@ -34,7 +33,7 @@ const sendRegistryCreateAccount = async (
 	await publicClient.waitForTransactionReceipt({ hash: hash });
 
 	if (!(await callIsContract(bzzChainId, tba)))
-		utilsError('sendRegistryCreateAccount: Create failed');
+		throw new Error('sendRegistryCreateAccount: Create failed');
 
 	return tba;
 };

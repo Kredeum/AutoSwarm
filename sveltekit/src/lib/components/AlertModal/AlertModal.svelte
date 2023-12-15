@@ -3,45 +3,38 @@
 	import { quintOut, bounceOut } from 'svelte/easing';
 	import { clickOutside } from '$lib/ts/common/clickOutside';
 
-	import { alertMessage } from '$lib/ts/stores/alerts';
+	import { alertMessage } from '$lib/ts/stores/alertMessage';
 
 	////////////////////// Swarm alert modal Component /////////////////////
 	// <AlertModal />
 	////////////////////////////////////////////////////////////////////////
 
-	let modalOpen = false;
-	let timeoutId: NodeJS.Timeout;
+	let alertTimeoutId: ReturnType<typeof setTimeout>;
+	const alertEasingMode = () => ($alertMessage.status === 'error' ? bounceOut : quintOut);
 
-	$: messageStatus = $alertMessage.status;
-	$: message = $alertMessage.message;
-
-	$: messageStatus && displayMessage();
-	const displayMessage = () => {
-		clearTimeout(timeoutId);
-		modalOpen = true;
-		if (messageStatus === 'success') timeoutId = setTimeout(() => resetMessage(), 5000);
+	$: $alertMessage && alertDisplay();
+	const alertDisplay = () => {
+		clearTimeout(alertTimeoutId);
+		if ($alertMessage.status === 'success') alertTimeoutId = setTimeout(() => alertReset(), 5000);
 	};
 
-	const easingMode = () => (messageStatus === 'error' ? bounceOut : quintOut);
-
-	const resetMessage = () => {
-		modalOpen = false;
-		$alertMessage = { status: '', message: '' };
-		clearTimeout(timeoutId);
+	const alertReset = () => {
+		$alertMessage = {};
+		clearTimeout(alertTimeoutId);
 	};
 </script>
 
-{#if modalOpen}
+{#if $alertMessage?.status}
 	<div
-		class="alert-message alert-{messageStatus}-message"
+		class="alert-message alert-{$alertMessage.status}-message"
 		role="alert"
-		in:fly={{ delay: 0, duration: 300, x: 100, y: 0, opacity: 0.5, easing: easingMode() }}
+		in:fly={{ delay: 0, duration: 300, x: 100, y: 0, opacity: 0.5, easing: alertEasingMode() }}
 		out:fade={{ duration: 500 }}
-		use:clickOutside={resetMessage}
+		use:clickOutside={alertReset}
 	>
 		<button
-			on:click={resetMessage}
-			on:keydown={resetMessage}
+			on:click={alertReset}
+			on:keydown={alertReset}
 			class="modal-close"
 			title="Close"
 			aria-label="Close"
@@ -50,16 +43,16 @@
 		</button>
 
 		<p>
-			{#if messageStatus === 'error'}
-				<i class="fa-solid fa-circle-exclamation" /> Ooops !
-			{:else if messageStatus === 'success'}
-				<!-- <i class="fa-regular fa-circle-check" /> -->
-				<i class="fa-solid fa-circle-check" /> Great !
+			{#if $alertMessage.status === 'error'}
+				<i class="fa-solid fa-circle-exclamation" />
+			{:else if $alertMessage.status === 'success'}
+				<i class="fa-solid fa-circle-check" />
 			{:else}
 				<i class="fa-solid fa-circle-info" />
 			{/if}
+			<span>{$alertMessage?.title || ''}</span>
 		</p>
-		<pre>{message}</pre>
+		<pre>{$alertMessage?.detail || ''}</pre>
 	</div>
 {/if}
 
@@ -78,25 +71,21 @@
 		border: 2px solid var(--color-link);
 	}
 
-	/* .alert-error-message {
-		color: red;
+	span {
+		margin: 1em;
 	}
-
-	.alert-success-message {
-		color: rgb(16, 163, 16);
-	} */
 
 	.modal-close {
 		position: absolute;
-		top: 0.3em;
-		right: 0.3em;
+		top: 0.8em;
+		right: 0.8em;
 		border: none;
 		background-color: transparent;
 		cursor: pointer;
 	}
 
 	.modal-close i {
-		font-size: 2em;
+		font-size: 1.5em;
 		color: #fff;
 	}
 
@@ -113,4 +102,12 @@
 		word-wrap: break-word;
 		font-family: var(--font-body);
 	}
+
+	/* .alert-error-message {
+    color: red;
+  }
+
+  .alert-success-message {
+    color: rgb(16, 163, 16);
+  } */
 </style>

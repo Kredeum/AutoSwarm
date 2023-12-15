@@ -1,7 +1,6 @@
 import { type Address, zeroAddress, type Hex } from 'viem';
 import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
-import { utilsError } from '../common/utils';
 import { jsonGetField } from '../common/json';
 
 const sendTbaInitialize = async (
@@ -12,10 +11,10 @@ const sendTbaInitialize = async (
 ) => {
 	// console.info("sendTbaInitialize:", bzzChainId, tba, bzzHash);
 
-	if (!(bzzChainId > 0)) throw Error('Bad chain!');
-	if (!tba) throw Error('No TBA!');
-	if (!bzzHash) throw Error('No Swarm Hash!');
-	if (!bzzSize) throw Error('No Swarm Size!');
+	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
+	if (!tba) throw new Error('No TBA!');
+	if (!bzzHash) throw new Error('No Swarm Hash!');
+	if (!bzzSize) throw new Error('No Swarm Size!');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -34,8 +33,8 @@ const sendTbaInitialize = async (
 };
 
 const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmount: bigint) => {
-	if (!(bzzChainId > 0)) throw Error('Bad chain!');
-	if (!tba) throw Error('Bad TBA!');
+	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
+	if (!tba) throw new Error('Bad TBA!');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -51,7 +50,7 @@ const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmo
 };
 
 const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAddress) => {
-	if (!(bzzChainId > 0 && tba)) utilsError('sendTbaWithdraw: No tba');
+	if (!(bzzChainId > 0 && tba)) throw new Error('sendTbaWithdraw: No tba');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
