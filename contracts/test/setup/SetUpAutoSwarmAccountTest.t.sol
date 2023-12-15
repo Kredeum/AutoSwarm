@@ -9,6 +9,8 @@ contract SetUpAutoSwarmAccountTest is SetUpAutoSwarmAccount {
     }
 
     function test_SetUpAutoSwarmAccount_newBatch() public {
+        deal(address(bzzToken), address(autoSwarmMarket), (_INITIAL_TTL * _DEFAULT_PRICE) << _INITIAL_DEPTH);
+
         autoSwarmMarket.newBatch();
         assert(true);
     }

@@ -149,14 +149,14 @@
 			</span>
 		</p>
 		<p>
-			TBA - Bzz Balance / Address
+			TBA - BZZ Balance / Address
 			<span>
-				{displayBalance(metadata.autoSwarm.tbaBalance, 16, 4)} Bzz /
+				{displayBalance(metadata.autoSwarm.tbaBalance, 16, 4)} BZZ /
 				{@html displayExplorerAddress(bzzChainId, metadata?.autoSwarm?.tbaAddress)}
 			</span>
 		</p>
 		<p>
-			TBA - Bzz Hash <span>{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}</span>
+			TBA - BZZ Hash <span>{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}</span>
 		</p>
 
 		<p>
@@ -185,9 +185,9 @@
 			</span>
 		</p>
 		<p>
-			Wallet Account - Bzz Balance / Address
+			Wallet Account - BZZ Balance / Address
 			<span>
-				{displayBalance(walletBalance, 16, 4)} Bzz /
+				{displayBalance(walletBalance, 16, 4)} BZZ /
 				{@html displayExplorerAddress(bzzChainId, walletAddress)}
 			</span>
 		</p>

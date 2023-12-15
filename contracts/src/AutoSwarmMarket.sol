@@ -143,8 +143,9 @@ contract AutoSwarmMarket is Ownable {
         currentBatchFilling = 0;
         currentBatchId = batchId;
 
-        bzzToken.approve(address(_postageStamp), _INITIAL_TTL << _INITIAL_DEPTH);
-        _postageStamp.createBatch(address(this), _INITIAL_TTL, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
+        uint256 initialBalancePerChunk = _INITIAL_TTL * _postageStamp.lastPrice();
+        bzzToken.approve(address(_postageStamp), initialBalancePerChunk << _INITIAL_DEPTH);
+        _postageStamp.createBatch(address(this), initialBalancePerChunk, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
 
         batchIds.push(currentBatchId);
     }

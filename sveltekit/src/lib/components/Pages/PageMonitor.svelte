@@ -192,7 +192,7 @@
 			Stamps | TTL / Price per Unit
 			<span>
 				{displayDuration(STAMP_TTL)} /
-				{displayBalance(STAMP_PRICE, 16, 4)} Bzz per {displaySize(STAMP_SIZE, 0)}
+				{displayBalance(STAMP_PRICE, 16, 4)} BZZ per {displaySize(STAMP_SIZE, 0)}
 			</span>
 		</p>
 
@@ -235,8 +235,8 @@
 			</span>
 		</p>
 		<hr />
-		<p>Bzz Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
-		<p>Bzz Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>
+		<p>BZZ Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
+		<p>BZZ Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>
 		<p>ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>
 		<p>
 			AutoSwarmAccount<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>

@@ -46,6 +46,7 @@ const callNftMetadata = async (
 		nftImageAlt,
 		nftImageSize
 	};
+	Object.freeze(nftMetadata);
 
 	console.info('callNftMetadata', '\n', Object.assign({}, nftMetadata.autoSwarm));
 	// console.info('callNftMetadata', '\n', nftMetadata);

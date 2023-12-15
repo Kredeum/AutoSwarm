@@ -14,9 +14,6 @@ BZZ
 
 
 ###
-GET https://api.gateway.ethswarm.org/bzz/ac8445cf1fd7999eec135ef087b9cfeebfd2297734eee64092381da1ddc3e2d8
-
-###
 
 POST https://api.gateway.ethswarm.org/bzz
 Content-Type: text/plain

@@ -30,7 +30,6 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         if (address(tba).code.length == 0) {
             vm.startPrank(nftOwner);
             registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
-            tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
             vm.stopPrank();
         }
         assert(address(tba).code.length != 0);

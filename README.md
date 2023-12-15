@@ -11,7 +11,7 @@ and ready to pay a few amount, less than one dollar, to store it for more years.
 
 The specific goal of this subproject `AutoSwarm Proof of Concept`, is to demonstrate the feasibility of it,
 thanks to an implementation of the new ERC6551 Token Bound Account (TBA) draft EIP standard.
-That allows any NFT to store Bzz tokens and pay for Swarm storage when needed.
+That allows any NFT to store BZZ tokens and pay for Swarm storage when needed.
 
 The architecture is as follows:
 ![AutoSwarm Architecture](./docs/AutoSwarmArchi.png)
@@ -64,7 +64,7 @@ That's the purpose of next development to come.
 ## Aknowledgement
 
 - [Swarm](https://www.ethswarm.org) is a decentralized file storage protocol.
-Incentivized via the dedicated Bzz token available on the Ethereum network, and SmartContracts on the Gnosis chain
+Incentivized via the dedicated BZZ token available on the Ethereum network, and SmartContracts on the Gnosis chain
 - AutoSwarm PoC is a project funded via a [Grant](https://www.ethswarm.org/grants) of the [Swarm Association](https://www.ethswarm.org)
 - AutoSwarm is a projet developped by the [Kredeum](https://www.kredeum.com) company, that also develops the [Kredeum NFT Factory](https://github.com/Kredeum/kredeum):
 that includes :

@@ -40,7 +40,5 @@
       "filePath": "contracts/lib/storage-incentives/src/PostageStamp.sol",
       "group": "Default"
     }
-  ],
-  "workbench.colorTheme": "Night Owl Light (No Italics)",
-  "local-history.browser.descending": false
+  ]
 }

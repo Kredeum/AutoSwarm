@@ -28,7 +28,7 @@ _NFT are often stored on centralized storage, with no garantee of availability o
 The __AutoSwarm ReSave__ button provides an easy Backup on Swarm of any NFT, preserving both metadata and content, to ensure NFT availability over time.
 
 ### Boosted by Fan contributions
-With the __AutoSwarm TopUp__ button, storage duration extends as long as there are still supportive individuals – be it the creator, owner, a sponsor, or any users – willing to contribute Bzz donations, ensuring the sustained life of your NFTs.
+With the __AutoSwarm TopUp__ button, storage duration extends as long as there are still supportive individuals – be it the creator, owner, a sponsor, or any users – willing to contribute BZZ donations, ensuring the sustained life of your NFTs.
 
 
 ---
@@ -53,7 +53,7 @@ Thanks to new __ERC6561__  proposal, any NFT can own tokens, via a Token Bound A
 
 ### AutoSwarm Market
 
-So, anyone can send  Bzz tokens to the TBA of the NFT they want to extends lifetime. Then, thanks to AutoSwarm solution, `AutoSwarmMarket` smartcontract can pay Swarm Protocol via `PostageStamp` smartcontract to TopUp NFT storage when needed.
+So, anyone can send  BZZ tokens to the TBA of the NFT they want to extends lifetime. Then, thanks to AutoSwarm solution, `AutoSwarmMarket` smartcontract can pay Swarm Protocol via `PostageStamp` smartcontract to TopUp NFT storage when needed.
 
 ---
 
