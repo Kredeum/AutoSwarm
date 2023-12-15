@@ -49,7 +49,6 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         // assert(tba.bzzSize() == 1);
         // assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
         // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
-
     }
 
     function test_AutoSwarmAccount_initialize2() public {
@@ -59,7 +58,6 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         deal(address(bzzToken), address(tba), 4e8 * BLOCKS_PER_YEAR);
 
         registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
-
 
         // assert(tba.bzzHash() == bytes32("1"));
         // assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
@@ -84,5 +82,10 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         assert(chId == chainId);
         assert(coll == collection);
         assert(tokId == tokenId);
+    }
+
+    function test_AutoSwarmAccount_implementation() public view {
+        address impl = tba.implementation();
+        console.log("test_AutoSwarmAccount_implementation ~ implementation:", impl);
     }
 }

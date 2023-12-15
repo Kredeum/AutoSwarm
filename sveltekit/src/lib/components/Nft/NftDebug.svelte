@@ -2,11 +2,7 @@
 	import type { Address, Hex } from 'viem';
 
 	import type { NftMetadata } from '$lib/ts/constants/types';
-	import {
-		IMAGE_JPEG,
-		METADATA_JSON,
-		UNDEFINED_DATA,
-	} from '$lib/ts/constants/constants';
+	import { IMAGE_JPEG, METADATA_JSON, UNDEFINED_DATA } from '$lib/ts/constants/constants';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 
@@ -107,7 +103,7 @@
 			</span>
 		</p>
 		<p>
-			NFT - Total Estimated Size / Price
+			NFT - Total Estimated Size / One Year Price
 			<span>
 				{displaySizeBytes(metadata.autoSwarm.nftSizeEstimation)} /
 				{displaySize(metadata.autoSwarm.nftSizeEstimation)} /
@@ -116,75 +112,73 @@
 		</p>
 		<hr />
 		<p>
-			Swarm - NFT Size
+			Swarm - Size / One Year Price
 			<span>
 				{displaySizeBytes(metadata.autoSwarm.bzzSize)} /
-				{displaySize(metadata.autoSwarm.bzzSize)}
+				{displaySize(metadata.autoSwarm.bzzSize)} /
+				{displayBalance(metadata.autoSwarm.bzzPrice, 16, 2) || UNDEFINED_DATA} BZZ
 			</span>
 		</p>
 		<p>
-			Swarm - NFT Hash <span
+			Swarm - Hash <span
 				>{@html displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span
 			>
 		</p>
 		<p>
-      Swarm - NFT Metadata Path
+			Swarm - Metadata Path
 			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, METADATA_JSON)}</span>
 		</p>
 		<p>
-      Swarm - NFT Image Path
+			Swarm - Image Path
 			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, IMAGE_JPEG)}</span>
 		</p>
-    <p>
-      Swarm - NFT One Year Price <span
-        >{displayBalance(metadata.autoSwarm.bzzPrice, 16, 4) || UNDEFINED_DATA} BZZ</span
-      >
-    </p>
 		<hr />
 		<p>
 			TBA - Balance / ChainId / Address
 			<span>
-        {#if !metadata.autoSwarm.tbaDeployed}Not{/if} deployed /
+				{#if !metadata.autoSwarm.tbaDeployed}Not{/if} deployed /
 				{displayBalance(metadata.autoSwarm.tbaBalance, 16, 4)} BZZ /
 				{@html displayExplorer(bzzChainId)} /
-				{@html displayExplorerAddress(bzzChainId, metadata?.autoSwarm?.tbaAddress)}
+				{@html displayExplorerAddress(bzzChainId, metadata.autoSwarm.tbaAddress)}
 			</span>
 		</p>
 		<p>
-			TBA - Size
+			TBA - Size / One Year Price
 			<span>
-				{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}
+				{displaySizeBytes(metadata.autoSwarm.tbaSize)} /
+				{displaySize(metadata.autoSwarm.tbaSize)} /
+				{displayBalance(metadata.autoSwarm.tbaPrice, 16, 2) || UNDEFINED_DATA} BZZ
 			</span>
 		</p>
 		<p>
-			TBA - BZZ Hash <span>{metadata?.autoSwarm?.bzzHash || UNDEFINED_DATA}</span>
+			TBA - Hash <span>{metadata.autoSwarm.tbaHash || UNDEFINED_DATA}</span>
 		</p>
 
 		<p>
 			TBA - Metadata URL
-			<span>{@html displayBzzURL(metadata.autoSwarm.bzzHash, METADATA_JSON)}</span>
+			<span>{@html displayBzzURL(metadata.autoSwarm.tbaHash, METADATA_JSON)}</span>
 		</p>
 		<p>
 			TBA - Image URL
-			<span> {@html displayBzzURL(metadata.autoSwarm.bzzHash, IMAGE_JPEG)}</span>
+			<span> {@html displayBzzURL(metadata.autoSwarm.tbaHash, IMAGE_JPEG)}</span>
 		</p>
 		<p>
-			TBA - Stamp Id <span>{metadata.autoSwarm.bzzStampId || UNDEFINED_DATA}</span>
+			TBA - Stamp Id <span>{metadata.autoSwarm.tbaStampId || UNDEFINED_DATA}</span>
 		</p>
 		<hr />
 		<p>
 			Postage - Latest Price / Batch Id
-      <span>
-        {displayBalance(currentPrice, 0, 0)} PLUR /
-        {currentBatchId || UNDEFINED_DATA}
-      </span>
+			<span>
+				{displayBalance(currentPrice, 0, 0)} PLUR /
+				{currentBatchId || UNDEFINED_DATA}
+			</span>
 		</p>
 		<hr />
 		<p>
 			Wallet - Balance / Chain Id / Address
 			<span>
 				{displayBalance(walletBalance, 16, 4)} BZZ /
-        {@html displayExplorer(walletChainId)} /
+				{@html displayExplorer(walletChainId)} /
 				{@html displayExplorerAddress(bzzChainId, walletAddress)}
 			</span>
 		</p>

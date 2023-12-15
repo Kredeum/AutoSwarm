@@ -10,7 +10,7 @@
 	import { callTbaBzzHash } from '$lib/ts/call/callTba';
 
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
-	import { sendTbaInitialize, sendTbaTopUp } from '$lib/ts/send/sendTba';
+	import { sendTbaSetAutoSwarm, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
 	import {
 		displayBalance,
@@ -105,27 +105,26 @@
 	const createAccount = async () =>
 		await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata.autoSwarm));
 
-	const initializeAccount = async () =>
-		await sendTbaInitialize($bzzChainId, tbaAddress, autoSwarm?.bzzHash, autoSwarm?.bzzSize);
+	const tbaSetAutoSwarm = async () =>
+		await sendTbaSetAutoSwarm($bzzChainId, tbaAddress, autoSwarm?.bzzHash, autoSwarm?.bzzSize);
 
-	const sendBzzTransferAmount = async (amount: bigint | undefined) =>
+	const transferBzzAmount = async (amount: bigint | undefined) =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, amount);
 
-	const sendBzzTransferOneYear = async () => await sendBzzTransferAmount(oneYearPrice);
+	const transferBzzOneYear = async () => await transferBzzAmount(oneYearPrice);
 
 	const topUpStamp = async () => {
 		await sendTbaTopUp($bzzChainId, tbaAddress, STAMP_PRICE);
 	};
 
 	const reSaveNft = async () => {
-		if (!tbaDeployed) return;
-
 		[
 			autoSwarm.bzzHash,
 			autoSwarm.bzzSize,
 			[autoSwarm.tbaImage, autoSwarm.tbaTokenUri],
 			[autoSwarm.nftImageSize, autoSwarm.nftTokenUriSize]
 		] = await fetchBzzTar([autoSwarm.nftImage, autoSwarm.nftTokenUri]);
+		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 	};
 
 	const reSave = async () => {
@@ -138,16 +137,22 @@
 			await reSaveNft();
 
 			resaving = 2;
-			alertInfo(`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ`);
-			await sendBzzTransferOneYear();
+			alertInfo(`Confirm transaction to create Token Bound Account (TBA)`);
+			await createAccount();
 
 			resaving = 3;
-			alertInfo(`Confirm transaction to create token bound account`);
-			await createAccount();
+			alertInfo(
+				`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
+			);
+			await transferBzzOneYear();
+
+			resaving = 4;
+			alertInfo(`Confirm transaction to setup TBA`);
+			await tbaSetAutoSwarm();
 
 			alertSuccess(`Your NFT has been ReSaved on Swarm! 🎉'`);
 		} catch (e) {
-			alertError(`ReSave (${resaving - 1}/2) :`, e);
+			alertError(`ReSave (${resaving - 1}/3) :`, e);
 		}
 		resaving = 0;
 	};
@@ -159,7 +164,7 @@
 			if (toping) throw new Error('Already Topping Up!');
 			toping = 1;
 			alertInfo(`Confirm transaction and pay ${displayBalance(oneYearPrice, 16, 3)} BZZ to TopUp`);
-			await sendBzzTransferOneYear();
+			await transferBzzOneYear();
 
 			toping = 1;
 			alertSuccess('Your NFT has been TopUped on Swarm! 🎉');
@@ -214,7 +219,7 @@
 						ReSave NFT
 						{#if resaving}
 							&nbsp;
-							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/2
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/3
 						{/if}
 					</button>
 				{/if}

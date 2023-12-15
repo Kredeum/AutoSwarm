@@ -41,14 +41,22 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _autoSwarmMarket = autoSwarmMarket_;
     }
 
-    function setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) external onlyBzzAdmin {
+    function setAutoSwarmStamp(bytes32 bzzHash_, uint256 bzzSize_, uint256 bzzAmount_) external onlyBzzAdmin {
+        _setAutoSwarm(bzzHash_, bzzSize_);
+        stampId = IAutoSwarmMarket(autoSwarmMarket()).createStamp(bzzHash_, bzzSize_, bzzAmount_);
+    }
+
+    function setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) external {
+        require(stampId == bytes32(0), "Stamp already set");
+        _setAutoSwarm(bzzHash_, bzzSize_);
+    }
+
+    function _setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) internal {
         require(bzzHash_ != bytes32(0), "Bad Swarm Hash");
         require(bzzSize_ != 0, "Bad Swarm Size");
 
         bzzHash = bzzHash_;
         bzzSize = bzzSize_;
-
-        stampId = IAutoSwarmMarket(autoSwarmMarket()).createStamp(bzzHash, bzzSize, 0);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) {
@@ -78,8 +86,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     function implementation() public view returns (address addr) {
         if (address(this).code.length != _ERC6551_TBA_SIZE) return address(0);
 
-        //  prefix (2)  /  proxy start 10  / implementation 20 / proxy end 15
-        return abi.decode(bytes.concat(bytes2(0), address(this).code), (address));
+        addr = address(uint160(uint256(bytes32(address(this).code)) >> 16));
     }
 
     function autoSwarmMarket() public view returns (address) {

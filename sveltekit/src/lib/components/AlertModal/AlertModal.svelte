@@ -15,7 +15,7 @@
 	$: $alertMessage && alertDisplay();
 	const alertDisplay = () => {
 		clearTimeout(alertTimeoutId);
-		if ($alertMessage.status === 'success') alertTimeoutId = setTimeout(() => alertReset(), 5000);
+		if ($alertMessage.status !== 'error') alertTimeoutId = setTimeout(() => alertReset(), 8000);
 	};
 
 	const alertReset = () => {

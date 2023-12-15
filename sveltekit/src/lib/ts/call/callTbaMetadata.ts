@@ -35,18 +35,19 @@ const _callTbaMetadata = async (
 	autoSwarm.tbaBalance = await callBzzBalance(bzzChainId, autoSwarm.tbaAddress);
 
 	if (autoSwarm.tbaDeployed) {
-		autoSwarm.bzzHash ||= await callTbaBzzHash(bzzChainId, autoSwarm.tbaAddress);
-		if (!utilsIsBytes32Null(autoSwarm.bzzHash)) {
-			autoSwarm.bzzSize ||= await callTbaBzzSize(bzzChainId, autoSwarm.tbaAddress);
-			autoSwarm.bzzPrice ||= utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
+		const tbaHash = await callTbaBzzHash(bzzChainId, autoSwarm.tbaAddress);
+		if (!utilsIsBytes32Null(tbaHash)) {
+			autoSwarm.tbaHash ||= tbaHash;
+			autoSwarm.tbaSize ||= await callTbaBzzSize(bzzChainId, autoSwarm.tbaAddress);
+			autoSwarm.tbaPrice ||= utilsDivUp(autoSwarm.tbaSize!, STAMP_SIZE) * STAMP_PRICE;
 
-			if (utilsIsBytes32Null(autoSwarm.bzzStampId))
-				autoSwarm.bzzStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
+			if (utilsIsBytes32Null(autoSwarm.tbaStampId))
+				autoSwarm.tbaStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
 
-			autoSwarm.tbaTokenUri ||= bzzTokenUri(autoSwarm.bzzHash!);
+			autoSwarm.tbaTokenUri ||= bzzTokenUri(autoSwarm.tbaHash!);
 			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 
-			autoSwarm.tbaImage ||= bzzImage(autoSwarm.bzzHash!);
+			autoSwarm.tbaImage ||= bzzImage(autoSwarm.tbaHash!);
 			autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
 
 			if (!tbaMetadata) {

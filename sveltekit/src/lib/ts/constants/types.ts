@@ -16,7 +16,10 @@ type NftMetadataAutoSwarm = {
 	bzzHash?: Hex;
 	bzzSize?: bigint;
 	bzzPrice?: bigint;
-	bzzStampId?: Hex;
+  tbaHash?: Hex;
+  tbaSize?: bigint;
+  tbaPrice?: bigint;
+	tbaStampId?: Hex;
 	tbaAddress?: Address;
 	tbaBalance?: bigint;
 	tbaDeployed?: boolean;

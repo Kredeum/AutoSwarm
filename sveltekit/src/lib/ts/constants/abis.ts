@@ -35,7 +35,8 @@ const autoSwarmAccountAbi = parseAbi([
 	'function bzzSize() external view returns (uint256)',
 	'function stampId() external view returns (bytes32)',
 	'function bzzSize() external view returns (uint256)',
-	'function initialize(address,bytes32,uint256) external',
+	'function setAutoSwarm(bytes32,uint256) external',
+	'function setAutoSwarmStamp(bytes32,uint256,uint256) external',
 	'function topUp(uint256) external',
 	'function getTopUpYearPrice() external view returns (uint256)',
 	'function withdraw(address) external'
