@@ -23,10 +23,10 @@
 	} from '$lib/ts/display/displayExplorer';
 	import { alertError } from '$lib/ts/stores/alertMessage';
 
-	///////////////////////////// Debug Component ///////////////////////////////////////
-	// <Debug {bzzChainId}   {metadata} />
-	///////////////////////////// Debug /////////////////////////////////////////////////
-	// Debug component : display info on NFT, TBA and Swarm hashes
+	///////////////////////////// Details Component ///////////////////////////////////////
+	// <Details {bzzChainId}   {metadata} />
+	///////////////////////////// Details /////////////////////////////////////////////////
+	// Details component : display info on NFT, TBA and Swarm hashes
 	/////////////////////////////////////////////////////////////////////////////////////
 	export let bzzChainId: number;
 	export let metadata: NftMetadata;
@@ -45,7 +45,7 @@
 
 	$: bzzChainId > 0 && metadata && refresh();
 	const refresh = async () => {
-		console.info('<NftDebug refresh  IN', bzzChainId, metadata);
+		console.info('<NftDetails refresh  IN', bzzChainId, metadata);
 		try {
 			// Wallet
 			walletAddress = await sendWalletAddress();
@@ -56,14 +56,14 @@
 			currentBatchId = await callMarketCurrentBatchId(bzzChainId);
 			currentPrice = await callPostageLastPrice(bzzChainId);
 		} catch (e) {
-			alertError('<Debug refresh', e);
+			alertError('<Details refresh', e);
 		}
-		console.info('<NftDebug refresh OUT');
+		console.info('<NftDetails refresh OUT');
 	};
 </script>
 
 {#if metadata?.autoSwarm}
-	<div id="debug">
+	<div id="details">
 		<hr />
 		<p>
 			NFT - Chain Id / Collection Address / Token Id
@@ -121,7 +121,7 @@
 		</p>
 		<p>
 			Swarm - Hash <span
-				>{@html displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span
+				>{@html displayBzzURI(metadata.autoSwarm.bzzHash, "") || UNDEFINED_DATA}</span
 			>
 		</p>
 		<p>
@@ -187,16 +187,16 @@
 {/if}
 
 <style>
-	#debug {
+	#details {
 		width: 1100px;
 		display: block;
 		text-align: left;
 	}
-	#debug p span {
+	#details p span {
 		float: right;
 		font-family: Monaco;
 	}
-	#debug p.shift {
+	#details p.shift {
 		margin-left: 50px;
 	}
 </style>

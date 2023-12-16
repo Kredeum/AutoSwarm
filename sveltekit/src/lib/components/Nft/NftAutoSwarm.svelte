@@ -24,7 +24,7 @@
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
-	import NftDebug from '$lib/components/Nft/NftDebug.svelte';
+	import NftDetails from '$lib/components/Nft/NftDetails.svelte';
 	import { callTbaMetadata } from '$lib/ts/call/callTbaMetadata';
 	import { nftIds } from '$lib/ts/common/nft';
 
@@ -53,7 +53,7 @@
 	let normalisedBalance: bigint | undefined;
 
 	// State
-	let debug = false;
+	let details = false;
 	let oneYearPrice: bigint | undefined;
 
 	let resaving = 0;
@@ -124,7 +124,8 @@
 			[autoSwarm.tbaImage, autoSwarm.tbaTokenUri],
 			[autoSwarm.nftImageSize, autoSwarm.nftTokenUriSize]
 		] = await fetchBzzTar([autoSwarm.nftImage, autoSwarm.nftTokenUri]);
-		autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
+		if (autoSwarm.bzzSize)
+			autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 	};
 
 	const reSave = async () => {
@@ -241,11 +242,11 @@
 <br />
 
 <p>
-	<button class="btn" on:click={() => (debug = !debug)}>
-		{#if debug}hide{/if} debug
+	<button class="btn" on:click={() => (details = !details)}>
+		{#if details}hide{/if} details
 	</button>
 </p>
 
-{#if debug}
-	<NftDebug bzzChainId={$bzzChainId} {metadata} />
+{#if details}
+	<NftDetails bzzChainId={$bzzChainId} {metadata} />
 {/if}
