@@ -53,8 +53,8 @@ const fetchBzzMultipartTooBuggy = async (urls: (string | undefined)[]): Promise<
 	const headers = new Headers();
 	headers.append('Content-Type', `multipart/form-data; boundary=${boundary}`);
 	headers.append('Swarm-Postage-Batch-Id', bzzTrim(batchId));
-	headers.append('swarm-pin', 'true');
-	headers.append('swarm-collection', 'true');
+	headers.append('Swarm-Pin', 'true');
+	headers.append('Swarm-Collection', 'true');
 
 	return fetchBzzPost(api, body, headers);
 };

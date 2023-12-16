@@ -10,9 +10,20 @@ import {
 import { localConfigGet } from '../common/local';
 import { fetchAltUrl } from './fetchAlt';
 import { urlToUrl } from '../common/url';
-import { fetchUrl } from '../fetch/fetch';
+import { fetchUrl } from './fetch';
 import { bzz0, bzzTrim } from '../swarm/bzz';
 import { fetchBzzPost } from './fetchBzz';
+
+const _fetchDataFromUrl = async (url: URL | string | undefined): Promise<Uint8Array> => {
+	const urlAlt = await fetchAltUrl(url);
+	if (!urlAlt) throw new Error(`fetchBzzTar: Bad URL ${url}`);
+
+	const response = await fetchUrl(urlAlt);
+	if (!response) throw new Error(`fetchBzzTar: Bad URL ${urlAlt}`);
+
+	const blob = await response.blob();
+	return new Uint8Array(await blob.arrayBuffer());
+};
 
 const fetchBzzTar = async (
 	urls: (URL | string | undefined)[]
@@ -24,52 +35,26 @@ const fetchBzzTar = async (
 	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
 
 	const collection: Collection = [];
-	for (let index = 0; index < urls.length; index++) {
-		const url = urlToUrl(urls[index]);
 
-		// const contentType = await fetchContentType(url);
-		// console.log('fetchBzzTar part', index, contentType);
-		// const [type, subtype] = contentType?.split('/') || [];
+	const data = new TextEncoder().encode(`<html><body><h1>AutoSwarm</h1>
+    <img width="150" src="${IMAGE_JPEG}" alt="${IMAGE_JPEG}"><br/><br/>
+    <a href="${IMAGE_JPEG}">${IMAGE_JPEG}</a></li><br/><br/>
+    <a href="${METADATA_JSON}">${METADATA_JSON}</a><br/><br/></body></html>`);
 
-		const urlAlt = await fetchAltUrl(url);
-		if (!urlAlt) throw new Error(`fetchBzzTar: Bad URL ${url}`);
+	collection.push({ data, path: 'index.html' });
+	collection.push({ data: await _fetchDataFromUrl(urls[0]), path: IMAGE_JPEG });
+	collection.push({ data: await _fetchDataFromUrl(urls[1]), path: METADATA_JSON });
 
-		const response = await fetchUrl(urlAlt);
-		if (!response) throw new Error(`fetchBzzTar: Bad URL ${urlAlt}`);
-
-		const blob = await response.blob();
-		const data = new Uint8Array(await blob.arrayBuffer());
-
-		let path: string;
-		// image
-		if (index === 0) {
-			// if (type !== 'image') throw new Error(`fetchBzzTar: Bad Image Content-Type ${contentType} for ${url}`);
-			path = IMAGE_JPEG;
-		}
-		// metadata
-		else if (index === 1) {
-			// if (!(contentType?.startsWith('application/json') || contentType?.startsWith('text/plain')))
-			// 	throw new Error(`fetchBzzTar: Bad Metadata Content-Type ${contentType} for ${url}`);
-			path = METADATA_JSON;
-			// partName = 'metadata';
-			// const json = JSON.parse(new TextDecoder().decode(data));
-			// json.imageName = imageName;
-			// data = new TextEncoder().encode(JSON.stringify(json));
-		} else {
-			// path = `part${index}.${type}.${subtype}`;
-			path = `part${index}`;
-		}
-
-		collection.push({ data, path });
-	}
 	const body = makeTar(collection);
 	const bodySize = BigInt(body.length);
 
 	const headers = new Headers();
+	headers.append('Accept', 'application/json, text/plain, */*');
 	headers.append('Content-Type', 'application/x-tar');
 	headers.append('Swarm-Postage-Batch-Id', batchId);
 	headers.append('Swarm-Pin', 'true');
 	headers.append('Swarm-Collection', 'true');
+	headers.append('Swarm-Index-Document', 'index.html');
 
 	const hash = await fetchBzzPost(api, body, headers);
 	console.log('fetchBzzTar hash:', hash);

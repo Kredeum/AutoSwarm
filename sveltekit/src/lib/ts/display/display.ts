@@ -10,12 +10,14 @@ import {
 	ONE_YEAR,
 	BZZ_DECIMALS,
 	BUCKET_DEPTH,
-	SWARM_GATEWAY
+	SWARM_GATEWAY,
+	SWARM_DEFAULT_API
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
 import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
 import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
+import { localConfigGet } from '../common/local';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -110,11 +112,11 @@ const displayBzzURI = (str: Hex | string | undefined, path?: string): string => 
 	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
 	const hashPath = path ? `${hash}/${path}` : hash;
-	const url = `${SWARM_GATEWAY}/${hashPath}`;
+	const gateway = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
+	const url = `${gateway}/${hashPath}`;
+	// const url = `${SWARM_GATEWAY}/${hashPath}`;
 
-	return path
-		? `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`
-		: bzz(hashPath);
+	return `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`;
 };
 
 const displayBzzURL = (str: Hex | string | undefined, path?: string): string => {
