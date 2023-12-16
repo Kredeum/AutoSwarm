@@ -1,7 +1,8 @@
 import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID, SWARM_GATEWAY } from '../constants/constants';
 import { localConfigGet } from '../common/local';
-import { fetchSuccess, fetchUrl, fetchUrlOk } from './fetch';
-import { fetchAltUrl } from './fetchAlt';
+import { fetchSuccess, fetchUrl } from '../fetch/fetch';
+import { fetchOkUrl } from '../fetch/fetchOk';
+import { fetchAltUrl } from '../fetch/fetchAlt';
 
 import type { Hex } from 'viem';
 import { bzzTrim } from '../swarm/bzz';
@@ -34,7 +35,7 @@ const fetchBzzPostFromUrl = async (
 	batchId?: Hex,
 	api?: string
 ): Promise<Hex> => {
-	if (!(url && fetchUrlOk(url))) throw new Error(`fetchBzzPostFromUrl: Bad URL ${url}`);
+	if (!(url && fetchOkUrl(url))) throw new Error(`fetchBzzPostFromUrl: Bad URL ${url}`);
 
 	batchId ||= (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID) as Hex;
 	api ||= `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;

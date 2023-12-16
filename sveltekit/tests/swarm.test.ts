@@ -9,7 +9,7 @@ import {
 	swarmHashFromUrl
 } from '$lib/ts/swarm/hash';
 
-import { fetchBzzPost, fetchBzzPostFromUrl } from '$lib/ts/fetch/fetchBzz';
+import { fetchBzzPost, fetchBzzPostFromUrl } from '$lib/ts/fetchBzz/fetchBzz';
 import { SWARM_DEFAULT_API } from '$lib/ts/constants/constants';
 import { bzzTrim } from '$lib/ts/swarm/bzz';
 

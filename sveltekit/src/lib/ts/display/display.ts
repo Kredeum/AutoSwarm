@@ -107,7 +107,7 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 };
 
 const displayBzzURI = (str: Hex | string | undefined, path?: string): string => {
-	console.log('displayBzzURI', str, bzzTrim(str));
+	// console.log('displayBzzURI', str, bzzTrim(str));
 	const hash = bzzTrim(str);
 	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 

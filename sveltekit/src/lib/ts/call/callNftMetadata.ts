@@ -2,7 +2,7 @@ import type { Address } from 'viem';
 import type { NftMetadata } from '$lib/ts/constants/types';
 import { fetchJson } from '../fetch/fetchJson';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { fetchSize } from '../fetch/fetch';
+import { fetchSize } from '../fetch/fetchSize';
 
 import { callNftTokenUri } from './callNft';
 import { utilsDivUp } from '../common/utils';

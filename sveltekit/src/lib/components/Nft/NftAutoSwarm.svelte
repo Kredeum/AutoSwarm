@@ -5,7 +5,7 @@
 	import { ONE_YEAR, STAMP_PRICE, STAMP_SIZE } from '$lib/ts/constants/constants.js';
 	import type { NftMetadata, NftMetadataAutoSwarm } from '$lib/ts/constants/types';
 	import { localConfigInit } from '$lib/ts/common/local';
-	import { fetchBzzTar } from '$lib/ts/fetch/fetchBzzTar';
+	import { fetchBzzTar } from '$lib/ts/fetchBzz/fetchBzzTar';
 	import { callBlock } from '$lib/ts/call/call.js';
 	import { callTbaBzzHash } from '$lib/ts/call/callTba';
 
