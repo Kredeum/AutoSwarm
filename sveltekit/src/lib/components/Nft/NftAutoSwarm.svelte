@@ -20,13 +20,15 @@
 	} from '$lib/ts/display/display';
 
 	import { utilsDivUp, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { bzzChainId, bzzRefs } from '$lib/ts/swarm/bzz';
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 	import NftDetails from '$lib/components/Nft/NftDetails.svelte';
 	import { callTbaMetadata } from '$lib/ts/call/callTbaMetadata';
 	import { nftIds } from '$lib/ts/common/nft';
+	import { mantarayLog } from '$lib/ts/swarm/mantaray';
+	import { fetchAltUrl } from '$lib/ts/fetch/fetchAlt';
 
 	////////////////////// AutoSwarm Component /////////////////////////////////
 	// <AutoSwarm {metadata} />
@@ -126,6 +128,10 @@
 		] = await fetchBzzTar([autoSwarm.nftImage, autoSwarm.nftTokenUri]);
 		if (autoSwarm.bzzSize)
 			autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
+
+		// mantarayLog(autoSwarm.bzzHash);
+		const refs = await bzzRefs(autoSwarm.bzzHash!);
+		if (refs) [autoSwarm.bzzMetadata, autoSwarm.bzzContent] = refs;
 	};
 
 	const reSave = async () => {

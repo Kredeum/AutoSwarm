@@ -1,7 +1,7 @@
 import type { Hex } from 'viem';
 
 import {
-	IMAGE_JPEG,
+	CONTENT,
 	INDEX_HTML,
 	METADATA_JSON,
 	SWARM_DEFAULT_API,
@@ -64,8 +64,8 @@ const fetchBzzMultipart = async (
 	const data = new Blob(
 		[
 			`<html><body><h1>AutoSwarm</h1>
-      <img width="150" src="${IMAGE_JPEG}"><br/><br/>
-      <a href="${IMAGE_JPEG}">${IMAGE_JPEG}</a></li><br/><br/>
+      <img width="150" src="${CONTENT}"><br/><br/>
+      <a href="${CONTENT}">${CONTENT}</a></li><br/><br/>
       <a href="${METADATA_JSON}">${METADATA_JSON}</a><br/><br/></body></html>`
 		],
 		{ type: 'text/html' }
@@ -73,7 +73,7 @@ const fetchBzzMultipart = async (
 
 	const collection: Part[] = [];
 	collection.push({ data, path: INDEX_HTML });
-	collection.push({ data: await fetchData(urls[0]), path: IMAGE_JPEG });
+	collection.push({ data: await fetchData(urls[0]), path: CONTENT });
 	collection.push({ data: await fetchData(urls[1]), path: METADATA_JSON });
 
 	const body = await makecollection(collection, boundary);

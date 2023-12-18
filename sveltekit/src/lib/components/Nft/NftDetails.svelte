@@ -2,7 +2,7 @@
 	import type { Address, Hex } from 'viem';
 
 	import type { NftMetadata } from '$lib/ts/constants/types';
-	import { IMAGE_JPEG, METADATA_JSON, UNDEFINED_DATA } from '$lib/ts/constants/constants';
+	import { METADATA_JSON, UNDEFINED_DATA } from '$lib/ts/constants/constants';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 
@@ -120,17 +120,15 @@
 			</span>
 		</p>
 		<p>
-			Swarm - Hash <span
-				>{@html displayBzzURI(metadata.autoSwarm.bzzHash, "") || UNDEFINED_DATA}</span
-			>
+			Swarm - Hash <span>{@html displayBzzURI(metadata.autoSwarm.bzzHash) || UNDEFINED_DATA}</span>
 		</p>
 		<p>
 			Swarm - Metadata Path
-			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, METADATA_JSON)}</span>
+			<span>{@html displayBzzURI(metadata.autoSwarm.bzzMetadata)}</span>
 		</p>
 		<p>
 			Swarm - Image Path
-			<span>{@html displayBzzURI(metadata.autoSwarm.bzzHash, IMAGE_JPEG)}</span>
+			<span>{@html displayBzzURI(metadata.autoSwarm.bzzContent)}</span>
 		</p>
 		<hr />
 		<p>
@@ -160,7 +158,7 @@
 		</p>
 		<p>
 			TBA - Image URL
-			<span> {@html displayBzzURL(metadata.autoSwarm.tbaHash, IMAGE_JPEG)}</span>
+			<span> {@html displayBzzURL(metadata.autoSwarm.bzzContent)}</span>
 		</p>
 		<p>
 			TBA - Stamp Id <span>{metadata.autoSwarm.tbaStampId || UNDEFINED_DATA}</span>

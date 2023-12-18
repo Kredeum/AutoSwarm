@@ -38,7 +38,7 @@ const _displayExplorerAddress = (
 	if (!chainId) return '';
 
 	const explorer = chainGetExplorer(chainId);
-	console.log('explorer:', explorer);
+	// console.log('explorer:', explorer);
 	if (!explorer) return `${addr}`;
 
 	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;

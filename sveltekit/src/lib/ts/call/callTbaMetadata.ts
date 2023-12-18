@@ -3,7 +3,7 @@ import type { NftMetadata, NftMetadataAutoSwarm } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchUrl } from '../fetch/fetch';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { bzzImage, bzzTokenUri } from '../swarm/bzz';
+import { bzzRefs } from '../swarm/bzz';
 import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
@@ -44,12 +44,12 @@ const _callTbaMetadata = async (
 			if (utilsIsBytes32Null(autoSwarm.tbaStampId))
 				autoSwarm.tbaStampId = await callTbaBzzStampId(bzzChainId, autoSwarm.tbaAddress);
 
-			autoSwarm.tbaTokenUri ||= bzzTokenUri(autoSwarm.tbaHash!);
-			autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
-
-			autoSwarm.tbaImage ||= bzzImage(autoSwarm.tbaHash!);
-			autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
-
+			const refs = await bzzRefs(autoSwarm.tbaHash!);
+			if (refs) {
+				[autoSwarm.tbaTokenUri, autoSwarm.tbaImage] = refs;
+				autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
+				autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
+			}
 			if (!tbaMetadata) {
 				tbaMetadata = (await fetchUrl(autoSwarm.tbaTokenUriAlt)) as unknown as NftMetadata;
 				tbaMetadata.autoSwarm = autoSwarm;
