@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '$lib/ts/constants/constants';
-	import { localConfigGet, localConfigSet } from '$lib/ts/common/local';
+	import { localConfigSet } from '$lib/ts/common/local';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
-	import { bzz } from '$lib/ts/swarm/bzz';
+
+	import { beeApi, beeBatchId } from '$lib/ts/swarm/bee';
 
 	////////////////////// Swarm Config Component ///////////////////////////////
 	// <Config />
@@ -16,8 +16,8 @@
 	let errMessage = '';
 	let successMessage = '';
 
-	$: swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
-	$: batchId = localConfigGet('batchId') || undefined;
+	let swarmApi = beeApi();
+	let batchId = beeBatchId() as string;
 
 	const isUrlValid = (url: string): boolean => {
 		if (!url) return false;
@@ -43,7 +43,7 @@
 		swarmApi = swarmApi.trim().replace(/\/$/, '');
 		if (!isUrlValid(swarmApi)) {
 			errMessage = `Invalid node URL '${swarmApi}'`;
-			swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
+			swarmApi = beeApi();
 			return;
 		}
 		localConfigSet('api', swarmApi);
@@ -55,7 +55,7 @@
 			localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
 		} else {
 			errMessage = `Invalid batchId '${batchId}'`;
-			batchId = localConfigGet('batchId') || SWARM_DEFAULT_BATCHID;
+			batchId = beeBatchId();
 			return;
 		}
 

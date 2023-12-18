@@ -1,19 +1,11 @@
 import type { Hex } from 'viem';
 import { makeTar, type Collection } from '$lib/ts/swarm/tar';
 
-import {
-	CONTENT,
-	METADATA_JSON,
-	INDEX_HTML,
-	SWARM_DEFAULT_API,
-	SWARM_DEFAULT_BATCHID,
-  INDEX_JSON,
-  METADATA
-} from '../constants/constants';
-import { localConfigGet } from '../common/local';
-import { bzz0, bzzTrim } from '../swarm/bzz';
+import { INDEX_HTML, LIST_JSON } from '../constants/constants';
 import { fetchBzzPost } from './fetchBzz';
 import { fetchAltUrlToBlob } from '../fetch/fetchAlt';
+import { bzz0, bzzTrim } from '../swarm/bzz';
+import { beeBatchId, beeApiBzz, beeGatewayBzz } from '../swarm/bee';
 
 const _fetchBlobFilename = (blob: Blob): [string, string, string] => {
 	const mimeType = blob.type;
@@ -29,8 +21,8 @@ const fetchBzzTar = async (
 ): Promise<[Hex, bigint, string[], number[]]> => {
 	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
 
-	const api = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
-	const batchId = bzzTrim(localConfigGet('batchId') || SWARM_DEFAULT_BATCHID);
+	const api = beeApiBzz();
+	const batchId = beeBatchId();
 	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
 
 	const metadataBlob = await fetchAltUrlToBlob(urls[1]);
@@ -38,25 +30,25 @@ const fetchBzzTar = async (
 
 	const contentBlob: Blob = await fetchAltUrlToBlob(urls[0]);
 	const contentData = new Uint8Array(await contentBlob.arrayBuffer());
-	const [content, contentMainType] = _fetchBlobFilename(contentBlob);
+	const [image, imageMainType] = _fetchBlobFilename(contentBlob);
 
 	let html = '<html><body><h1>AutoSwarm</h1>';
-	if (contentMainType == 'image') {
-		html += `<img width="150" src="${content}"><br/><br/>`;
+	if (imageMainType == 'image') {
+		html += `<img width="150" src="${image}"><br/><br/>`;
 	}
-	html += `<a href="${content}">${content}</a></li><br/><br/>`;
-	html += `<a href="${METADATA_JSON}">${METADATA_JSON}</a><br/><br/></body></html>`;
+	html += `<a href="${image}">${image}</a></li><br/><br/>`;
+	html += `<a href="metadata.json">metadata.json</a><br/><br/></body></html>`;
 	html += '</body></html>';
 	const indexHtml = new TextEncoder().encode(html);
 
-	const json = `{"${CONTENT}": "${content}", "${METADATA}": "${METADATA_JSON}"}`;
+	const json = `{"image": "${image}", "metadata": "metadata.json"}`;
 	const indexJson = new TextEncoder().encode(json);
 
 	const collection: Collection = [];
 	collection.push({ data: indexHtml, path: INDEX_HTML });
-	collection.push({ data: indexJson, path: INDEX_JSON });
-	collection.push({ data: metadataData, path: METADATA_JSON });
-	collection.push({ data: contentData, path: content });
+	collection.push({ data: indexJson, path: LIST_JSON });
+	collection.push({ data: metadataData, path: 'metadata.json' });
+	collection.push({ data: contentData, path: image });
 
 	const body = makeTar(collection);
 	const bodySize = BigInt(body.length);
@@ -73,7 +65,7 @@ const fetchBzzTar = async (
 	console.log('fetchBzzTar hash:', hash);
 
 	collection.shift();
-	const paths = collection.map((item) => `${api}/${bzzTrim(hash)}/${item.path}`);
+	const paths = collection.map((item) => `${beeGatewayBzz()}/${bzzTrim(hash)}/${item.path}`);
 	const sizes = collection.map((item) => item.data.length);
 
 	return [hash, bodySize, paths, sizes];

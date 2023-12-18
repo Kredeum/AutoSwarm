@@ -130,8 +130,7 @@
 			autoSwarm.bzzPrice = utilsDivUp(autoSwarm.bzzSize, STAMP_SIZE) * STAMP_PRICE;
 
 		// mantarayLog(autoSwarm.bzzHash);
-		const refs = await bzzRefs(autoSwarm.bzzHash!);
-		if (refs) [autoSwarm.bzzMetadata, autoSwarm.bzzContent] = refs;
+		autoSwarm.bzzImageName = await bzzRefs(autoSwarm.bzzHash!);
 	};
 
 	const reSave = async () => {

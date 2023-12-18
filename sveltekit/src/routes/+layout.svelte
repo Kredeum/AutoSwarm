@@ -8,14 +8,13 @@
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { page } from '$app/stores';
+	import { localConfigGet } from '$lib/ts/common/local';
 
 	////////////////////// AutoSwarm Layout ///////////////////////////////////////
-	// Layout for all AutoSwamr pages
+	// Layout for all AutoSwarm pages
 	/////////////////////////////////////////////////////////////////////////////
 
-	const chainId = localStorage.getItem('swarm.chainId') || '11155111'; //  "31337" // "100";
-	localStorage.setItem('swarm.chainId', chainId);
-	bzzChainId.set(Number(chainId));
+	bzzChainId.set(Number(localConfigGet('chainId')));
 
 	$: document.body.style.backgroundColor = ['/monitor'].includes($page.route.id || '')
 		? '#444'
@@ -34,7 +33,7 @@
 	</main>
 
 	<footer>
-		{chainId}
+		{$bzzChainId}
 		<Footer />
 	</footer>
 </div>

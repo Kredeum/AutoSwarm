@@ -10,8 +10,8 @@ import {
 } from '$lib/ts/swarm/hash';
 
 import { fetchBzzPost, fetchBzzPostFromUrl } from '$lib/ts/fetchBzz/fetchBzz';
-import { SWARM_DEFAULT_API } from '$lib/ts/constants/constants';
 import { bzzTrim } from '$lib/ts/swarm/bzz';
+import { beeApiBzz } from '$lib/ts/swarm/bee';
 
 const batchId = '0xe583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b';
 
@@ -96,6 +96,6 @@ test.only('fetchBzzPostFromUrl blob or not', async () => {
 	headers.append('Swarm-Postage-Batch-Id', bzzTrim(batchId));
 	headers.append('Content-Type', 'text/plain');
 
-	const hash = await fetchBzzPost(`${SWARM_DEFAULT_API}/bzz`, body, headers);
+	const hash = await fetchBzzPost(beeApiBzz(), body, headers);
 	console.log('test ~ hash:', hash);
 });

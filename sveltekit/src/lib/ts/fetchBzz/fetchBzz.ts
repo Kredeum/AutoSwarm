@@ -1,16 +1,15 @@
-import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID, SWARM_GATEWAY } from '../constants/constants';
-import { localConfigGet } from '../common/local';
 import { fetchSuccess, fetchUrl } from '../fetch/fetch';
 import { fetchOkUrl } from '../fetch/fetchOk';
 import { fetchAltUrl } from '../fetch/fetchAlt';
 
 import type { Hex } from 'viem';
 import { bzzTrim } from '../swarm/bzz';
+import { beeApiBzz, beeGatewayBzz, beeBatchId } from '../swarm/bee';
 
 const fetchBzzGet = async (bzzHash: Hex): Promise<Response | undefined> => {
 	console.info('fetchBzzGet', bzzHash);
 
-	const url = `${SWARM_GATEWAY}/${bzzHash}`;
+	const url = `${beeGatewayBzz()}/${bzzHash}`;
 	const response = await fetchUrl(url);
 	// console.info('fetchBzzGet', bzzHash, '\n', response);
 	return response;
@@ -37,8 +36,8 @@ const fetchBzzPostFromUrl = async (
 ): Promise<Hex> => {
 	if (!(url && fetchOkUrl(url))) throw new Error(`fetchBzzPostFromUrl: Bad URL ${url}`);
 
-	batchId ||= (localConfigGet('batchId') || SWARM_DEFAULT_BATCHID) as Hex;
-	api ||= `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
+	api ||= beeApiBzz();
+	batchId ||= beeBatchId();
 
 	const urlAlt = await fetchAltUrl(url);
 	if (!urlAlt) throw new Error(`fetchBzzPostFromUrl: Bad URL ${url}`);

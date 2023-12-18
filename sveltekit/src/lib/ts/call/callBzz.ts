@@ -1,7 +1,7 @@
 import type { Address } from 'viem';
 import { erc20Abi } from '../constants/abis';
 
-import { jsonGetField } from '../common/json';
+import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 
 const callBzzBalance = async (
@@ -12,7 +12,7 @@ const callBzzBalance = async (
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: (await jsonGetField(bzzChainId, 'BzzToken')) as Address,
+		address: (await addressesGetField(bzzChainId, 'BzzToken')) as Address,
 		abi: erc20Abi,
 		functionName: 'balanceOf',
 		args: [account]

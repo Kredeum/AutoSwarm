@@ -1,11 +1,11 @@
 import { zeroAddress, type Address } from 'viem';
 import { erc20Abi } from '$lib/ts/constants/abis';
-import { jsonGet } from '../common/json';
+import { addressesGet } from '../common/addresses';
 import { sendWallet } from './send';
 
 const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint) => {
 	// console.info('sendBzzApprove', bzzChainId,  bzzAmount);
-	const json = await jsonGet(bzzChainId);
+	const json = await addressesGet(bzzChainId);
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -31,7 +31,7 @@ const sendBzzTransfer = async (
 	if (bzzAmount === undefined) throw new Error('Transfer amount undefined');
 	if (to === undefined || to === zeroAddress || bzzAmount === undefined)
 		throw new Error('Bad address');
-	const json = await jsonGet(bzzChainId);
+	const json = await addressesGet(bzzChainId);
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 

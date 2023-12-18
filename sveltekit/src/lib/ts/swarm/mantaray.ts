@@ -1,7 +1,6 @@
 import { MantarayNode } from 'mantaray-js';
-import { SWARM_DEFAULT_API } from '../constants/constants';
-import { localConfigGet } from '../common/local';
 import { bzzTrim } from './bzz';
+import { beeApi } from './bee';
 
 const _uint8ArrayToHexString = (byteArray: Uint8Array): string =>
 	Array.from(byteArray).reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
@@ -28,8 +27,8 @@ const mantarayLog = async (reference: string, path = ''): Promise<void> => {
 	console.log('mantarayLog', reference);
 	const ref = bzzTrim(reference);
 
-	const beeUrl = localConfigGet('api') || SWARM_DEFAULT_API;
-	const res = await fetch(`${beeUrl}/bytes/${ref}`);
+	const api = beeApi();
+	const res = await fetch(`${api}/bytes/${ref}`);
 	const data = new Uint8Array(await res.arrayBuffer());
 	const node = new MantarayNode();
 	node.deserialize(data);

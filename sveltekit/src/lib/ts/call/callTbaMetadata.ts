@@ -46,7 +46,7 @@ const _callTbaMetadata = async (
 
 			const refs = await bzzRefs(autoSwarm.tbaHash!);
 			if (refs) {
-				[autoSwarm.tbaTokenUri, autoSwarm.tbaImage] = refs;
+				autoSwarm.tbaImageName = refs;
 				autoSwarm.tbaTokenUriAlt ||= await fetchAltUrl(autoSwarm.tbaTokenUri);
 				autoSwarm.tbaImageAlt ||= await fetchAltUrl(autoSwarm.tbaImage);
 			}

@@ -14,7 +14,7 @@
 		CHUNK_SIZE,
 		CHUNK_PRICE_DEFAULT
 	} from '$lib/ts/constants/constants';
-	import { jsonGetField } from '$lib/ts/common/json';
+	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import {
 		displayBalance,
@@ -92,7 +92,7 @@
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
-				jsonGetField($bzzChainId, 'AutoSwarmMarket') as Address
+				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
 
 			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
@@ -138,7 +138,7 @@
 			console.log('monthlyCron ~ monthlyCroning:', monthlyCroning);
 			refresh();
 
-			const autoSwarmMarket = jsonGetField($bzzChainId, 'AutoSwarmMarket') as Address;
+			const autoSwarmMarket = addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address;
 			await sendBzzTransfer($bzzChainId, autoSwarmMarket, currentBatchPrice);
 
 			monthlyCroning = 2;

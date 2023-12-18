@@ -1,16 +1,10 @@
 import type { Hex } from 'viem';
 
-import {
-	CONTENT,
-	INDEX_HTML,
-	METADATA_JSON,
-	SWARM_DEFAULT_API,
-	SWARM_DEFAULT_BATCHID
-} from '../constants/constants';
-import { localConfigGet } from '../common/local';
+import { INDEX_HTML } from '../constants/constants';
 import { bzz0, bzzTrim } from '../swarm/bzz';
 import { fetchAltUrlToBlob as fetchData } from '../fetch/fetchAlt';
 import { fetchBzzPost } from './fetchBzz';
+import { beeBatchId, beeApiBzz } from '../swarm/bee';
 
 const _blobToBinary = async (blob: Blob): Promise<string> => {
 	const arrayBuffer = await new Response(blob).arrayBuffer();
@@ -57,24 +51,13 @@ const fetchBzzMultipart = async (
 ): Promise<[Hex, bigint, string[], number[]]> => {
 	const boundary = `AUTOSWARM${Math.random().toString().substr(8)}`;
 
-	const api = `${localConfigGet('api') || SWARM_DEFAULT_API}/bzz`;
-	const batchId = bzzTrim(localConfigGet('batchId') || SWARM_DEFAULT_BATCHID);
+	const api = beeApiBzz();
+	const batchId = beeBatchId();
 	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
 
-	const data = new Blob(
-		[
-			`<html><body><h1>AutoSwarm</h1>
-      <img width="150" src="${CONTENT}"><br/><br/>
-      <a href="${CONTENT}">${CONTENT}</a></li><br/><br/>
-      <a href="${METADATA_JSON}">${METADATA_JSON}</a><br/><br/></body></html>`
-		],
-		{ type: 'text/html' }
-	);
-
 	const collection: Part[] = [];
-	collection.push({ data, path: INDEX_HTML });
-	collection.push({ data: await fetchData(urls[0]), path: CONTENT });
-	collection.push({ data: await fetchData(urls[1]), path: METADATA_JSON });
+	collection.push({ data: await fetchData(urls[0]), path: 'image.jpeg' });
+	collection.push({ data: await fetchData(urls[1]), path: 'metadata.json' });
 
 	const body = await makecollection(collection, boundary);
 	const bodySize = BigInt(body.length);

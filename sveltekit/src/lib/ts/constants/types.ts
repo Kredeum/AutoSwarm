@@ -11,16 +11,16 @@ type NftMetadataAutoSwarm = {
 	nftImageSize?: number;
 	nftImageAlt?: string;
 	nftSizeEstimation?: number;
-  nftPriceEstimation?: bigint;
+	nftPriceEstimation?: bigint;
 	bzzChainId?: number;
 	bzzHash?: Hex;
-  bzzMetadata?: string;
-  bzzContent?: string;
+	bzzImageName?: string;
 	bzzSize?: bigint;
 	bzzPrice?: bigint;
-  tbaHash?: Hex;
-  tbaSize?: bigint;
-  tbaPrice?: bigint;
+	tbaHash?: Hex;
+	tbaImageName?: string;
+	tbaSize?: bigint;
+	tbaPrice?: bigint;
 	tbaStampId?: Hex;
 	tbaAddress?: Address;
 	tbaBalance?: bigint;
@@ -42,5 +42,6 @@ type NftMetadata = NftMetadataErc721 & {
 	autoSwarm?: NftMetadataAutoSwarm;
 	[key: string]: unknown;
 };
+type AddressesType = Record<string, string>;
 
-export type { NftMetadataErc721, NftMetadata, NftMetadataAutoSwarm };
+export type { NftMetadataErc721, NftMetadata, NftMetadataAutoSwarm, AddressesType };

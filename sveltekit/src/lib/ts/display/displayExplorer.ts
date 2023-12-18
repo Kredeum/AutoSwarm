@@ -2,7 +2,7 @@ import { isAddress, type Address } from 'viem';
 import { UNDEFINED_ADDRESS } from '$lib/ts/constants/constants';
 
 import { chainGetExplorer } from '../common/chains';
-import { jsonGetField } from '../common/json';
+import { addressesGetField } from '../common/addresses';
 import { utilsTruncate } from '../common/utils';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,6 @@ const displayExplorerAddress = (chainId: number | undefined, addr: Address | und
 		: UNDEFINED_ADDRESS;
 };
 const displayExplorerField = (chainId: number, field: string): string =>
-	displayExplorerAddress(chainId, jsonGetField(chainId, field) as Address);
+	displayExplorerAddress(chainId, addressesGetField(chainId, field) as Address);
 
 export { displayExplorer, displayExplorerNft, displayExplorerAddress, displayExplorerField };
