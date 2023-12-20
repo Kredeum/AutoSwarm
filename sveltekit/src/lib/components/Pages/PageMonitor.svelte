@@ -28,7 +28,7 @@
 	import { callBlockNumber } from '$lib/ts/call/call';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
 
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { tbaChainId } from '$lib/ts/swarm/bzz';
 	import {
 		callPostageBatches,
 		callPostageLastPrice,
@@ -83,21 +83,21 @@
 	const refresh = async () => {
 		try {
 			// Block
-			lastBlockNumber = await callBlockNumber($bzzChainId);
+			lastBlockNumber = await callBlockNumber($tbaChainId);
 			// Wallet
 			walletAddress = await sendWalletAddress();
-			walletBalance = await callBzzBalance($bzzChainId, walletAddress);
+			walletBalance = await callBzzBalance($tbaChainId, walletAddress);
 
 			// AutoSwarmMarket
-			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
+			currentBatchId = await callMarketCurrentBatchId($tbaChainId);
 			marketBalance = await callBzzBalance(
-				$bzzChainId,
-				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
+				$tbaChainId,
+				addressesGetField($tbaChainId, 'AutoSwarmMarket') as Address
 			);
 
-			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
-			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($bzzChainId);
-			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
+			currentBatchPrice = await batchPrice($tbaChainId, BATCH_DEPTH, BATCH_TTL);
+			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($tbaChainId);
+			chunckPrice = (await callPostageLastPrice($tbaChainId)) || CHUNK_PRICE_DEFAULT;
 
 			[
 				currentBatchOwner,
@@ -106,9 +106,9 @@
 				currentBatchImmutableFlag,
 				currentBatchNormalisedBalance,
 				currentBatchLastUpdatedBlockNumber
-			] = await callPostageBatches($bzzChainId, currentBatchId);
+			] = await callPostageBatches($tbaChainId, currentBatchId);
 
-			currentBatchRemainingBalance = await callPostageRemainingBalance($bzzChainId, currentBatchId);
+			currentBatchRemainingBalance = await callPostageRemainingBalance($tbaChainId, currentBatchId);
 		} catch (e) {
 			alertError('<Monitor Refresh', e);
 		}
@@ -138,13 +138,13 @@
 			console.log('monthlyCron ~ monthlyCroning:', monthlyCroning);
 			refresh();
 
-			const autoSwarmMarket = addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address;
-			await sendBzzTransfer($bzzChainId, autoSwarmMarket, currentBatchPrice);
+			const autoSwarmMarket = addressesGetField($tbaChainId, 'AutoSwarmMarket') as Address;
+			await sendBzzTransfer($tbaChainId, autoSwarmMarket, currentBatchPrice);
 
 			monthlyCroning = 2;
 			refresh();
 
-			await sendMarketNewBatch($bzzChainId);
+			await sendMarketNewBatch($tbaChainId);
 		} catch (e) {
 			alertError('<Monitor Monthly Cron:', e);
 		}
@@ -235,15 +235,15 @@
 			</span>
 		</p>
 		<hr />
-		<p>BZZ Chaind<span>{@html displayExplorer($bzzChainId)}</span></p>
-		<p>BZZ Token<span>{@html displayExplorerField($bzzChainId, 'BzzToken')}</span></p>
-		<p>ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>
+		<p>BZZ Chaind<span>{@html displayExplorer($tbaChainId)}</span></p>
+		<p>BZZ Token<span>{@html displayExplorerField($tbaChainId, 'BzzToken')}</span></p>
+		<p>ERC6551 Registry<span>{@html displayExplorerField($tbaChainId, 'ERC6551Registry')}</span></p>
 		<p>
-			AutoSwarmAccount<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
+			AutoSwarmAccount<span>{@html displayExplorerField($tbaChainId, 'AutoSwarmAccount')}</span>
 		</p>
-		<p>AutoSwarmMarket<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span></p>
-		<p>PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span></p>
-		<p>PriceOracle<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span></p>
+		<p>AutoSwarmMarket<span>{@html displayExplorerField($tbaChainId, 'AutoSwarmMarket')}</span></p>
+		<p>PostageStamp<span>{@html displayExplorerField($tbaChainId, 'PostageStamp')}</span></p>
+		<p>PriceOracle<span>{@html displayExplorerField($tbaChainId, 'PriceOracle')}</span></p>
 		<hr />
 	</div>
 </div>

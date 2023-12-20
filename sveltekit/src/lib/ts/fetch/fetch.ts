@@ -5,18 +5,15 @@ const fetchUrl = async (
 	method = 'GET'
 ): Promise<Response | undefined> => {
 	// console.info('fetchUrl:', method, url);
-	if (!url) return;
+	if (!url) throw new Error('fetchUrl: No url defined!');
 
-	try {
-		const response = await fetch(url, { method });
-		// const response = await fetch(url, { method, mode: 'cors' });
-		if (fetchSuccess(response.status)) {
-			return response;
-		} else {
-			console.warn('fetchUrl: response.status', response.status, url, '\n', response);
-		}
-	} catch (err) {
-		console.error('fetchUrl: ERROR', method, url, '\n', err);
+	const response = await fetch(url, { method });
+
+	if (fetchSuccess(response.status)) {
+		return response;
+	} else {
+		console.info('fetchUrl: Error status', response.status, url, '\n', response);
+		throw new Error(`fetchUrl: Error status ${response.status} on ${url}`);
 	}
 };
 

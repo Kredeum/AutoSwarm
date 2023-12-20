@@ -4,10 +4,10 @@ import { autoSwarmAccountAbi } from '../constants/abis';
 import { callIsContract, callPublicClient } from './call';
 import { ZERO_BYTES32 } from '../constants/constants';
 
-const callTbaBzzStampId = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
-	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
+const callTbaBzzStampId = async (tbaChainId: number, tba: Address | undefined): Promise<Hex> => {
+	if (!(tba && (await callIsContract(tbaChainId, tba)))) return ZERO_BYTES32;
 
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
 		address: tba,
@@ -17,12 +17,12 @@ const callTbaBzzStampId = async (bzzChainId: number, tba: Address | undefined): 
 };
 
 const callTbaBzzHash = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	tba: Address | undefined
 ): Promise<Hex | undefined> => {
-	if (!(tba && (await callIsContract(bzzChainId, tba)))) return;
+	if (!(tba && (await callIsContract(tbaChainId, tba)))) return;
 
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
 		address: tba,
@@ -31,10 +31,10 @@ const callTbaBzzHash = async (
 	});
 };
 
-const callTbaBzzSize = async (bzzChainId: number, tba: Address | undefined): Promise<bigint> => {
-	if (!(tba && (await callIsContract(bzzChainId, tba)))) return 0n;
+const callTbaBzzSize = async (tbaChainId: number, tba: Address | undefined): Promise<bigint> => {
+	if (!(tba && (await callIsContract(tbaChainId, tba)))) return 0n;
 
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
 		address: tba,

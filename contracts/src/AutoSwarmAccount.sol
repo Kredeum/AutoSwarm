@@ -28,8 +28,6 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     }
 
     constructor(address autoSwarmMarket_) {
-        require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
-
         _setAutoSwarmMarket(autoSwarmMarket_);
     }
 
@@ -38,6 +36,8 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     }
 
     function _setAutoSwarmMarket(address autoSwarmMarket_) private {
+        require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
+
         _autoSwarmMarket = autoSwarmMarket_;
     }
 

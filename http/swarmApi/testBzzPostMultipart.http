@@ -10,7 +10,7 @@ Content-Length: 3
 
 BZZ
 --YTJHJHG465HFG001--
-###
+
 
 ###
 POST http://127.0.0.1:1633/bzz

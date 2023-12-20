@@ -3,55 +3,58 @@ import { makeTar, type Collection } from '$lib/ts/swarm/tar';
 
 import { INDEX_HTML, LIST_JSON } from '../constants/constants';
 import { fetchBzzPost } from './fetchBzz';
-import { fetchAltUrlToBlob } from '../fetch/fetchAlt';
-import { bzz0, bzzTrim } from '../swarm/bzz';
-import { beeBatchId, beeApiBzz, beeGatewayBzz } from '../swarm/bee';
+import { fetchAltUrlToBlob, fetchAltUrlToUint8Array } from '../fetch/fetchAlt';
+import { bzz0 } from '../swarm/bzz';
+import { beeBatchId, beeApiBzz } from '../swarm/bee';
 
 const _fetchBlobFilename = (blob: Blob): [string, string, string] => {
 	const mimeType = blob.type;
 	const [type, subType] = mimeType.split('/');
+
 	let ext = subType;
-	if (type === 'text') ext = subType === 'plain' ? 'txt' : subType;
+	if (type === 'text' && (!subType || subType === 'plain')) ext = 'txt';
 
 	return [`${type}.${ext}`, type, subType];
 };
 
-const fetchBzzTar = async (
-	urls: (URL | string | undefined)[]
-): Promise<[Hex, bigint, string[], number[]]> => {
-	// console.log('fetchBzzTar ~ fetchBzzTar:', urls);
+const fetchBzzTar = async (urls: (URL | string | undefined)[]): Promise<[Uint8Array, string]> => {
+	console.log('fetchBzzTar ~ fetchBzzTar:', urls);
+
+	const collection: Collection = [];
+
+	const contentBlob: Blob = await fetchAltUrlToBlob(urls[0]);
+	const contentData = new Uint8Array(await contentBlob.arrayBuffer());
+	const [imageName, imageMainType] = _fetchBlobFilename(contentBlob);
+	collection.push({ data: contentData, path: imageName });
+
+	const metadataData = await fetchAltUrlToUint8Array(urls[1]);
+	collection.push({ data: metadataData, path: 'metadata.json' });
+
+	let html = '<html><body><h1>AutoSwarm</h1>';
+	if (imageMainType == 'image') {
+		html += `<img width="150" src="${imageName}"><br/><br/>`;
+	}
+	html += `<a href="${imageName}">${imageName}</a></li><br/><br/>`;
+	html += `<a href="metadata.json">metadata.json</a><br/><br/></body></html>`;
+	html += '</body></html>';
+	const indexHtml = new TextEncoder().encode(html);
+	collection.push({ data: indexHtml, path: INDEX_HTML });
+
+	const json = `{"image": "${imageName}", "metadata": "metadata.json"}`;
+	const listJson = new TextEncoder().encode(json);
+	collection.push({ data: listJson, path: LIST_JSON });
+
+	return [makeTar(collection), imageName];
+};
+
+const fetchBzzTarPost = async (body: Uint8Array | undefined): Promise<Hex> => {
+	if (!body) throw new Error('fetchBzzTarPost: No body defined!');
+
+	console.log('fetchBzzTarPost ~ body.length', body.length);
 
 	const api = beeApiBzz();
 	const batchId = beeBatchId();
 	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
-
-	const metadataBlob = await fetchAltUrlToBlob(urls[1]);
-	const metadataData = new Uint8Array(await metadataBlob.arrayBuffer());
-
-	const contentBlob: Blob = await fetchAltUrlToBlob(urls[0]);
-	const contentData = new Uint8Array(await contentBlob.arrayBuffer());
-	const [image, imageMainType] = _fetchBlobFilename(contentBlob);
-
-	let html = '<html><body><h1>AutoSwarm</h1>';
-	if (imageMainType == 'image') {
-		html += `<img width="150" src="${image}"><br/><br/>`;
-	}
-	html += `<a href="${image}">${image}</a></li><br/><br/>`;
-	html += `<a href="metadata.json">metadata.json</a><br/><br/></body></html>`;
-	html += '</body></html>';
-	const indexHtml = new TextEncoder().encode(html);
-
-	const json = `{"image": "${image}", "metadata": "metadata.json"}`;
-	const indexJson = new TextEncoder().encode(json);
-
-	const collection: Collection = [];
-	collection.push({ data: indexHtml, path: INDEX_HTML });
-	collection.push({ data: indexJson, path: LIST_JSON });
-	collection.push({ data: metadataData, path: 'metadata.json' });
-	collection.push({ data: contentData, path: image });
-
-	const body = makeTar(collection);
-	const bodySize = BigInt(body.length);
 
 	const headers = new Headers();
 	headers.append('Accept', 'application/json, text/plain, */*');
@@ -62,13 +65,9 @@ const fetchBzzTar = async (
 	headers.append('Swarm-Index-Document', INDEX_HTML);
 
 	const hash = await fetchBzzPost(api, body, headers);
-	console.log('fetchBzzTar hash:', hash);
+	console.log('fetchBzzTarPost hash:', hash);
 
-	collection.shift();
-	const paths = collection.map((item) => `${beeGatewayBzz()}/${bzzTrim(hash)}/${item.path}`);
-	const sizes = collection.map((item) => item.data.length);
-
-	return [hash, bodySize, paths, sizes];
+	return hash;
 };
 
-export { fetchBzzTar };
+export { fetchBzzTar, fetchBzzTarPost };

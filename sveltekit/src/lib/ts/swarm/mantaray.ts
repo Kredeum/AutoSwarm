@@ -7,10 +7,18 @@ const _uint8ArrayToHexString = (byteArray: Uint8Array): string =>
 
 const _uint8ArrayToString = (byteArray: Uint8Array): string => new TextDecoder().decode(byteArray);
 
-const _logNode = (node: MantarayNode, reference: string, path: string): void => {
+const _logNode = async (node: MantarayNode, reference: string, path: string) => {
 	const logPath = path === '' ? '' : '/' + path.replace(/^\//, '');
-	console.log(reference, logPath, node.getMetadata || '');
+	console.log('_logNode', reference, logPath, node.getMetadata || '');
 	// console.log(node);
+
+	const api = beeApi();
+	const res = await fetch(`${api}/bytes/${reference}`);
+	const data = new Uint8Array(await res.arrayBuffer());
+	const node2 = new MantarayNode();
+	node2.deserialize(data);
+
+	_logNode(node2, reference, path);
 };
 
 const _logForks = async (node: MantarayNode, path = ''): Promise<void> => {
@@ -18,7 +26,7 @@ const _logForks = async (node: MantarayNode, path = ''): Promise<void> => {
 		const reference = _uint8ArrayToHexString(fork.node.getEntry!);
 		const newPath = path + _uint8ArrayToString(fork.prefix);
 
-		if (fork.node.isValueType()) _logNode(fork.node, reference, newPath);
+		if (fork.node.isValueType()) await _logNode(fork.node, reference, newPath);
 		if (fork.node.isEdgeType()) await mantarayLog(reference, newPath);
 	}
 };
@@ -33,7 +41,7 @@ const mantarayLog = async (reference: string, path = ''): Promise<void> => {
 	const node = new MantarayNode();
 	node.deserialize(data);
 
-	// _logNode(node, ref, path);
+	await _logNode(node, ref, path);
 	await _logForks(node, path);
 };
 

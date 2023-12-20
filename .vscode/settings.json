@@ -21,7 +21,7 @@
       "group": "Default"
     },
     {
-      "filePath": "sveltekit/src/lib/components/Nft/NftAutoSwarm.svelte",
+      "filePath": "sveltekit/src/lib/components/Nft/NftMetadata.svelte",
       "group": "Default"
     },
     {
@@ -42,6 +42,10 @@
     },
     {
       "filePath": "sveltekit/src/routes",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components/Nft/NftAutoSwarm.svelte",
       "group": "Default"
     }
   ]

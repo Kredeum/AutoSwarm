@@ -8,19 +8,19 @@ import { sendWallet } from './send';
 import { callRegistryAccount } from '../call/callRegistry';
 
 const sendRegistryCreateAccount = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<Address> => {
-	const tba = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
+	const tba = await callRegistryAccount(tbaChainId, nftChainId, nftCollection, nftTokenId);
 
-	if (await callIsContract(bzzChainId, tba)) return tba;
+	if (await callIsContract(tbaChainId, tba)) return tba;
 
-	const erc6551Registry = (await addressesGetField(bzzChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await addressesGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = (await addressesGetField(tbaChainId, 'ERC6551Registry')) as Address;
+	const autoSwarmAccount = (await addressesGetField(tbaChainId, 'AutoSwarmAccount')) as Address;
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -32,7 +32,7 @@ const sendRegistryCreateAccount = async (
 	const hash = await walletClient.writeContract(request);
 	await publicClient.waitForTransactionReceipt({ hash: hash });
 
-	if (!(await callIsContract(bzzChainId, tba)))
+	if (!(await callIsContract(tbaChainId, tba)))
 		throw new Error('sendRegistryCreateAccount: Create failed');
 
 	return tba;

@@ -20,7 +20,7 @@ const localConfigInit = (): void => {
 	if (localConfigGet('api') === null) localConfigSet('api', BEE_API_DEFAULT);
 	if (localConfigGet('gateway') === null) localConfigSet('api', BEE_GATEWAY_DEFAULT);
 	if (localConfigGet('batchId') === null) localConfigSet('batchId', BEE_BATCHID_DEFAULT);
-	if (localConfigGet('chainid') === null) localConfigSet('chainId', CHAIN_ID_DEFAULT);
+	if (localConfigGet('chainId') === null) localConfigSet('chainId', CHAIN_ID_DEFAULT);
 };
 
 export { localConfigInit, localConfigGet, localConfigSet };

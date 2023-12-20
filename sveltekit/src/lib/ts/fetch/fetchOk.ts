@@ -1,17 +1,16 @@
-import { urlToUrl, urlToUrlAlt } from '../common/url';
 import { fetchContentTypeGet, fetchContentTypeHead } from './fetchContentType';
 import { fetchSizeGet, fetchSizeHead } from './fetchSize';
 
-const fetchOkUrlHead = async (url: URL | string | undefined): Promise<boolean> => {
-	// console.info('fetchOkUrlHead', url);
+const _fetchOkUrlHead = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('_fetchOkUrlHead', url);
 	return (
 		Boolean(url) &&
 		(Boolean(await fetchContentTypeHead(url)) || ((await fetchSizeHead(url)) || 0) > 0)
 	);
 };
 
-const fetchOkUrlGet = async (url: URL | string | undefined): Promise<boolean> => {
-	// console.info('fetchOkUrlGet', url);
+const _fetchOkUrlGet = async (url: URL | string | undefined): Promise<boolean> => {
+	// console.info('_fetchOkUrlGet', url);
 	return (
 		Boolean(url) &&
 		(Boolean(await fetchContentTypeGet(url)) || ((await fetchSizeGet(url)) || 0) > 0)
@@ -20,16 +19,11 @@ const fetchOkUrlGet = async (url: URL | string | undefined): Promise<boolean> =>
 
 const fetchOkUrl = async (url: URL | string | undefined): Promise<boolean> => {
 	// console.info('fetchOkUrl', url);
-	return (await fetchOkUrlHead(url)) || (await fetchOkUrlGet(url));
+	try {
+		return (await _fetchOkUrlHead(url)) || (await _fetchOkUrlGet(url));
+	} catch (e) {
+		return false;
+	}
 };
 
-const fetchOkUri = async (url: URL | string | undefined): Promise<boolean> => {
-	// console.info('fetchOkUri', url);
-	return await fetchOkUrl(urlToUrl(url));
-};
-
-const fetchOkUrlAlt = async (url: URL | string | undefined): Promise<boolean> => {
-	// console.info('fetchOkUrlAlt', url);
-	return await fetchOkUrl(urlToUrlAlt(url));
-};
-export { fetchOkUrl, fetchOkUri, fetchOkUrlAlt };
+export { fetchOkUrl };

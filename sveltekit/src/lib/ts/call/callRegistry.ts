@@ -5,17 +5,17 @@ import { erc6551RegistryAbi } from '../constants/abis';
 import { SALT } from '../constants/constants';
 
 const callRegistryAccount = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<Address> => {
-	// console.info('callRegistryAccount start', bzzChainId, nftChainId, nftCollection, nftTokenId);
+	// console.info('callRegistryAccount start', tbaChainId, nftChainId, nftCollection, nftTokenId);
 
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
-	const erc6551Registry = (await addressesGetField(bzzChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await addressesGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = (await addressesGetField(tbaChainId, 'ERC6551Registry')) as Address;
+	const autoSwarmAccount = (await addressesGetField(tbaChainId, 'AutoSwarmAccount')) as Address;
 
 	const tba = await publicClient.readContract({
 		address: erc6551Registry,

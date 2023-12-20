@@ -10,14 +10,14 @@ import { BUCKET_DEPTH } from '../constants/constants';
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const callPostageBatches = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	batchId: Hex
 ): Promise<[Address, number, number, boolean, bigint, bigint]> => {
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	const [owner, depth, bucketDepth, immutableFlag, normalisedBalance, lastUpdatedBlockNumber] =
 		await publicClient.readContract({
-			address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,
+			address: (await addressesGetField(tbaChainId, 'PostageStamp')) as Address,
 			abi: postageStampAbi,
 			functionName: 'batches',
 			args: [batchId]
@@ -28,13 +28,13 @@ const callPostageBatches = async (
 
 // OLD POSTAGE VERSION < 0.6
 const callPostageBatchesLegacy = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	batchId: Hex
 ): Promise<[Address, number, number, boolean, bigint, undefined]> => {
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	const [owner, depth, immutableFlag, normalisedBalance] = await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,
+		address: (await addressesGetField(tbaChainId, 'PostageStamp')) as Address,
 		abi: postageStampAbiBatcheslegacy,
 		functionName: 'batches',
 		args: [batchId]
@@ -43,30 +43,30 @@ const callPostageBatchesLegacy = async (
 	return [owner, depth, BUCKET_DEPTH, immutableFlag, normalisedBalance, undefined];
 };
 
-const callPostageCurrentTotalOutPayment = async (bzzChainId: number): Promise<bigint> => {
-	const publicClient = await callPublicClient(bzzChainId);
+const callPostageCurrentTotalOutPayment = async (tbaChainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,
+		address: (await addressesGetField(tbaChainId, 'PostageStamp')) as Address,
 		abi: postageStampAbi,
 		functionName: 'currentTotalOutPayment'
 	});
 };
-const callPostageLastPrice = async (bzzChainId: number): Promise<bigint> => {
-	const publicClient = await callPublicClient(bzzChainId);
+const callPostageLastPrice = async (tbaChainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,
+		address: (await addressesGetField(tbaChainId, 'PostageStamp')) as Address,
 		abi: postageStampAbi,
 		functionName: 'lastPrice'
 	});
 };
 
-const callPostageRemainingBalance = async (bzzChainId: number, batchId: Hex): Promise<bigint> => {
-	const publicClient = await callPublicClient(bzzChainId);
+const callPostageRemainingBalance = async (tbaChainId: number, batchId: Hex): Promise<bigint> => {
+	const publicClient = await callPublicClient(tbaChainId);
 
 	const data = await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,
+		address: (await addressesGetField(tbaChainId, 'PostageStamp')) as Address,
 		abi: postageStampAbi,
 		functionName: 'remainingBalance',
 		args: [batchId]

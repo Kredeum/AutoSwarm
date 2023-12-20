@@ -5,14 +5,14 @@ import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 
 const callBzzBalance = async (
-	bzzChainId: number,
+	tbaChainId: number,
 	account?: Address
 ): Promise<bigint | undefined> => {
 	if (account === undefined) return;
-	const publicClient = await callPublicClient(bzzChainId);
+	const publicClient = await callPublicClient(tbaChainId);
 
 	return await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'BzzToken')) as Address,
+		address: (await addressesGetField(tbaChainId, 'BzzToken')) as Address,
 		abi: erc20Abi,
 		functionName: 'balanceOf',
 		args: [account]
