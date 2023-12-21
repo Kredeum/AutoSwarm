@@ -9,7 +9,7 @@ import {
 	swarmHashFromUrl
 } from '$lib/ts/swarm/hash';
 
-import { fetchBzzPost, fetchBzzPostFromUrl } from '$lib/ts/fetchBzz/fetchBzz';
+import { fetchBeePost, fetchBeePostFromUrl } from '$lib/ts/fetchBee/fetchBee';
 import { bzzTrim } from '$lib/ts/swarm/bzz';
 import { beeApiBzz } from '$lib/ts/swarm/bee';
 
@@ -76,26 +76,26 @@ test('swarmHashFromFile (file0)', async () => expect(swarmHashFromFile(file0)).t
 test('swarmHashFromFile (file1)', async () => expect(swarmHashFromFile(file1)).toBe(file1Hash));
 test('swarmHashFromFile (file2)', async () => expect(swarmHashFromFile(file2)).toBe(file2Hash));
 
-test('fetchBzzPostFromUrl', async () => {
+test('fetchBeePostFromUrl', async () => {
 	const url =
 		'https://api.gateway.ethswarm.org/bzz/441a8e4274f10eabcc213613cfbd7fbfd81ad3c5c7a8c054d7690531abb3d9ab';
-	const hash = await fetchBzzPostFromUrl(url, batchId);
+	const hash = await fetchBeePostFromUrl(url, batchId);
 	console.log('test ~ hash:', hash);
 	const url2 =
 		'https://api.gateway.ethswarm.org/bzz/f030cdf841cc74990513fcc422fbbc292288d2e6efc1eb1865f32df4bdda9bc7';
-	const hash2 = await fetchBzzPostFromUrl(url2, batchId);
+	const hash2 = await fetchBeePostFromUrl(url2, batchId);
 	const hash3 = await swarmHashFromUrl(url2);
 
 	console.log('test ~ hash2:', hash2);
 	console.log('test ~ hash3:', hash3);
 });
 
-test.only('fetchBzzPostFromUrl blob or not', async () => {
+test.only('fetchBeePostFromUrl blob or not', async () => {
 	const body = new Blob(['012']);
 	const headers = new Headers();
 	headers.append('Swarm-Postage-Batch-Id', bzzTrim(batchId));
 	headers.append('Content-Type', 'text/plain');
 
-	const hash = await fetchBzzPost(beeApiBzz(), body, headers);
+	const hash = await fetchBeePost(beeApiBzz(), body, headers);
 	console.log('test ~ hash:', hash);
 });

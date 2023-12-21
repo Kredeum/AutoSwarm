@@ -4,13 +4,17 @@
 	import { quintOut, bounceOut } from 'svelte/easing';
 
 	import { beeApi, beeBatchId } from '$lib/ts/swarm/bee';
+	import { bzzChainsId, type BzzChainIdType } from '$lib/ts/common/chains';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
 	////////////////////// Swarm Config Component ///////////////////////////////
 	// <Config />
 	/////////////////////////////////////////////////////////////////////////////
 	// Config stored in localStorage
-	// - swarm.api     : Swarm node API URL, default http://127.0.0.1:1633/bzz
-	// - swarm.batchId : Swarm Batch Id, default 0x0
+	// - autoswarm.api     : Swarm Node API URL, default http://127.0.0.1:1633/bzz
+	// - autoswarm.gateway : Swarm Gateway URL, default autoswarm.api
+	// - autoswarm.batchId : Swarm Batch Id, default 0x0
+	// - autoswarm.chainId : Swarm Chain Id, default 100
 	/////////////////////////////////////////////////////////////////////////////
 
 	let errMessage = '';
@@ -18,6 +22,7 @@
 
 	let swarmApi = beeApi();
 	let batchId = beeBatchId() as string;
+	let chainId = $bzzChainId.toString();
 
 	const isUrlValid = (url: string): boolean => {
 		if (!url) return false;
@@ -32,6 +37,9 @@
 	const isBatchIdValid = (batchId: string | undefined): boolean =>
 		Boolean(batchId?.replace(/^0x/, '').length === 64);
 
+	const isChainIdValid = (chainId: string | undefined): boolean =>
+		bzzChainsId.includes(Number(chainId) as BzzChainIdType);
+
 	const resetMessages = () => {
 		errMessage = '';
 		successMessage = '';
@@ -40,23 +48,41 @@
 	const storeUserSettings = (): void => {
 		resetMessages();
 
-		swarmApi = swarmApi.trim().replace(/\/$/, '');
-		if (!isUrlValid(swarmApi)) {
-			errMessage = `Invalid node URL '${swarmApi}'`;
-			swarmApi = beeApi();
-			return;
+		{
+			swarmApi = swarmApi.trim().replace(/\/$/, '');
+			if (!isUrlValid(swarmApi)) {
+				errMessage = `Invalid node URL '${swarmApi}'`;
+				swarmApi = beeApi();
+				return;
+			}
+			localConfigSet('api', swarmApi);
 		}
-		localConfigSet('api', swarmApi);
 
-		batchId = batchId?.trim();
-		console.log('storeUserSettings ~ batchId:', batchId);
-		if (isBatchIdValid(batchId)) {
-			successMessage = 'Swarm config stored';
-			localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
-		} else {
-			errMessage = `Invalid batchId '${batchId}'`;
-			batchId = beeBatchId();
-			return;
+		{
+			batchId = batchId?.trim();
+			console.log('storeUserSettings ~ batchId:', batchId);
+			if (isBatchIdValid(batchId)) {
+				successMessage = 'Swarm config stored';
+				localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
+			} else {
+				errMessage = `Invalid batchId '${batchId}'`;
+				batchId = beeBatchId();
+				return;
+			}
+		}
+
+		{
+			chainId = chainId?.trim();
+			console.log('storeUserSettings ~ chainId:', chainId);
+			if (isChainIdValid(chainId)) {
+				successMessage = 'Swarm config stored';
+				bzzChainId.set(Number(chainId));
+				localConfigSet('chainId', chainId);
+			} else {
+				errMessage = `Invalid chainId '${chainId}'`;
+				chainId = $bzzChainId.toString();
+				return;
+			}
 		}
 
 		setTimeout(() => resetMessages(), 2000);
@@ -83,6 +109,16 @@
 			placeholder="Enter your batch ID"
 			bind:value={batchId}
 			id="batch-id"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="chain-id">BZZ Chain Id</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter Chain ID"
+			bind:value={chainId}
+			id="chain-id"
 			on:input={resetMessages}
 		/>
 

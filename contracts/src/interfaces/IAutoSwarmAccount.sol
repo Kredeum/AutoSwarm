@@ -6,8 +6,11 @@ interface IAutoSwarmAccount {
 
     function topUp(uint256) external;
 
-    function bzzHash() external view returns (bytes32);
-    function bzzSize() external view returns (uint256);
+    function swarmSize() external view returns (uint256);
+    function swarmHash() external view returns (bytes32);
+
+    function setAutoSwarm(uint256 swarmSize, bytes32 swarmHash) external;
+    function setAutoSwarmStamp(uint256 swarmSize, bytes32 swarmHash, uint256 bzzAmount) external;
 
     function getTopUpYearPrice() external view returns (uint256);
 }

@@ -34,16 +34,16 @@ const _walletClient = (): WalletClient => createWalletClient(_transportEthereum(
 // walletClients Map used as cache
 const _walletClients: Map<number, WalletClient> = new Map();
 
-const _walletClientCreate = (tbaChainId?: number): WalletClient => {
+const _walletClientCreate = (bzzChainId?: number): WalletClient => {
 	const transportPlusOptionalChain: WalletClientConfig<Transport, Chain> = _transportEthereum();
 	let walletClient: WalletClient;
 
-	if (tbaChainId) {
-		const chain = chainGet(tbaChainId);
+	if (bzzChainId) {
+		const chain = chainGet(bzzChainId);
 		if (chain) transportPlusOptionalChain.chain = chain;
 		walletClient = createWalletClient(transportPlusOptionalChain);
 
-		_walletClients.set(tbaChainId, walletClient);
+		_walletClients.set(bzzChainId, walletClient);
 	} else {
 		walletClient = _walletClient();
 	}
@@ -51,18 +51,18 @@ const _walletClientCreate = (tbaChainId?: number): WalletClient => {
 	return walletClient;
 };
 
-const sendWalletClient = async (tbaChainId: number): Promise<WalletClient> => {
-	// console.info('sendWalletClient ~ tbaChainId:', tbaChainId);
+const sendWalletClient = async (bzzChainId: number): Promise<WalletClient> => {
+	// console.info('sendWalletClient ~ bzzChainId:', bzzChainId);
 	const walletChainId = await sendWalletChainId();
 
-	if (tbaChainId !== walletChainId) await sendWalletSwitchChain(tbaChainId);
+	if (bzzChainId !== walletChainId) await sendWalletSwitchChain(bzzChainId);
 
-	return _walletClients.get(tbaChainId) || _walletClientCreate(tbaChainId);
+	return _walletClients.get(bzzChainId) || _walletClientCreate(bzzChainId);
 };
 
-const sendWallet = async (tbaChainId: number): Promise<[PublicClient, WalletClient, Address]> => {
-	const publicClient = await callPublicClient(tbaChainId);
-	const walletClient = await sendWalletClient(tbaChainId);
+const sendWallet = async (bzzChainId: number): Promise<[PublicClient, WalletClient, Address]> => {
+	const publicClient = await callPublicClient(bzzChainId);
+	const walletClient = await sendWalletClient(bzzChainId);
 	const walletAddress = await sendWalletAddress(true);
 
 	return [publicClient, walletClient, walletAddress];
@@ -76,8 +76,8 @@ const sendWalletAddress = async (force = false, n = 0): Promise<Address> => {
 
 const sendWalletChainId = async (): Promise<number> => await _walletClient().getChainId();
 
-const sendWalletSwitchChain = async (tbaChainId: number): Promise<void> =>
-	await _walletClient().switchChain({ id: tbaChainId });
+const sendWalletSwitchChain = async (bzzChainId: number): Promise<void> =>
+	await _walletClient().switchChain({ id: bzzChainId });
 
 export {
 	sendWallet,

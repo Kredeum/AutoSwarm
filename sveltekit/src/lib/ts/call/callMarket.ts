@@ -4,11 +4,11 @@ import { autoSwarmMarketAbi } from '../constants/abis';
 import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 
-const callMarketCurrentBatchId = async (tbaChainId: number): Promise<Hex> => {
-	const publicClient = await callPublicClient(tbaChainId);
+const callMarketCurrentBatchId = async (bzzChainId: number): Promise<Hex> => {
+	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: (await addressesGetField(tbaChainId, 'AutoSwarmMarket')) as Address,
+		address: (await addressesGetField(bzzChainId, 'AutoSwarmMarket')) as Address,
 		abi: autoSwarmMarketAbi,
 		functionName: 'currentBatchId'
 	});

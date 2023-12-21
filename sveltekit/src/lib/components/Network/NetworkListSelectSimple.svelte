@@ -18,9 +18,9 @@
 </script>
 
 <select on:change={_switchChainEvt}>
-	{#each bzzChainsId as tbaChainId}
-		<option value={tbaChainId} selected={tbaChainId == chainId}>
-			<NetworkSimple chainId={tbaChainId} />
+	{#each bzzChainsId as bzzChainId}
+		<option value={bzzChainId} selected={bzzChainId == chainId}>
+			<NetworkSimple chainId={bzzChainId} />
 		</option>
 	{/each}
 </select>

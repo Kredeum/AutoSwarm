@@ -4,10 +4,10 @@ import { autoSwarmAccountAbi } from '../constants/abis';
 import { callIsContract, callPublicClient } from './call';
 import { ZERO_BYTES32 } from '../constants/constants';
 
-const callTbaBzzStampId = async (tbaChainId: number, tba: Address | undefined): Promise<Hex> => {
-	if (!(tba && (await callIsContract(tbaChainId, tba)))) return ZERO_BYTES32;
+const callTbaBzzStampId = async (bzzChainId: number, tba: Address | undefined): Promise<Hex> => {
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return ZERO_BYTES32;
 
-	const publicClient = await callPublicClient(tbaChainId);
+	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
 		address: tba,
@@ -16,31 +16,31 @@ const callTbaBzzStampId = async (tbaChainId: number, tba: Address | undefined): 
 	});
 };
 
-const callTbaBzzHash = async (
-	tbaChainId: number,
+const callTbaSwarmHash = async (
+	bzzChainId: number,
 	tba: Address | undefined
 ): Promise<Hex | undefined> => {
-	if (!(tba && (await callIsContract(tbaChainId, tba)))) return;
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return;
 
-	const publicClient = await callPublicClient(tbaChainId);
-
-	return await publicClient.readContract({
-		address: tba,
-		abi: autoSwarmAccountAbi,
-		functionName: 'bzzHash'
-	});
-};
-
-const callTbaBzzSize = async (tbaChainId: number, tba: Address | undefined): Promise<bigint> => {
-	if (!(tba && (await callIsContract(tbaChainId, tba)))) return 0n;
-
-	const publicClient = await callPublicClient(tbaChainId);
+	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
 		address: tba,
 		abi: autoSwarmAccountAbi,
-		functionName: 'bzzSize'
+		functionName: 'swarmHash'
 	});
 };
 
-export { callTbaBzzHash, callTbaBzzSize, callTbaBzzStampId };
+const callTbaSwarmSize = async (bzzChainId: number, tba: Address | undefined): Promise<bigint> => {
+	if (!(tba && (await callIsContract(bzzChainId, tba)))) return 0n;
+
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: tba,
+		abi: autoSwarmAccountAbi,
+		functionName: 'swarmSize'
+	});
+};
+
+export { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId };

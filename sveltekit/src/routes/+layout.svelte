@@ -6,15 +6,15 @@
 	import Footer from '$lib/components/Layout/LayoutFooter.svelte';
 	import '$lib/css/styles.css';
 
-	import { tbaChainId } from '$lib/ts/swarm/bzz';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { page } from '$app/stores';
-	import { localConfigGet } from '$lib/ts/common/local';
+	import { localConfigGet, localConfigInit } from '$lib/ts/common/local';
 
 	////////////////////// AutoSwarm Layout ///////////////////////////////////////
 	// Layout for all AutoSwarm pages
 	/////////////////////////////////////////////////////////////////////////////
 
-	tbaChainId.set(Number(localConfigGet('chainId')));
+	bzzChainId.set(Number(localConfigGet('chainId')));
 
 	$: document.body.style.backgroundColor = ['/monitor'].includes($page.route.id || '')
 		? '#444'
@@ -33,7 +33,7 @@
 	</main>
 
 	<footer>
-		{$tbaChainId}
+		{$bzzChainId}
 		<Footer />
 	</footer>
 </div>

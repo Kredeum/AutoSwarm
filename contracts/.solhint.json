@@ -21,7 +21,7 @@
     "function-max-lines": ["error", 60],
     "imports-on-top": "error",
     "mark-callable-contracts": "off",
-    "max-line-length": ["error", 120],
+    "max-line-length": ["error", 121],
     "max-states-count": ["warn", 15],
     "modifier-name-mixedcase": "error",
     "multiple-sends": "error",

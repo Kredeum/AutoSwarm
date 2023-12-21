@@ -1,28 +1,29 @@
 import { type Address, zeroAddress, type Hex } from 'viem';
 import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
+import { ZERO_BYTES32 } from '../constants/constants';
 
 const sendTbaSetAutoSwarm = async (
-	tbaChainId: number,
+	bzzChainId: number,
 	tba: Address | undefined,
-	bzzHash: Hex | undefined,
-	bzzSize: bigint | undefined
+	nftSize: bigint | undefined,
+	beeHash = ZERO_BYTES32 as Hex
 ) => {
-	console.info('sendTbaSetAutoSwarm:', tbaChainId, tba, bzzHash, bzzSize);
+	console.info('sendTbaSetAutoSwarm:', bzzChainId, tba, beeHash, nftSize);
 
-	if (!(tbaChainId > 0)) throw new Error('Bad chain!');
+	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
-	if (!bzzHash) throw new Error('No Swarm Hash!');
-	if (!bzzSize) throw new Error('No Swarm Size!');
+	if (!nftSize) throw new Error('No Swarm Size!');
+	if (!beeHash) throw new Error('No Swarm Hash!');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
 		address: tba,
 		abi: autoSwarmAccountAbi,
 		functionName: 'setAutoSwarm',
-		args: [bzzHash, bzzSize]
+		args: [nftSize, beeHash]
 	});
 
 	const hash = await walletClient.writeContract(request);
@@ -30,39 +31,39 @@ const sendTbaSetAutoSwarm = async (
 };
 
 const sendTbaSetAutoSwarmStamp = async (
-	tbaChainId: number,
+	bzzChainId: number,
 	tba: Address | undefined,
-	bzzHash: Hex | undefined,
-	bzzSize: bigint | undefined,
+	beeHash: Hex | undefined,
+	nftSize: bigint | undefined,
 	bzzAmount: bigint | undefined
 ) => {
-	console.info('sendTbaSetAutoSwarm:', tbaChainId, tba, bzzHash, bzzSize, bzzAmount);
+	console.info('sendTbaSetAutoSwarm:', bzzChainId, tba, beeHash, nftSize, bzzAmount);
 
-	if (!(tbaChainId > 0)) throw new Error('Bad chain!');
+	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
-	if (!bzzHash) throw new Error('No Swarm Hash!');
-	if (!bzzSize) throw new Error('No Swarm Size!');
+	if (!beeHash) throw new Error('No Swarm Hash!');
+	if (!nftSize) throw new Error('No Swarm Size!');
 	if (!bzzAmount) throw new Error('No BZZ!');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
 		address: tba,
 		abi: autoSwarmAccountAbi,
 		functionName: 'setAutoSwarmStamp',
-		args: [bzzHash, bzzSize, bzzAmount]
+		args: [nftSize, beeHash, bzzAmount]
 	});
 
 	const hash = await walletClient.writeContract(request);
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendTbaTopUp = async (tbaChainId: number, tba: Address | undefined, bzzAmount: bigint) => {
-	if (!(tbaChainId > 0)) throw new Error('Bad chain!');
+const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmount: bigint) => {
+	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('Bad TBA!');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -75,10 +76,10 @@ const sendTbaTopUp = async (tbaChainId: number, tba: Address | undefined, bzzAmo
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendTbaWithdraw = async (tbaChainId: number, tba: Address, token = zeroAddress) => {
-	if (!(tbaChainId > 0 && tba)) throw new Error('sendTbaWithdraw: No tba');
+const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAddress) => {
+	if (!(bzzChainId > 0 && tba)) throw new Error('sendTbaWithdraw: No tba');
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

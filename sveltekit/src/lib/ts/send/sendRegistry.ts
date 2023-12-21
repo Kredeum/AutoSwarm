@@ -8,19 +8,19 @@ import { sendWallet } from './send';
 import { callRegistryAccount } from '../call/callRegistry';
 
 const sendRegistryCreateAccount = async (
-	tbaChainId: number,
+	bzzChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint
 ): Promise<Address> => {
-	const tba = await callRegistryAccount(tbaChainId, nftChainId, nftCollection, nftTokenId);
+	const tba = await callRegistryAccount(bzzChainId, nftChainId, nftCollection, nftTokenId);
 
-	if (await callIsContract(tbaChainId, tba)) return tba;
+	if (await callIsContract(bzzChainId, tba)) return tba;
 
-	const erc6551Registry = (await addressesGetField(tbaChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await addressesGetField(tbaChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = (await addressesGetField(bzzChainId, 'ERC6551Registry')) as Address;
+	const autoSwarmAccount = (await addressesGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
 
-	const [publicClient, walletClient, walletAddress] = await sendWallet(tbaChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,
@@ -32,19 +32,19 @@ const sendRegistryCreateAccount = async (
 	const hash = await walletClient.writeContract(request);
 	await publicClient.waitForTransactionReceipt({ hash: hash });
 
-	if (!(await callIsContract(tbaChainId, tba)))
+	if (!(await callIsContract(bzzChainId, tba)))
 		throw new Error('sendRegistryCreateAccount: Create failed');
 
 	return tba;
 };
 
-// const bzzHash = ZERO_BYTES32;
-// const bzzSize = 0n;
+// const beeHash = ZERO_BYTES32;
+// const nftSize = 0n;
 // const bzzAmount = 0n;
 // const data = encodeFunctionData({
 //   abi: autoSwarmAccountAbi,
 //   functionName: 'initialize',
-//   args: [json.PostageStamp as Address, bzzHash as Hex, bzzSize, bzzAmount]
+//   args: [json.PostageStamp as Address, beeHash as Hex, nftSize, bzzAmount]
 // });
 
 export { sendRegistryCreateAccount };

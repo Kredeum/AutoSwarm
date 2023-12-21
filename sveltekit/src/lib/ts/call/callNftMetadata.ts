@@ -5,6 +5,9 @@ import { fetchAltUrl } from '../fetch/fetchAlt';
 import { fetchSize } from '../fetch/fetchSize';
 
 import { callNftTokenUri } from './callNft';
+import { STAMP_PRICE, STAMP_SIZE } from '../constants/constants';
+import { fetchNftTar } from '../fetchBee/fetchNftTar';
+import { utilsDivUp } from '../common/utils';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -31,6 +34,11 @@ const callNftMetadata = async (
 	const nftImageUriAlt = await fetchAltUrl(nftImageUri);
 	const nftImageSize = await fetchSize(nftImageUriAlt);
 
+	const [body, nftImageName] = await fetchNftTar([nftImageUri, nftMetadataUri]);
+	console.log('body.length:', body.length);
+	const nftSize = BigInt(body.length);
+	const nftPrice = utilsDivUp(nftSize, STAMP_SIZE) * STAMP_PRICE;
+
 	const nftMetadata = {
 		nftChainId,
 		nftCollection,
@@ -40,7 +48,10 @@ const callNftMetadata = async (
 		nftMetadataSize,
 		nftImageUri,
 		nftImageUriAlt,
-		nftImageSize
+		nftImageSize,
+		nftImageName,
+		nftSize,
+		nftPrice
 	};
 	Object.freeze(metadata);
 	Object.freeze(nftMetadata);

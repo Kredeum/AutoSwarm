@@ -3,7 +3,7 @@ import type { Hex } from 'viem';
 import { INDEX_HTML } from '../constants/constants';
 import { bzz0, bzzTrim } from '../swarm/bzz';
 import { fetchAltUrlToBlob as fetchData } from '../fetch/fetchAlt';
-import { fetchBzzPost } from './fetchBzz';
+import { fetchBeePost } from './fetchBee';
 import { beeBatchId, beeApiBzz } from '../swarm/bee';
 
 const _blobToBinary = async (blob: Blob): Promise<string> => {
@@ -46,14 +46,14 @@ type Part = {
 };
 
 // TOO BUGGY
-const fetchBzzMultipart = async (
+const fetchBeeMultipart = async (
 	urls: (string | undefined)[]
 ): Promise<[Hex, bigint, string[], number[]]> => {
 	const boundary = `AUTOSWARM${Math.random().toString().substr(8)}`;
 
 	const api = beeApiBzz();
 	const batchId = beeBatchId();
-	if (!bzz0(batchId)) throw new Error('fetchBzzTar: No BatchId defined!');
+	if (!bzz0(batchId)) throw new Error('fetchNftTar: No BatchId defined!');
 
 	const collection: Part[] = [];
 	collection.push({ data: await fetchData(urls[0]), path: 'image.jpeg' });
@@ -61,7 +61,7 @@ const fetchBzzMultipart = async (
 
 	const body = await makecollection(collection, boundary);
 	const bodySize = BigInt(body.length);
-	console.log('fetchBzzMultipart', bodySize, '\n', body);
+	console.log('fetchBeeMultipart', bodySize, '\n', body);
 
 	const headers = new Headers();
 	headers.append('Accept', 'application/json, text/plain, */*');
@@ -71,8 +71,8 @@ const fetchBzzMultipart = async (
 	headers.append('Swarm-Collection', 'true');
 	headers.append('Swarm-Index-Document', INDEX_HTML);
 
-	const hash = await fetchBzzPost(api, body, headers);
-	console.log('fetchBzzMultipart hash:', hash);
+	const hash = await fetchBeePost(api, body, headers);
+	console.log('fetchBeeMultipart hash:', hash);
 
 	collection.shift();
 	const paths = collection.map((item) => `${api}/${bzzTrim(hash)}/${item.path}`);
@@ -81,4 +81,4 @@ const fetchBzzMultipart = async (
 	return [hash, bodySize, paths, sizes];
 };
 
-export { fetchBzzMultipart };
+export { fetchBeeMultipart };

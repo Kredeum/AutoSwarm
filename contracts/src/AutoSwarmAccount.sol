@@ -10,8 +10,8 @@ import {ERC6551Account} from "@erc6551/examples/simple/ERC6551Account.sol";
 // import {console} from "forge-std/console.sol";
 
 contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
-    bytes32 public bzzHash;
-    uint256 public bzzSize;
+    bytes32 public swarmHash;
+    uint256 public swarmSize;
     bytes32 public stampId;
 
     uint256 private constant _ERC6551_TBA_SIZE = 173;
@@ -35,28 +35,14 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _setAutoSwarmMarket(autoSwarmMarket_);
     }
 
-    function _setAutoSwarmMarket(address autoSwarmMarket_) private {
-        require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
-
-        _autoSwarmMarket = autoSwarmMarket_;
+    function setAutoSwarmStamp(uint256 swarmSize_, bytes32 swarmHash_, uint256 bzzAmount_) external onlyBzzAdmin {
+        _setAutoSwarm(swarmSize_, swarmHash_);
+        stampId = IAutoSwarmMarket(autoSwarmMarket()).createStamp(swarmHash_, swarmSize_, bzzAmount_);
     }
 
-    function setAutoSwarmStamp(bytes32 bzzHash_, uint256 bzzSize_, uint256 bzzAmount_) external onlyBzzAdmin {
-        _setAutoSwarm(bzzHash_, bzzSize_);
-        stampId = IAutoSwarmMarket(autoSwarmMarket()).createStamp(bzzHash_, bzzSize_, bzzAmount_);
-    }
-
-    function setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) external {
+    function setAutoSwarm(uint256 swarmSize_, bytes32 swarmHash_) external {
         require(stampId == bytes32(0), "Stamp already set");
-        _setAutoSwarm(bzzHash_, bzzSize_);
-    }
-
-    function _setAutoSwarm(bytes32 bzzHash_, uint256 bzzSize_) internal {
-        require(bzzHash_ != bytes32(0), "Bad Swarm Hash");
-        require(bzzSize_ != 0, "Bad Swarm Size");
-
-        bzzHash = bzzHash_;
-        bzzSize = bzzSize_;
+        _setAutoSwarm(swarmSize_, swarmHash_);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) {
@@ -74,7 +60,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     }
 
     function getTopUpYearPrice() external view override(IAutoSwarmAccount) returns (uint256) {
-        return IAutoSwarmMarket(autoSwarmMarket()).getStampPriceOneYear(bzzSize);
+        return IAutoSwarmMarket(autoSwarmMarket()).getStampPriceOneYear(swarmSize);
     }
 
     function owner() public view override returns (address) {
@@ -97,8 +83,12 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         return IERC173(autoSwarmMarket()).owner();
     }
 
-    function _bzzToken() internal view returns (IERC20) {
-        return IAutoSwarmMarket(autoSwarmMarket()).bzzToken();
+    function _setAutoSwarm(uint256 swarmSize_, bytes32 swarmHash_) internal {
+        require(swarmSize_ != 0, "Bad Swarm Size");
+        require(swarmHash_ != bytes32(0), "Bad Swarm Hash");
+
+        swarmSize = swarmSize_;
+        swarmHash = swarmHash_;
     }
 
     function _bzzApproveMore(uint256 bzzAmount) internal {
@@ -108,11 +98,21 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _bzzToken().approve(autoSwarmMarket(), bzzAmountToApprove);
     }
 
+    function _bzzToken() internal view returns (IERC20) {
+        return IAutoSwarmMarket(autoSwarmMarket()).bzzToken();
+    }
+
     function _getBzzBalance() internal view returns (uint256) {
         return _bzzToken().balanceOf(address(this));
     }
 
     function _getBzzAllowance() internal view returns (uint256) {
         return _bzzToken().allowance(address(this), autoSwarmMarket());
+    }
+
+    function _setAutoSwarmMarket(address autoSwarmMarket_) private {
+        require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
+
+        _autoSwarmMarket = autoSwarmMarket_;
     }
 }

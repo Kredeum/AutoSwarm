@@ -7,9 +7,10 @@ const beeOk = async (): Promise<boolean> => {
 	try {
 		const json = (await fetchJson(`${beeApi()}/health`)) as { status: string };
 		return json?.status === 'ok';
-		console.log("beeOk ~ json:", json);
+		console.log('beeOk ~ json:', json);
 	} catch (err) {
-		console.log("beeOk ~ err:", err);
+		throw new Error('No Swarm node available');
+		console.log('beeOk ~ err:', err);
 		return false;
 	}
 };

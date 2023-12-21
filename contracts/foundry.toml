@@ -10,6 +10,9 @@ fs_permissions = [
   { access = "read-write", path = "./out" },
 ]
 
+[fmt]
+line_length = 120
+
 [profile.sepolia]
 eth_rpc_url = "sepolia"
 fork_block_number = 4342233

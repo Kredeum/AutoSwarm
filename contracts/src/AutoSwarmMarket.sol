@@ -10,8 +10,8 @@ contract AutoSwarmMarket is Ownable {
     struct Stamp {
         // immutable
         address owner;
-        bytes32 bzzHash;
-        uint256 bzzSize;
+        bytes32 swarmHash;
+        uint256 swarmSize;
         // mutable
         bytes32 batchId;
         uint256 unitBalance;
@@ -69,18 +69,18 @@ contract AutoSwarmMarket is Ownable {
         assert(_postageStamp.remainingBalance(batchId) == ttl);
     }
 
-    function createStamp(bytes32 bzzHash, uint256 bzzSize, uint256 bzzAmount) public returns (bytes32 stampId) {
-        require(bzzHash != bytes32(0), "Bad Swarm Hash!");
-        require(bzzSize != 0, "Bad Swarm Size!");
+    function createStamp(bytes32 swarmHash, uint256 swarmSize, uint256 bzzAmount) public returns (bytes32 stampId) {
+        require(swarmHash != bytes32(0), "Bad Swarm Hash!");
+        require(swarmSize != 0, "Bad Swarm Size!");
 
         Stamp memory stamp = Stamp({
             owner: msg.sender,
-            bzzHash: bzzHash,
-            bzzSize: bzzSize,
+            swarmHash: swarmHash,
+            swarmSize: swarmSize,
             batchId: "",
             unitBalance: currentStampUnitPaid()
         });
-        stampId = keccak256(abi.encode(msg.sender, bzzHash, block.number));
+        stampId = keccak256(abi.encode(msg.sender, swarmHash, block.number));
 
         stamps[stampId] = stamp;
         stampIds.push(stampId);
@@ -104,7 +104,7 @@ contract AutoSwarmMarket is Ownable {
         uint256 len = stampIdsToSize.length;
 
         for (uint256 index; index < len; index++) {
-            stamps[stampIdsToSize[index]].bzzSize = size;
+            stamps[stampIdsToSize[index]].swarmSize = size;
         }
     }
 
@@ -191,7 +191,9 @@ contract AutoSwarmMarket is Ownable {
             bool stampIsActive = stamp.unitBalance >= currentStampUnitPaid();
             bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
 
-            if (stampIsActive && stampIsNotAttachedToCurrentBatch) stampIdsToAttach[toAttachIndex++] = stampId;
+            if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
+                stampIdsToAttach[toAttachIndex++] = stampId;
+            }
         }
     }
 
@@ -206,20 +208,20 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function _topUpStamp(Stamp storage stamp, uint256 bzzAmount) internal {
-        require(stamp.bzzSize > 0, "Bad Swarm size");
+        require(stamp.swarmSize > 0, "Bad Swarm size");
 
-        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.bzzSize);
+        uint256 bzzAmountUnit = bzzAmount / getMbSize(stamp.swarmSize);
 
-        currentBatchFilling += stamp.bzzSize;
+        currentBatchFilling += stamp.swarmSize;
 
         uint256 unitBalance = stamp.unitBalance;
         unitBalance += bzzAmountUnit;
         stamp.unitBalance = unitBalance;
 
-        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.bzzSize);
+        uint256 bzzAmountTotranfer = bzzAmountUnit * getMbSize(stamp.swarmSize);
 
         // bzzAmountTotranfer slightly less than bzzAmount due to div rounding
-        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.bzzSize)));
+        assert(bzzAmountTotranfer == (bzzAmount - bzzAmount % getMbSize(stamp.swarmSize)));
 
         require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountTotranfer), "Transfer failed");
 
@@ -238,7 +240,7 @@ contract AutoSwarmMarket is Ownable {
     function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {
         require(stamp.owner != address(0), "Stamp not exists");
 
-        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.bzzSize);
+        return _subPos(stamp.unitBalance, currentStampUnitPaid()) * getMbSize(stamp.swarmSize);
     }
 
     // _divUp: ceiled integer div (instead of floored)

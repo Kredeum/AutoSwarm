@@ -10,20 +10,20 @@ type NftMetadata = {
 	nftImageUri?: string;
 	nftImageUriAlt?: string;
 	nftImageSize?: number;
+	nftImageName?: string;
+	nftSize?: bigint;
+	nftPrice?: bigint;
 };
 
-type BzzMetadata = {
-	bzzSize?: bigint;
-	bzzPrice?: bigint;
-	bzzHash?: Hex;
-	bzzImageName?: string;
+type BeeMetadata = {
+	beeHash?: Hex;
 };
 
 type TbaMetadata = {
-	tbaChainId?: number;
-	tbaHash?: Hex;
+	bzzChainId?: number;
+	tbaSwarmHash?: Hex;
 	tbaImageName?: string;
-	tbaSize?: bigint;
+	tbaSwarmSize?: bigint;
 	tbaPrice?: bigint;
 	tbaStampId?: Hex;
 	tbaAddress?: Address;
@@ -40,11 +40,8 @@ type Metadata = {
 	description: string;
 	image: string;
 	image_url?: string;
-	autoSwarmNft?: NftMetadata;
-	autoSwarmBzz?: BzzMetadata;
-	autoSwarmTba?: TbaMetadata;
 	[key: string]: unknown;
 };
 type AddressesType = Record<string, string>;
 
-export type { Metadata, NftMetadata, BzzMetadata, TbaMetadata, AddressesType };
+export type { Metadata, NftMetadata, BeeMetadata, TbaMetadata, AddressesType };

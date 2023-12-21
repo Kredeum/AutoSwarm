@@ -1,5 +1,5 @@
 import { test } from 'vitest';
-import { initManifestNode, Utils } from '../mantaray-js';
+import { initManifestNode, Utils } from 'mantaray-js';
 
 test('mantaray', async () => {
 	const node = initManifestNode();

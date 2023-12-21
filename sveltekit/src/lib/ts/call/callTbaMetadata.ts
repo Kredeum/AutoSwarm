@@ -1,18 +1,16 @@
-import { callTbaBzzHash, callTbaBzzSize, callTbaBzzStampId } from './callTba';
-import type { Metadata, NftMetadata, BzzMetadata, TbaMetadata } from '../constants/types';
+import { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId } from './callTba';
+import type { TbaMetadata } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
-import { fetchUrl } from '../fetch/fetch';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { bzzImageName } from '../swarm/bzz';
+import { nftImageName } from '../swarm/bzz';
 import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
 import { STAMP_SIZE, STAMP_PRICE } from '../constants/constants';
 import type { Address } from 'viem';
-import { nftIds } from '../common/nft';
 
-const _callTbaMetadata = async (
-	tbaChainId: number,
+const callTbaMetadata = async (
+	bzzChainId: number,
 	nftChainId: number,
 	nftCollection: Address,
 	nftTokenId: bigint
@@ -21,27 +19,27 @@ const _callTbaMetadata = async (
 
 	const tbaMetadata: TbaMetadata = {};
 
-	tbaMetadata.tbaChainId = tbaChainId;
+	tbaMetadata.bzzChainId = bzzChainId;
 	tbaMetadata.tbaAddress = await callRegistryAccount(
-		tbaChainId,
+		bzzChainId,
 		nftChainId,
 		nftCollection,
 		nftTokenId
 	);
-	tbaMetadata.tbaDeployed = await callIsContract(tbaChainId, tbaMetadata.tbaAddress);
-	tbaMetadata.tbaBalance = await callBzzBalance(tbaChainId, tbaMetadata.tbaAddress);
+	tbaMetadata.tbaDeployed = await callIsContract(bzzChainId, tbaMetadata.tbaAddress);
+	tbaMetadata.tbaBalance = await callBzzBalance(bzzChainId, tbaMetadata.tbaAddress);
 
 	if (tbaMetadata.tbaDeployed) {
-		const tbaHash = await callTbaBzzHash(tbaChainId, tbaMetadata.tbaAddress);
-		if (!utilsIsBytes32Null(tbaHash)) {
-			tbaMetadata.tbaHash ||= tbaHash;
-			tbaMetadata.tbaSize ||= await callTbaBzzSize(tbaChainId, tbaMetadata.tbaAddress);
-			tbaMetadata.tbaPrice ||= utilsDivUp(tbaMetadata.tbaSize!, STAMP_SIZE) * STAMP_PRICE;
+		const tbaSwarmHash = await callTbaSwarmHash(bzzChainId, tbaMetadata.tbaAddress);
+		if (!utilsIsBytes32Null(tbaSwarmHash)) {
+			tbaMetadata.tbaSwarmHash ||= tbaSwarmHash;
+			tbaMetadata.tbaSwarmSize ||= await callTbaSwarmSize(bzzChainId, tbaMetadata.tbaAddress);
+			tbaMetadata.tbaPrice ||= utilsDivUp(tbaMetadata.tbaSwarmSize!, STAMP_SIZE) * STAMP_PRICE;
 
 			if (utilsIsBytes32Null(tbaMetadata.tbaStampId))
-				tbaMetadata.tbaStampId = await callTbaBzzStampId(tbaChainId, tbaMetadata.tbaAddress);
+				tbaMetadata.tbaStampId = await callTbaBzzStampId(bzzChainId, tbaMetadata.tbaAddress);
 
-			const imageName = await bzzImageName(tbaMetadata.tbaHash!);
+			const imageName = await nftImageName(tbaMetadata.tbaSwarmHash!);
 			if (imageName) {
 				tbaMetadata.tbaImageName = imageName;
 				tbaMetadata.tbaTokenUriAlt ||= await fetchAltUrl(tbaMetadata.tbaTokenUri);
@@ -52,27 +50,4 @@ const _callTbaMetadata = async (
 	return tbaMetadata;
 };
 
-const callTbaMetadata = async (
-	tbaChainId: number,
-	nftMetadata: NftMetadata
-): Promise<TbaMetadata> => {
-	if (!nftMetadata) throw new Error(`callTbaMetadataFromNft: No Nft AutoSwarm Metadata`);
-
-	const tbaMetadata = await _callTbaMetadata(tbaChainId, ...nftIds(nftMetadata));
-
-	return tbaMetadata;
-};
-
-const callTbaMetadataWithoutNft = async (
-	tbaChainId: number,
-	nftChainId: number,
-	nftCollection: Address,
-	nftTokenId: bigint
-): Promise<[Metadata, TbaMetadata]> => {
-	const tbaMetadata = await _callTbaMetadata(tbaChainId, nftChainId, nftCollection, nftTokenId);
-	const metadata = (await fetchUrl(tbaMetadata.tbaTokenUriAlt)) as unknown as Metadata;
-
-	return [metadata, tbaMetadata];
-};
-
-export { callTbaMetadata, callTbaMetadataWithoutNft };
+export { callTbaMetadata };

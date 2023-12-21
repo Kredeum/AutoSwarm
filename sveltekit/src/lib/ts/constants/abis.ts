@@ -31,12 +31,11 @@ const erc6551RegistryAbi = parseAbi([
 	'function createAccount(address,bytes32,uint256,address,uint256) external returns (address)'
 ]);
 const autoSwarmAccountAbi = parseAbi([
-	'function bzzHash() external view returns (bytes32)',
-	'function bzzSize() external view returns (uint256)',
+	'function swarmHash() external view returns (bytes32)',
+	'function swarmSize() external view returns (uint256)',
 	'function stampId() external view returns (bytes32)',
-	'function bzzSize() external view returns (uint256)',
-	'function setAutoSwarm(bytes32,uint256) external',
-	'function setAutoSwarmStamp(bytes32,uint256,uint256) external',
+	'function setAutoSwarm(uint256,bytes32) external',
+	'function setAutoSwarmStamp(uint256,bytes32,uint256) external',
 	'function topUp(uint256) external',
 	'function getTopUpYearPrice() external view returns (uint256)',
 	'function withdraw(address) external'

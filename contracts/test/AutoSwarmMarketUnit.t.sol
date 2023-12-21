@@ -33,8 +33,8 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         AutoSwarmMarket.Stamp memory stamp = autoSwarmMarket.getStamp(stampIds[0]);
 
         assert(stamp.owner == address(this));
-        assert(stamp.bzzHash == "1");
-        assert(stamp.bzzSize == 1);
+        assert(stamp.swarmHash == "1");
+        assert(stamp.swarmSize == 1);
         assert(stamp.batchId == "");
         assert(stamp.unitBalance == 4);
     }

@@ -11,11 +11,11 @@ import { beeApiBzz } from './bee';
 
 type ListJsonType = { metadata: string; image: string };
 
-const tbaChainId = writable<number>();
+const bzzChainId = writable<number>();
 
-const bzzChain = (): Chain | undefined => chainGet(get(tbaChainId));
+const bzzChain = (): Chain | undefined => chainGet(get(bzzChainId));
 
-const bzzJson = (): AddressesType => addressesGet(get(tbaChainId) as BzzChainIdType);
+const bzzJson = (): AddressesType => addressesGet(get(bzzChainId) as BzzChainIdType);
 
 const bzzTrim = (hash: Hex | string | undefined): string =>
 	hash
@@ -30,16 +30,16 @@ const bzz = (hash: Hex | string | undefined): string => (hash ? `bzz://${bzzTrim
 
 const bzz0 = (hash: Hex | string): Hex | undefined => (hash ? `0x${bzzTrim(hash)}` : ZERO_BYTES32);
 
-const bzzImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
+const nftImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
 	if (utilsIsBytes32Null(hash)) return;
 
 	const url = `${beeApiBzz()}/${bzzTrim(hash)}/${LIST_JSON}`;
-	// console.info('bzzImageName', url);
+	// console.info('nftImageName', url);
 
 	const json = (await fetchJson(url)) as ListJsonType;
-	// console.info('bzzImageName ~ json', json);
+	// console.info('nftImageName ~ json', json);
 
 	return json['image'];
 };
 
-export { bzz, bzz0, bzzTrim, bzzChain, tbaChainId, bzzJson, bzzImageName };
+export { bzz, bzz0, bzzTrim, bzzChain, bzzChainId, bzzJson, nftImageName };
