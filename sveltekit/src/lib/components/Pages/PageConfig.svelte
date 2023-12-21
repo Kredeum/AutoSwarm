@@ -3,7 +3,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
 
-	import { beeApi, beeBatchId } from '$lib/ts/swarm/bee';
+	import { beeApi, beeBatchId, beeGatewayBzz } from '$lib/ts/swarm/bee';
 	import { bzzChainsId, type BzzChainIdType } from '$lib/ts/common/chains';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
@@ -21,6 +21,7 @@
 	let successMessage = '';
 
 	let swarmApi = beeApi();
+	let swarmGateway = beeGatewayBzz();
 	let batchId = beeBatchId() as string;
 	let chainId = $bzzChainId.toString();
 
@@ -57,6 +58,15 @@
 			}
 			localConfigSet('api', swarmApi);
 		}
+		{
+			swarmGateway = swarmGateway.trim().replace(/\/$/, '');
+			if (!isUrlValid(swarmGateway)) {
+				errMessage = `Invalid node URL '${swarmGateway}'`;
+				swarmGateway = beeGatewayBzz();
+				return;
+			}
+			localConfigSet('gateway', swarmGateway);
+		}
 
 		{
 			batchId = batchId?.trim();
@@ -92,16 +102,6 @@
 <div id="config">
 	<h2>Config</h2>
 	<div id="config-content">
-		<label class="input-label" for="swarm-api">Bee node URL</label>
-		<input
-			type="text"
-			class="input-field"
-			placeholder="Enter your bee node URL"
-			bind:value={swarmApi}
-			id="swarm-api"
-			on:input={resetMessages}
-		/>
-
 		<label class="input-label" for="batch-id">Batch Id</label>
 		<input
 			type="text"
@@ -109,6 +109,26 @@
 			placeholder="Enter your batch ID"
 			bind:value={batchId}
 			id="batch-id"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="swarm-gateway">Bee node URL</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter your Bee node URL"
+			bind:value={swarmApi}
+			id="swarm-api"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="swarm-gateway">Swarm Gateway URL</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter your Swarm Gateway URL"
+			bind:value={swarmGateway}
+			id="swarm-gateway"
 			on:input={resetMessages}
 		/>
 

@@ -45,7 +45,7 @@ const _displayExplorerAddress = (
 };
 
 const displayExplorerAddress = (chainId: number | undefined, addr: Address | undefined): string => {
-	console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
+	// console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
 
 	return chainId && addr && isAddress(addr)
 		? _displayExplorerAddress(chainId, addr)

@@ -4,6 +4,7 @@ import { postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis
 import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 import { BUCKET_DEPTH } from '../constants/constants';
+import { utilsIsBytes32Null } from '../common/utils';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -62,8 +63,13 @@ const callPostageLastPrice = async (bzzChainId: number): Promise<bigint> => {
 	});
 };
 
-const callPostageRemainingBalance = async (bzzChainId: number, batchId: Hex): Promise<bigint> => {
-	const publicClient = await callPublicClient(bzzChainId);
+const callPostageRemainingBalance = async (
+	bzzChainId: number,
+	batchId: Hex
+): Promise<bigint | undefined> => {
+	if (utilsIsBytes32Null(batchId)) return;
+
+  const publicClient = await callPublicClient(bzzChainId);
 
 	const data = await publicClient.readContract({
 		address: (await addressesGetField(bzzChainId, 'PostageStamp')) as Address,

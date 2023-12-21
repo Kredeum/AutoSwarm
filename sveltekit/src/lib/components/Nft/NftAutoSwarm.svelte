@@ -97,10 +97,8 @@
 	const tbaSetAutoSwarm = async () =>
 		await sendTbaSetAutoSwarm($bzzChainId, tbaAddress, nftMetadata.nftSize, beeMetadata.beeHash);
 
-	const transferBzzAmount = async (amount: bigint | undefined) =>
+	const transferBzzAmountToTba = async (amount: bigint | undefined) =>
 		await sendBzzTransfer($bzzChainId, tbaAddress, amount);
-
-	const transferBzzOneYear = async () => await transferBzzAmount(oneYearPrice);
 
 	const reSave = async () => {
 		console.info('reSave');
@@ -127,7 +125,7 @@
 				alertInfo(
 					`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
 				);
-				await transferBzzOneYear();
+				await transferBzzAmountToTba(oneYearPrice);
 				refresh();
 			}
 
@@ -157,9 +155,9 @@
 			{
 				toping = 1;
 				alertInfo(
-					`Confirm transaction and pay ${displayBalance(oneYearPrice, 16, 3)} BZZ to TopUp`
+					`Confirm transfer of ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
 				);
-				await transferBzzOneYear();
+				await transferBzzAmountToTba(oneYearPrice);
 				refresh();
 			}
 

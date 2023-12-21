@@ -93,9 +93,9 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 
 	const years = Number(seconds) / ONE_YEAR;
 
-	const ret = `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
-	console.log('ret:', ret);
-	return ret;
+	const duration = `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
+	console.log('duration:', duration);
+	return duration;
 };
 
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {

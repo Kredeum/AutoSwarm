@@ -20,7 +20,7 @@ const beeApi = (): string => localConfigGet('api') || BEE_API_DEFAULT;
 const beeApiBzz = (): string => beeApi() + '/bzz';
 
 const beeGatewayBzz = (): string =>
-	(localConfigGet('gateway') || localConfigGet('api') || BEE_GATEWAY_DEFAULT) + '/bzz';
+	localConfigGet('gateway') || ((localConfigGet('api') || BEE_GATEWAY_DEFAULT) + '/bzz');
 
 const beeBatchId = (): Hex => (localConfigGet('batchId') || BEE_BATCHID_DEFAULT) as Hex;
 
