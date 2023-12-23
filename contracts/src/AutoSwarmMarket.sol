@@ -19,6 +19,7 @@ contract AutoSwarmMarket is Ownable {
 
     bytes32[] public batchIds;
     bytes32 public currentBatchId;
+    address public currentSwarmNode;
     uint256 public currentBatchFilling;
 
     bytes32[] public stampIds;
@@ -128,24 +129,25 @@ contract AutoSwarmMarket is Ownable {
 
         // 3/ If batch expires or semi full: Create new batch
         // another solution for semi fulla ction would be to extends batch...
-        if (aboutToExpire || aboutToBeSemiFull) newBatch();
+        if (aboutToExpire || aboutToBeSemiFull) newBatch(currentSwarmNode);
     }
 
     function setBatch(bytes32 batchId) public onlyOwner {
         currentBatchId = batchId;
     }
 
-    function newBatch() public returns (bytes32 batchId) {
+    function newBatch(address swarmNode) public returns (bytes32 batchId) {
         uint256 index = batchIds.length;
         bytes32 nonce = keccak256(abi.encode("Batch #index", index));
 
         batchId = keccak256(abi.encode(address(this), nonce));
         currentBatchFilling = 0;
         currentBatchId = batchId;
+        currentSwarmNode = swarmNode;
 
         uint256 initialBalancePerChunk = (_INITIAL_TTL * _postageStamp.lastPrice()) / _SECONDS_PER_BLOCK;
         bzzToken.approve(address(_postageStamp), initialBalancePerChunk << _INITIAL_DEPTH);
-        _postageStamp.createBatch(address(this), initialBalancePerChunk, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
+        _postageStamp.createBatch(swarmNode, initialBalancePerChunk, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
 
         batchIds.push(currentBatchId);
     }

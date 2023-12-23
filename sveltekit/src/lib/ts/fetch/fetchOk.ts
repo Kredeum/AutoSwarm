@@ -22,7 +22,7 @@ const fetchOkUrl = async (url: URL | string | undefined): Promise<boolean> => {
 	try {
 		return (await _fetchOkUrlHead(url)) || (await _fetchOkUrlGet(url));
 	} catch (e) {
-    console.log('fetchOkUrl', e);
+		console.log('fetchOkUrl', e);
 		return false;
 	}
 };

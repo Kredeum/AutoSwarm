@@ -4,7 +4,7 @@ import { addressesGet } from '../common/addresses';
 import { chainGet, type BzzChainIdType } from '../common/chains';
 import type { Chain, Hex } from 'viem';
 import { LIST_JSON, ZERO_BYTES32 } from '../constants/constants';
-import { utilsIsBytes32Null } from '../common/utils';
+import { utilsBytes32Null } from '../common/utils';
 import { fetchJson } from '../fetch/fetchJson';
 import type { AddressesType } from '../constants/types';
 import { beeApiBzz } from './bee';
@@ -31,7 +31,7 @@ const bzz = (hash: Hex | string | undefined): string => (hash ? `bzz://${bzzTrim
 const bzz0 = (hash: Hex | string): Hex | undefined => (hash ? `0x${bzzTrim(hash)}` : ZERO_BYTES32);
 
 const nftImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
-	if (utilsIsBytes32Null(hash)) return;
+	if (utilsBytes32Null(hash)) return;
 
 	const url = `${beeApiBzz()}/${bzzTrim(hash)}/${LIST_JSON}`;
 	// console.info('nftImageName', url);

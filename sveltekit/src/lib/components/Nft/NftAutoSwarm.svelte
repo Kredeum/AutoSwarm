@@ -20,7 +20,7 @@
 		displaySize
 	} from '$lib/ts/display/display';
 
-	import { utilsDivUp, utilsIsBytes32Null } from '$lib/ts/common/utils.js';
+	import { utilsDivUp, utilsBytes32Null } from '$lib/ts/common/utils.js';
 	import { bzzChainId, nftImageName } from '$lib/ts/swarm/bzz';
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
@@ -67,7 +67,7 @@
 			console.info('tbaMetadata', tbaMetadata);
 
 			({ tbaDeployed, tbaAddress } = tbaMetadata);
-			resaveGaranteed = !utilsIsBytes32Null(tbaMetadata.tbaSwarmHash);
+			resaveGaranteed = !utilsBytes32Null(tbaMetadata.tbaSwarmHash);
 
 			// Block
 			{
@@ -91,15 +91,6 @@
 		console.info('<NftMetadata refresh OUT');
 	};
 
-	const createAccount = async () =>
-		await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata));
-
-	const tbaSetAutoSwarm = async () =>
-		await sendTbaSetAutoSwarm($bzzChainId, tbaAddress, nftMetadata.nftSize, beeMetadata.beeHash);
-
-	const transferBzzAmountToTba = async (amount: bigint | undefined) =>
-		await sendBzzTransfer($bzzChainId, tbaAddress, amount);
-
 	const reSave = async () => {
 		console.info('reSave');
 
@@ -116,7 +107,7 @@
 			{
 				resaving = 2;
 				alertInfo(`Confirm transaction to create Token Bound Account (TBA)`);
-				await createAccount();
+				await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata));
 				refresh();
 			}
 
@@ -125,14 +116,20 @@
 				alertInfo(
 					`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
 				);
-				await transferBzzAmountToTba(oneYearPrice);
+				await sendBzzTransfer($bzzChainId, tbaAddress, oneYearPrice);
 				refresh();
 			}
 
 			{
 				resaving = 4;
 				alertInfo(`Confirm transaction to setup your TBA`);
-				await tbaSetAutoSwarm();
+				await sendTbaSetAutoSwarm(
+					$bzzChainId,
+					tbaAddress,
+					nftMetadata.nftSize,
+					beeMetadata.beeHash
+				);
+
 				refresh();
 			}
 
@@ -154,10 +151,8 @@
 
 			{
 				toping = 1;
-				alertInfo(
-					`Confirm transfer of ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
-				);
-				await transferBzzAmountToTba(oneYearPrice);
+				alertInfo(`Confirm transfer of ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`);
+				await sendBzzTransfer($bzzChainId, tbaAddress, oneYearPrice);
 				refresh();
 			}
 

@@ -3,7 +3,9 @@ import { erc20Abi } from '$lib/ts/constants/abis';
 import { addressesGet } from '../common/addresses';
 import { sendWallet } from './send';
 
-const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint) => {
+const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint | undefined) => {
+	if (!bzzAmount) throw new Error('Bzz amount undefined');
+
 	// console.info('sendBzzApprove', bzzChainId,  bzzAmount);
 	const json = await addressesGet(bzzChainId);
 

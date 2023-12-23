@@ -22,7 +22,7 @@
 		displaySize,
 		displayTtl
 	} from '$lib/ts/display/display';
-	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
+	import { sendBzzApprove, sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendMarketNewBatch } from '$lib/ts/send/sendMarket';
 	import { sendWalletAddress } from '$lib/ts/send/send';
 	import { callBlockNumber } from '$lib/ts/call/call';
@@ -42,6 +42,8 @@
 		displayExplorerField
 	} from '$lib/ts/display/displayExplorer';
 	import { alertError, alertInfo } from '$lib/ts/stores/alertMessage';
+	import { sendPostageCreateBatch } from '$lib/ts/send/sendPostage';
+	import { utilsBytes32Null } from '$lib/ts/common/utils';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <Monitor />
@@ -92,34 +94,35 @@
 			walletBalance = await callBzzBalance($bzzChainId, walletAddress);
 
 			// AutoSwarmMarket
-			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
 				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
-
 			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
 			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($bzzChainId);
 			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
-			[
-				currentBatchOwner,
-				currentBatchDepth,
-				currentBatchBucketDepth,
-				currentBatchImmutableFlag,
-				currentBatchNormalisedBalance,
-				currentBatchLastUpdatedBlockNumber
-			] = await callPostageBatches($bzzChainId, currentBatchId);
+			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
+			if (!utilsBytes32Null(currentBatchId)) {
+				[
+					currentBatchOwner,
+					currentBatchDepth,
+					currentBatchBucketDepth,
+					currentBatchImmutableFlag,
+					currentBatchNormalisedBalance,
+					currentBatchLastUpdatedBlockNumber
+				] = await callPostageBatches($bzzChainId, currentBatchId);
 
-			currentBatchRemainingBalance = await callPostageRemainingBalance($bzzChainId, currentBatchId);
+				currentBatchRemainingBalance = await callPostageRemainingBalance(
+					$bzzChainId,
+					currentBatchId
+				);
+			}
 		} catch (e) {
 			alertError('<Monitor Refresh', e);
 		}
 		console.log('refresh ~ monthlyCroning:', monthlyCroning);
 	};
-
-	const transferBzzAmountToMarket = async (amount: bigint | undefined) =>
-		await sendBzzTransfer($bzzChainId, marketAddress, amount);
 
 	const dailyCron = async () => {
 		console.info('DailyCron');
@@ -140,21 +143,21 @@
 		if (monthlyCroning) alertError('Monthly Cron already running!');
 
 		try {
-			monthlyCroning = 1;
-			`Confirm transfer of ${displayBalance(currentBatchPrice, 16, 3)} BZZ to AutoSwarm Market`;
-			await transferBzzAmountToMarket(currentBatchPrice);
+			monthlyCroning = 2;
+			`Send needed Bzz to AutoSwarm Market`;
+			await sendBzzTransfer($bzzChainId, marketAddress, currentBatchPrice);
 			refresh();
 		} catch (e) {
-			alertError('<Monitor Monthly Cron Transfer (1/2) Error:', e);
+			alertError('<Monitor Monthly Cron New Batch Error:', e);
 		}
 
 		try {
-			monthlyCroning = 2;
+			monthlyCroning = 1;
 			`Confirm creation of new Batch`;
 			await sendMarketNewBatch($bzzChainId);
 			refresh();
 		} catch (e) {
-			alertError('<Monitor Monthly Cron New Batch (2/2) Error:', e);
+			alertError('<Monitor Monthly Cron New Batch Error:', e);
 		}
 
 		monthlyCroning = 0;
@@ -220,7 +223,11 @@
 		</p>
 		<p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
 		<hr />
-		<p>Swarm | Current Batch Owner <span>{currentBatchOwner || UNDEFINED_ADDRESS}</span></p>
+		<p>
+			Swarm | Current Batch Owner <span
+				>{@html displayExplorerAddress($bzzChainId, currentBatchOwner || UNDEFINED_ADDRESS)}</span
+			>
+		</p>
 		<p>
 			Swarm | Current Batch Block - Last Updated Block = Delta
 			<span>
@@ -262,6 +269,9 @@
 		</p>
 		<p>
 			AutoSwarmAccount<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
+		</p>
+		<p>
+			AutoSwarmMarket<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span>
 		</p>
 		<p>ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>
 		<p>PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span></p>

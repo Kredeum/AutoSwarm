@@ -3,7 +3,7 @@ import type { TbaMetadata } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchAltUrl } from '../fetch/fetchAlt';
 import { nftImageName } from '../swarm/bzz';
-import { utilsDivUp, utilsIsBytes32Null } from '../common/utils';
+import { utilsDivUp, utilsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
 import { STAMP_SIZE, STAMP_PRICE } from '../constants/constants';
@@ -31,12 +31,12 @@ const callTbaMetadata = async (
 
 	if (tbaMetadata.tbaDeployed) {
 		const tbaSwarmHash = await callTbaSwarmHash(bzzChainId, tbaMetadata.tbaAddress);
-		if (!utilsIsBytes32Null(tbaSwarmHash)) {
+		if (!utilsBytes32Null(tbaSwarmHash)) {
 			tbaMetadata.tbaSwarmHash ||= tbaSwarmHash;
 			tbaMetadata.tbaSwarmSize ||= await callTbaSwarmSize(bzzChainId, tbaMetadata.tbaAddress);
 			tbaMetadata.tbaPrice ||= utilsDivUp(tbaMetadata.tbaSwarmSize!, STAMP_SIZE) * STAMP_PRICE;
 
-			if (utilsIsBytes32Null(tbaMetadata.tbaStampId))
+			if (utilsBytes32Null(tbaMetadata.tbaStampId))
 				tbaMetadata.tbaStampId = await callTbaBzzStampId(bzzChainId, tbaMetadata.tbaAddress);
 
 			const imageName = await nftImageName(tbaMetadata.tbaSwarmHash!);

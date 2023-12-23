@@ -13,7 +13,7 @@ import {
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
+import { utilsBytes32Null, utilsTruncate } from '../common/utils';
 import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
 import { beeGatewayBzz } from '../swarm/bee';
 
@@ -107,7 +107,7 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 const displayBzzURI = (str: Hex | string | undefined, path?: string): string => {
 	// console.log('displayBzzURI', str, bzzTrim(str));
 	const hash = bzzTrim(str);
-	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
+	if (utilsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
 	const hashPath = path ? `${hash}/${path}` : hash;
 	const url = `${beeGatewayBzz()}/${hashPath}`;
@@ -117,7 +117,7 @@ const displayBzzURI = (str: Hex | string | undefined, path?: string): string => 
 
 const displayBzzURL = (str: Hex | string | undefined, path?: string): string => {
 	const hash = bzzTrim(str);
-	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
+	if (utilsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 	// console.log('displayBzzURL ', hash, path);
 
 	const hashPath = path ? `${hash}/${path}` : hash;

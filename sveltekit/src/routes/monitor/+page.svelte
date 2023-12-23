@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Monitor from '$lib/components/Pages/PageMonitor.svelte';
+	import Monitor from '$lib/components/Cron/CronMonitor.svelte';
 </script>
 
 <Monitor />
