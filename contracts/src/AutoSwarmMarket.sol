@@ -26,7 +26,7 @@ contract AutoSwarmMarket is Ownable {
     mapping(bytes32 => Stamp) public stamps;
 
     // stamp UNIT size is 1 Mb
-    uint256 public constant STAMP_UNIT_SIZE = 1024 ** 2; // 1 Mo
+    uint256 public constant STAMP_UNIT_SIZE = 1024 ** 2; // 1 Mb
 
     // mimic PostageStamp batch calculation, for stamp calculation
     uint256 public stampUnitPaid;
@@ -43,7 +43,6 @@ contract AutoSwarmMarket is Ownable {
 
     uint256 internal constant _SECONDS_PER_BLOCK = 5;
     uint256 internal constant _SECOND_PER_YEAR = 365 * 24 * 3600;
-    uint256 internal constant _BLOCKS_PER_YEAR = _SECOND_PER_YEAR / _SECONDS_PER_BLOCK;
 
     event UpdateStampUnitPrice(uint256 indexed stampUnitPrice);
 
@@ -153,7 +152,7 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function getStampUnitPriceOneYear() public view returns (uint256) {
-        return stampUnitPrice * _BLOCKS_PER_YEAR;
+        return (stampUnitPrice * _SECOND_PER_YEAR) / _SECONDS_PER_BLOCK;
     }
 
     function getStampPriceOneYear(uint256 size) public view returns (uint256) {

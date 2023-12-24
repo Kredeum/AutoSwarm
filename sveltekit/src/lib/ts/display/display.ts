@@ -15,7 +15,7 @@ import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
 import { utilsBytes32Null, utilsTruncate } from '../common/utils';
 import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
-import { beeGatewayBzz } from '../swarm/bee';
+import { beeApiBzz, beeGatewayBzz } from '../swarm/bee';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -110,7 +110,7 @@ const displayBzzURI = (str: Hex | string | undefined, path?: string): string => 
 	if (utilsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
 	const hashPath = path ? `${hash}/${path}` : hash;
-	const url = `${beeGatewayBzz()}/${hashPath}`;
+	const url = `${beeApiBzz()}/${hashPath}`;
 
 	return `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`;
 };
