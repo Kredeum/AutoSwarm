@@ -12,6 +12,12 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         assert(true);
     }
 
+    function test_AutoSwarmMarketUnit_Math(uint256 depth, uint256 bzzAmount) public view {
+        vm.assume(depth < 32);
+
+        assert((bzzAmount >> depth) << depth == (bzzAmount - bzzAmount % (1 << depth)));
+    }
+
     function test_AutoSwarmMarketUnit_getStampsToAttach0() public view {
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 0);
         assert(stampIds.length == 0);

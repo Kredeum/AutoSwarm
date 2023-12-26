@@ -89,6 +89,7 @@
 		try {
 			// Block
 			lastBlockNumber = await callBlockNumber($bzzChainId);
+
 			// Wallet
 			walletAddress = await sendWalletAddress();
 			walletBalance = await callBzzBalance($bzzChainId, walletAddress);
@@ -140,24 +141,28 @@
 	const monthlyCron = async () => {
 		console.info('MonthlyCron');
 
-		if (monthlyCroning) alertError('Monthly Cron already running!');
-
 		try {
-			monthlyCroning = 2;
-			`Send needed Bzz to AutoSwarm Market`;
-			await sendBzzTransfer($bzzChainId, marketAddress, currentBatchPrice);
-			refresh();
-		} catch (e) {
-			alertError('<Monitor Monthly Cron New Batch Error:', e);
-		}
+			if (monthlyCroning) throw new Error('Already running!');
+			if (!currentBatchPrice) throw new Error('No Batch Price');
 
-		try {
-			monthlyCroning = 1;
-			`Confirm creation of new Batch`;
-			await sendMarketNewBatch($bzzChainId);
-			refresh();
+			{
+				monthlyCroning = 1;
+				const amount = currentBatchPrice - (marketBalance || 0n);
+				if (amount > 0) {
+					alertInfo(`Send needed Bzz to AutoSwarm Market`);
+					await sendBzzTransfer($bzzChainId, marketAddress, currentBatchPrice);
+					refresh();
+				}
+			}
+
+			{
+				monthlyCroning = 2;
+				alertInfo(`Confirm creation of new Batch`);
+				await sendMarketNewBatch($bzzChainId, currentBatchPrice);
+				refresh();
+			}
 		} catch (e) {
-			alertError('<Monitor Monthly Cron New Batch Error:', e);
+			alertError('<Monitor Monthly:', e);
 		}
 
 		monthlyCroning = 0;

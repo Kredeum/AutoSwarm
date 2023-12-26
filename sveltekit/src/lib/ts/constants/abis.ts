@@ -42,7 +42,8 @@ const autoSwarmAccountAbi = parseAbi([
 	'function withdraw(address) external'
 ]);
 const autoSwarmMarketAbi = parseAbi([
-	'function newBatch(address) public returns (bytes32)',
+	'function newBatch(address) external returns (bytes32)',
+	'function newBatch(address,uint256) external returns (bytes32)',
 	'function currentBatchId() external view returns (bytes32)',
 	'function lastPrice() external view returns(uint64)',
 	'function extendsBatch(bytes32,uint8) external'

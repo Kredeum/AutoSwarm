@@ -13,6 +13,7 @@ interface IAutoSwarmMarket {
     function topUpStamp(bytes32 stampId, uint256 bzzAmount) external;
 
     function newBatch(address) external returns (bytes32 batchId);
+    function newBatch(address, uint256) external returns (bytes32 batchId);
     function extendsBatch(bytes32, uint8) external;
 
     function sync() external;

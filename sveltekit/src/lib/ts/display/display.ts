@@ -80,20 +80,20 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} days`;
 
 	const hours = Number(seconds) / ONE_HOUR;
-	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours > 1 ? 's' : ''}`;
+	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours >= 1.01 ? 's' : ''}`;
 
 	const days = Number(seconds) / ONE_DAY;
-	if (days < 60) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;
+	if (days < 60) return `${Number(days).toFixed(2)} day${days >= 1.01 ? 's' : ''}`;
 
 	const weeks = Number(seconds) / ONE_WEEK;
-	if (weeks < 12) return `${Number(weeks).toFixed(2)} ZZweek${weeks > 1 ? 's' : ''}`;
+	if (weeks < 12) return `${Number(weeks).toFixed(2)} ZZweek${weeks >= 1.01 ? 's' : ''}`;
 
 	const months = Number(seconds) / ONE_MONTH;
-	if (days < 365) return `${Number(months).toFixed(2)} month${months > 1 ? 's' : ''}`;
+	if (days < 365) return `${Number(months).toFixed(2)} month${months >= 1.01 ? 's' : ''}`;
 
 	const years = Number(seconds) / ONE_YEAR;
 
-	const duration = `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
+	const duration = `${Number(years).toFixed(2)} year${years >= 1.01 ? 's' : ''}`;
 	console.log('duration:', duration);
 	return duration;
 };

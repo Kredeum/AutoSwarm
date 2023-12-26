@@ -133,7 +133,6 @@
 			{@html displayExplorerAddress(bzzChainId, tbaMetadata.tbaAddress)}
 		</span>
 	</p>
-	<hr />
 	<p>
 		TBA - Size / One Year Price
 		<span>

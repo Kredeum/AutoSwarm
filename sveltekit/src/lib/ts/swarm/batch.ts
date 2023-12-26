@@ -34,7 +34,7 @@ const batchNBalToBzz = (
 
 const batchPrice = async (bzzChaind: number, depth: number, ttl: number) => {
 	const lastPrice = (await callPostageLastPrice(bzzChaind)) || CHUNK_PRICE_DEFAULT;
-	return (2n ** BigInt(depth) * BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
+	return 2n ** BigInt(depth) * lastPrice * BigInt(Math.floor(ttl / SECONDS_PER_BLOCK));
 };
 
 const batchBzzToTtl = (

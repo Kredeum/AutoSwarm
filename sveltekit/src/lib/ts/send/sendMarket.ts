@@ -4,7 +4,7 @@ import { autoSwarmMarketAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
 import { addressesGetField } from '../common/addresses';
 
-const sendMarketNewBatch = async (bzzChainId: number) => {
+const sendMarketNewBatch = async (bzzChainId: number, bzzAmount: bigint) => {
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const autoSwarmMarket = (await addressesGetField(bzzChainId, 'AutoSwarmMarket')) as Address;
@@ -15,7 +15,7 @@ const sendMarketNewBatch = async (bzzChainId: number) => {
 		address: autoSwarmMarket,
 		abi: autoSwarmMarketAbi,
 		functionName: 'newBatch',
-		args: [swarmNode]
+		args: [swarmNode, bzzAmount]
 	});
 	const hash = await walletClient.writeContract(request);
 	await publicClient.waitForTransactionReceipt({ hash });

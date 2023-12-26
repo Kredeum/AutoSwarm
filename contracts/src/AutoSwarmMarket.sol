@@ -37,10 +37,10 @@ contract AutoSwarmMarket is Ownable {
     IERC20 public bzzToken;
 
     uint256 internal constant _EXPIRATION_TTL = 7 days;
-    uint256 internal constant _INITIAL_TTL = 30 days;
-    uint8 internal constant _INITIAL_DEPTH = 23;
-    uint8 internal constant _BUCKET_DEPTH = 16;
+    uint256 internal constant _BATCH_TTL = 30 days;
+    uint8 internal constant _BATCH_DEPTH = 23;
 
+    uint8 internal constant _BUCKET_DEPTH = 16;
     uint256 internal constant _SECONDS_PER_BLOCK = 5;
     uint256 internal constant _SECOND_PER_YEAR = 365 * 24 * 3600;
 
@@ -119,12 +119,12 @@ contract AutoSwarmMarket is Ownable {
     function sync() public {
         // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
         uint256 remainingBalance = _postageStamp.remainingBalance(currentBatchId);
-        uint256 neededBalance = (_postageStamp.lastPrice() * 7 days) / _SECONDS_PER_BLOCK;
+        uint256 neededBalance = _postageStamp.lastPrice() * (7 days / _SECONDS_PER_BLOCK);
         bool aboutToExpire = remainingBalance <= neededBalance;
 
         // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
-        // if dilute is used, use real batch depth instead od _INITIAL_DEPTH
-        bool aboutToBeSemiFull = currentBatchFilling * 2 >= (1 << _INITIAL_DEPTH);
+        // if dilute is used, use real batch depth instead od _BATCH_DEPTH
+        bool aboutToBeSemiFull = currentBatchFilling * 2 >= (1 << _BATCH_DEPTH);
 
         // 3/ If batch expires or semi full: Create new batch
         // another solution for semi fulla ction would be to extends batch...
@@ -136,6 +136,11 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function newBatch(address swarmNode) public returns (bytes32 batchId) {
+        uint256 bzzAmount = (_postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
+        return newBatch(swarmNode, bzzAmount);
+    }
+
+    function newBatch(address swarmNode, uint256 bzzAmount) public returns (bytes32 batchId) {
         uint256 index = batchIds.length;
         bytes32 nonce = keccak256(abi.encode("Batch #index", index));
 
@@ -144,15 +149,17 @@ contract AutoSwarmMarket is Ownable {
         currentBatchId = batchId;
         currentSwarmNode = swarmNode;
 
-        uint256 initialBalancePerChunk = (_INITIAL_TTL * _postageStamp.lastPrice()) / _SECONDS_PER_BLOCK;
-        bzzToken.approve(address(_postageStamp), initialBalancePerChunk << _INITIAL_DEPTH);
-        _postageStamp.createBatch(swarmNode, initialBalancePerChunk, _INITIAL_DEPTH, _BUCKET_DEPTH, nonce, false);
+        uint256 initialBalancePerChunk = bzzAmount >> _BATCH_DEPTH;
+        bzzToken.approve(address(_postageStamp), bzzAmount);
+        // uint256 initialBalancePerChunk = _postageStamp.lastPrice() * (_BATCH_TTL / _SECONDS_PER_BLOCK);
+        // bzzToken.approve(address(_postageStamp), initialBalancePerChunk << _BATCH_DEPTH);
+        _postageStamp.createBatch(swarmNode, initialBalancePerChunk, _BATCH_DEPTH, _BUCKET_DEPTH, nonce, false);
 
         batchIds.push(currentBatchId);
     }
 
     function getStampUnitPriceOneYear() public view returns (uint256) {
-        return (stampUnitPrice * _SECOND_PER_YEAR) / _SECONDS_PER_BLOCK;
+        return stampUnitPrice * (_SECOND_PER_YEAR / _SECONDS_PER_BLOCK);
     }
 
     function getStampPriceOneYear(uint256 size) public view returns (uint256) {
