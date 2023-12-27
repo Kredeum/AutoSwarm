@@ -36,13 +36,13 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 1);
         assert(stampIds.length == 1);
-        AutoSwarmMarket.Stamp memory stamp = autoSwarmMarket.getStamp(stampIds[0]);
+        (address owner, bytes32 swarmHash, uint256 swarmSize, bytes32 batchId, uint256 unitBalance) = autoSwarmMarket.stamps(stampIds[0]);
 
-        assert(stamp.owner == address(this));
-        assert(stamp.swarmHash == "1");
-        assert(stamp.swarmSize == 1);
-        assert(stamp.batchId == "");
-        assert(stamp.unitBalance == 4);
+        assert(owner == address(this));
+        assert(swarmHash == "1");
+        assert(swarmSize == 1);
+        assert(batchId == "");
+        assert(unitBalance == 4);
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach2() public {

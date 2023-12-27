@@ -25,10 +25,15 @@
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
-	import NftDetails from '$lib/components/Nft/NftDetails.svelte';
+
 	import { callTbaMetadata } from '$lib/ts/call/callTbametadata';
 	import { nftIds } from '$lib/ts/common/nft';
 	import { fetchBeeMetadata } from '$lib/ts/fetch/fetchBeeMetadata';
+	import DetailsNft from '../Details/DetailsNft.svelte';
+	import DetailsBee from '../Details/DetailsBee.svelte';
+	import DetailsTba from '../Details/DetailsTba.svelte';
+	import DetailsPostage from '../Details/DetailsPostage.svelte';
+	import DetailsWallet from '../Details/DetailsWallet.svelte';
 
 	////////////////////// AutoSwarm Component /////////////////////////////////
 	// <AutoSwarm {metadata} {nftMetadata} />
@@ -240,5 +245,25 @@
 </p>
 
 {#if details}
-	<NftDetails bzzChainId={$bzzChainId} {metadata} {nftMetadata} {beeMetadata} {tbaMetadata} />
+	<div id="details">
+		<hr />
+		<DetailsNft {nftMetadata} />
+		<hr />
+		<DetailsBee {beeMetadata} />
+		<hr />
+		<DetailsTba {tbaMetadata} />
+		<hr />
+		<DetailsPostage />
+		<hr />
+		<DetailsWallet />
+		<hr />
+	</div>
 {/if}
+
+<style>
+	#details {
+		width: 1100px;
+		display: block;
+		text-align: left;
+	}
+</style>

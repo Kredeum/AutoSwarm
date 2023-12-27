@@ -26,11 +26,9 @@ const chainGet = (chainId: number): Chain | undefined => {
 	return chain;
 };
 
-const chainGetExplorer = (id: number): URL | undefined => {
+const chainGetExplorer = (id: number): string | undefined => {
 	const chain = chainGet(id);
-	const url = chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url;
-
-	return url ? new URL(url) : undefined;
+	return chain?.blockExplorers?.etherscan?.url || chain?.blockExplorers?.default?.url;
 };
 
 const chainGetWithTransport = (

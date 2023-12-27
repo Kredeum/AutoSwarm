@@ -12,7 +12,7 @@ const callBzzBalance = async (
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: (await addressesGetField(bzzChainId, 'BzzToken')) as Address,
+		address: addressesGetField(bzzChainId, 'BzzToken') as Address,
 		abi: erc20Abi,
 		functionName: 'balanceOf',
 		args: [account]

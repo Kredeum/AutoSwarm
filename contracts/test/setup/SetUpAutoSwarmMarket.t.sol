@@ -15,10 +15,11 @@ contract SetUpAutoSwarmMarket is SetUpSwarm {
     function setUpAutoSwarmMarket() public {
         autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
 
-        deal(address(bzzToken), address(autoSwarmMarket), (_INITIAL_TTL * _DEFAULT_PRICE) << _INITIAL_DEPTH);
+        uint256 bzzAmount = (_INITIAL_TTL * _DEFAULT_PRICE) << _INITIAL_DEPTH;
+        deal(address(bzzToken), address(autoSwarmMarket), bzzAmount);
 
         vm.prank(deployer);
-        autoSwarmMarket.newBatch(swarmNode);
+        autoSwarmMarket.newBatch(bzzAmount);
     }
 
     function setUp() public virtual {

@@ -10,7 +10,7 @@ import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 
 contract SetUpERC6551 is Test, DeployAll {
-    bytes32 public salt = keccak256("AutoSwarm V0.2");
+    bytes32 public salt = keccak256("AutoSwarm Tests v0.0.3");
 
     uint256 chainId;
     address collection;

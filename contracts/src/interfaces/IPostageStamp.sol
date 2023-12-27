@@ -13,7 +13,7 @@ interface IPostageStamp {
 
     function lastPrice() external view returns (uint64);
 
-    function createBatch(address, uint256, uint8, uint8, bytes32, bool) external;
+    function createBatch(address, uint256, uint8, uint8, bytes32, bool) external returns(bytes32);
     function increaseDepth(bytes32, uint8) external;
     function topUp(bytes32, uint256) external;
 

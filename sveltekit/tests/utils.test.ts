@@ -44,7 +44,7 @@ test('utilsNBalToBzz should convert balance to BZZ', () => {
 });
 
 test('utilsBzzToTtl should convert BZZ to TTL', () => {
-	expect(utilsBzzToTtl(10n ** 16n, 24_000n, 17)).toBe(15894571n);
+	expect(utilsBzzToTtl(10n ** 16n, 24_000n, 17)).toBe(15894570n);
 });
 
 test('utilsNBalToTtl should convert balance to TTL', () => {

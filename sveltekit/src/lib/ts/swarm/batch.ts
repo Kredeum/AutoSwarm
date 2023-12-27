@@ -32,8 +32,8 @@ const batchNBalToBzz = (
 	return batchNBal * 2n ** BigInt(depth - BUCKET_DEPTH);
 };
 
-const batchPrice = async (bzzChaind: number, depth: number, ttl: number) => {
-	const lastPrice = (await callPostageLastPrice(bzzChaind)) || CHUNK_PRICE_DEFAULT;
+const batchPrice = async (bzzChaind: number, depth: number, ttl: number, lastPrice?: bigint) => {
+	lastPrice ||= (await callPostageLastPrice(bzzChaind)) || CHUNK_PRICE_DEFAULT;
 	return 2n ** BigInt(depth) * lastPrice * BigInt(Math.floor(ttl / SECONDS_PER_BLOCK));
 };
 

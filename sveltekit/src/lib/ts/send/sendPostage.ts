@@ -14,7 +14,7 @@ const sendPostageCreateBatch = async (
 ) => {
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
-	const postageStamp = (await addressesGetField(bzzChainId, 'PostageStamp')) as Address;
+	const postageStamp = addressesGetField(bzzChainId, 'PostageStamp') as Address;
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

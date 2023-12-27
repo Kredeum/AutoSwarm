@@ -33,7 +33,7 @@ contract AutoSwarmMarket is Ownable {
     uint256 public stampUnitPrice;
     uint256 public stampBlockUpdate;
 
-    IPostageStamp internal _postageStamp;
+    IPostageStamp public postageStamp;
     IERC20 public bzzToken;
 
     uint256 internal constant _EXPIRATION_TTL = 7 days;
@@ -46,27 +46,29 @@ contract AutoSwarmMarket is Ownable {
 
     event UpdateStampUnitPrice(uint256 indexed stampUnitPrice);
 
-    constructor(address postageStamp_) {
-        _postageStamp = IPostageStamp(payable(postageStamp_));
-        bzzToken = IERC20(_postageStamp.bzzToken());
-        stampBlockUpdate = block.number;
+    constructor(address postageStamp_, address swarmNode_) {
+        postageStamp = IPostageStamp(payable(postageStamp_));
+        currentSwarmNode = swarmNode_;
+
+        bzzToken = IERC20(postageStamp.bzzToken());
+
         setStampUnitPrice(2e8);
     }
 
     function extendsBatch(bytes32 batchId, uint8 deltaDepth) external {
-        uint256 ttl = _postageStamp.remainingBalance(batchId);
+        uint256 ttl = postageStamp.remainingBalance(batchId);
         require(ttl > 0, "Batch not valid");
 
-        uint8 newDepth = _postageStamp.batchDepth(batchId) + deltaDepth;
+        uint8 newDepth = postageStamp.batchDepth(batchId) + deltaDepth;
 
         _diluteBatch(batchId, newDepth);
-        assert(_postageStamp.batchDepth(batchId) == newDepth);
+        assert(postageStamp.batchDepth(batchId) == newDepth);
 
         uint256 mul = 1 << deltaDepth;
         uint256 newTtl = (ttl * (mul - 1)) / mul;
 
         _topUpBatch(batchId, newTtl);
-        assert(_postageStamp.remainingBalance(batchId) == ttl);
+        assert(postageStamp.remainingBalance(batchId) == ttl);
     }
 
     function createStamp(bytes32 swarmHash, uint256 swarmSize, uint256 bzzAmount) public returns (bytes32 stampId) {
@@ -116,46 +118,64 @@ contract AutoSwarmMarket is Ownable {
         }
     }
 
-    function sync() public {
+    function newBatchNeeded() public view returns (bool) {
+        if (currentBatchId == bytes32(0)) return true;
+
         // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
-        uint256 remainingBalance = _postageStamp.remainingBalance(currentBatchId);
-        uint256 neededBalance = _postageStamp.lastPrice() * (7 days / _SECONDS_PER_BLOCK);
+        uint256 remainingBalance = postageStamp.remainingBalance(currentBatchId);
+        uint256 neededBalance = postageStamp.lastPrice() * (7 days / _SECONDS_PER_BLOCK);
         bool aboutToExpire = remainingBalance <= neededBalance;
 
         // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
         // if dilute is used, use real batch depth instead od _BATCH_DEPTH
-        bool aboutToBeSemiFull = currentBatchFilling * 2 >= (1 << _BATCH_DEPTH);
+        bool aboutToSemiFull = currentBatchFilling * 2 >= (1 << _BATCH_DEPTH);
 
-        // 3/ If batch expires or semi full: Create new batch
-        // another solution for semi fulla ction would be to extends batch...
-        if (aboutToExpire || aboutToBeSemiFull) newBatch(currentSwarmNode);
+        // 3/ If batch expires or semi full
+        // another solution for semi full action would be to extends batch...
+        return aboutToExpire || aboutToSemiFull;
     }
 
-    function setBatch(bytes32 batchId) public onlyOwner {
-        currentBatchId = batchId;
+    function batchPrice() public returns (uint256) {
+        return (postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
     }
 
-    function newBatch(address swarmNode) public returns (bytes32 batchId) {
-        uint256 bzzAmount = (_postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
-        return newBatch(swarmNode, bzzAmount);
+    function sync() public returns (bytes32) {
+        if (newBatchNeeded()) newBatch();
+
+        return currentBatchId;
     }
 
-    function newBatch(address swarmNode, uint256 bzzAmount) public returns (bytes32 batchId) {
-        uint256 index = batchIds.length;
-        bytes32 nonce = keccak256(abi.encode("Batch #index", index));
+    function newBatch() public onlyOwner returns (bytes32 batchId) {
+        return newBatch(batchPrice());
+    }
 
-        batchId = keccak256(abi.encode(address(this), nonce));
-        currentBatchFilling = 0;
-        currentBatchId = batchId;
+    function newBatch(uint256 bzzAmount) public onlyOwner returns (bytes32 batchId) {
+        require(currentSwarmNode != address(0), "Swarm node not set");
+
+        bzzToken.approve(address(postageStamp), bzzAmount);
+        batchId = postageStamp.createBatch(
+            currentSwarmNode,
+            bzzAmount >> _BATCH_DEPTH,
+            _BATCH_DEPTH,
+            _BUCKET_DEPTH,
+            keccak256(abi.encode("Batch #index", batchIds.length)),
+            false
+        );
+
+        _setBatch(batchId, 0);
+    }
+
+    function setBatch(address swarmNode, bytes32 batchId, uint256 batchFilling) public onlyOwner {
         currentSwarmNode = swarmNode;
+        _setBatch(batchId, batchFilling);
+    }
 
-        uint256 initialBalancePerChunk = bzzAmount >> _BATCH_DEPTH;
-        bzzToken.approve(address(_postageStamp), bzzAmount);
-        // uint256 initialBalancePerChunk = _postageStamp.lastPrice() * (_BATCH_TTL / _SECONDS_PER_BLOCK);
-        // bzzToken.approve(address(_postageStamp), initialBalancePerChunk << _BATCH_DEPTH);
-        _postageStamp.createBatch(swarmNode, initialBalancePerChunk, _BATCH_DEPTH, _BUCKET_DEPTH, nonce, false);
+    function _setBatch(bytes32 batchId, uint256 batchFilling) internal {
+        require(batchId != currentBatchId, "Current BatchId already set");
 
-        batchIds.push(currentBatchId);
+        currentBatchId = batchId;
+        currentBatchFilling = batchFilling;
+        batchIds.push(batchId);
     }
 
     function getStampUnitPriceOneYear() public view returns (uint256) {
@@ -170,10 +190,8 @@ contract AutoSwarmMarket is Ownable {
         return _getStampBzzRemaining(stamps[stampId]) > 0;
     }
 
-    function getStamp(bytes32 stampId) public view returns (Stamp memory) {
-        bytes32[] memory stampIdsOne = new bytes32[](1);
-        stampIdsOne[0] = stampId;
-        return getStamps(stampIdsOne)[0];
+    function getStampsCount() public view returns (uint256) {
+        return stampIds.length;
     }
 
     function getStamps(bytes32[] memory stampIdsList) public view returns (Stamp[] memory stampsList) {
@@ -237,12 +255,12 @@ contract AutoSwarmMarket is Ownable {
     }
 
     function _diluteBatch(bytes32 batchId, uint8 depth) internal {
-        _postageStamp.increaseDepth(batchId, depth);
+        postageStamp.increaseDepth(batchId, depth);
     }
 
     function _topUpBatch(bytes32 batchId, uint256 ttl) internal {
-        bzzToken.approve(address(_postageStamp), ttl << _postageStamp.batchDepth(batchId));
-        _postageStamp.topUp(batchId, ttl);
+        bzzToken.approve(address(postageStamp), ttl << postageStamp.batchDepth(batchId));
+        postageStamp.topUp(batchId, ttl);
     }
 
     function _getStampBzzRemaining(Stamp storage stamp) internal view returns (uint256) {

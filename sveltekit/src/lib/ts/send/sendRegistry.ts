@@ -17,8 +17,8 @@ const sendRegistryCreateAccount = async (
 
 	if (await callIsContract(bzzChainId, tba)) return tba;
 
-	const erc6551Registry = (await addressesGetField(bzzChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await addressesGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry') as Address;
+	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount') as Address;
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 

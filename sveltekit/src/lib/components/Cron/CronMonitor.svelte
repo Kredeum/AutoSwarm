@@ -1,49 +1,20 @@
 <script lang="ts">
-	import type { Address, Hex } from 'viem';
+	import type { Address } from 'viem';
 	import { onMount } from 'svelte';
-
-	import {
-		BATCH_DEPTH,
-		BATCH_SIZE,
-		BATCH_TTL,
-		STAMP_SIZE,
-		STAMP_TTL,
-		STAMP_PRICE,
-		UNDEFINED_DATA,
-		UNDEFINED_ADDRESS,
-		CHUNK_SIZE,
-		CHUNK_PRICE_DEFAULT
-	} from '$lib/ts/constants/constants';
+	import { BATCH_DEPTH, BATCH_TTL } from '$lib/ts/constants/constants';
 	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import {
-		displayBalance,
-		displayDuration,
-		displaySize,
-		displayTtl
-	} from '$lib/ts/display/display';
-	import { sendBzzApprove, sendBzzTransfer } from '$lib/ts/send/sendBzz';
-	import { sendMarketNewBatch } from '$lib/ts/send/sendMarket';
-	import { sendWalletAddress } from '$lib/ts/send/send';
-	import { callBlockNumber } from '$lib/ts/call/call';
-	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
-
+	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
+	import { sendMarketSync } from '$lib/ts/send/sendMarket';
+	import { callMarketNewBatchNeeded } from '$lib/ts/call/callMarket';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import {
-		callPostageBatches,
-		callPostageLastPrice,
-		callPostageRemainingBalance,
-		callPostageCurrentTotalOutPayment
-	} from '$lib/ts/call/callPostage';
 	import { batchPrice } from '$lib/ts/swarm/batch';
-	import {
-		displayExplorer,
-		displayExplorerAddress,
-		displayExplorerField
-	} from '$lib/ts/display/displayExplorer';
 	import { alertError, alertInfo } from '$lib/ts/stores/alertMessage';
-	import { sendPostageCreateBatch } from '$lib/ts/send/sendPostage';
-	import { utilsBytes32Null } from '$lib/ts/common/utils';
+	import DetailsAddresses from '../Details/DetailsAddresses.svelte';
+	import DetailsWallet from '../Details/DetailsWallet.svelte';
+	import DetailsConstants from '../Details/DetailsConstants.svelte';
+	import DetailsMarket from '../Details/DetailsMarket.svelte';
+	import DetailsPostage from '../Details/DetailsPostage.svelte';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <Monitor />
@@ -51,74 +22,27 @@
 	// Daily Cron and Monthly Cron
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	// Block
-	let lastBlockNumber: bigint | undefined;
-
-	// Wallet
-	let walletAddress: Address | undefined;
-	let walletBalance: bigint | undefined;
-
-	// AutoSwarmMarket
-	let currentBatchId: Hex | undefined;
 	let marketAddress: Address;
 	let marketBalance: bigint | undefined;
-
-	// Postage
-	let currentBatchOwner: Address | undefined;
-	let currentBatchDepth: number | undefined;
-	let currentBatchBucketDepth: number | undefined;
-	let currentBatchImmutableFlag: boolean | undefined;
-	let currentBatchNormalisedBalance: bigint | undefined;
-	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
-
 	let currentBatchPrice: bigint | undefined;
-	let currentBatchRemainingBalance: bigint | undefined;
-
-	let currentTotalOutPayment: bigint | undefined;
-	let chunckPrice: bigint | undefined;
+	let newBatchNeeded: boolean | undefined;
 
 	// State
 	let monthlyCroning = 0;
 	let dailyCroning = 0;
 
-	const reset = () => {
-		currentBatchId = undefined;
-	};
-
 	const refresh = async () => {
 		try {
-			// Block
-			lastBlockNumber = await callBlockNumber($bzzChainId);
-
-			// Wallet
-			walletAddress = await sendWalletAddress();
-			walletBalance = await callBzzBalance($bzzChainId, walletAddress);
-
 			// AutoSwarmMarket
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
 				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
 			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
-			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($bzzChainId);
-			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
+			console.log('refresh1 ~ currentBatchPrice:', currentBatchPrice, $bzzChainId);
 
-			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
-			if (!utilsBytes32Null(currentBatchId)) {
-				[
-					currentBatchOwner,
-					currentBatchDepth,
-					currentBatchBucketDepth,
-					currentBatchImmutableFlag,
-					currentBatchNormalisedBalance,
-					currentBatchLastUpdatedBlockNumber
-				] = await callPostageBatches($bzzChainId, currentBatchId);
-
-				currentBatchRemainingBalance = await callPostageRemainingBalance(
-					$bzzChainId,
-					currentBatchId
-				);
-			}
+			newBatchNeeded = await callMarketNewBatchNeeded($bzzChainId);
+			console.log('refresh2 ~ currentBatchPrice:', currentBatchPrice);
 		} catch (e) {
 			alertError('<Monitor Refresh', e);
 		}
@@ -150,15 +74,15 @@
 				const amount = currentBatchPrice - (marketBalance || 0n);
 				if (amount > 0) {
 					alertInfo(`Send needed Bzz to AutoSwarm Market`);
-					await sendBzzTransfer($bzzChainId, marketAddress, currentBatchPrice);
+					await sendBzzTransfer($bzzChainId, marketAddress, amount);
 					refresh();
 				}
 			}
 
 			{
 				monthlyCroning = 2;
-				alertInfo(`Confirm creation of new Batch`);
-				await sendMarketNewBatch($bzzChainId, currentBatchPrice);
+				alertInfo(`Confirm Sync`);
+				await sendMarketSync($bzzChainId);
 				refresh();
 			}
 		} catch (e) {
@@ -181,106 +105,36 @@
 	<div id="monitor-buttons">
 		<p>
 			<button class="btn btn-topup" on:click={dailyCron}>
-				Daily Cron
+				Get Stamps
 				{#if dailyCroning}
 					<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {dailyCroning}/1
 				{/if}
 			</button>
 
-			<span>
-				<button class="btn btn-topup" on:click={monthlyCron}>
-					Monthly Cron
-					{#if monthlyCroning}
-						<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {monthlyCroning}/2
-					{/if}
-				</button>
-			</span>
+			{#if newBatchNeeded}
+				<span>
+					<button class="btn btn-topup" on:click={monthlyCron}>
+						Buy Batch
+						{#if monthlyCroning}
+							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {monthlyCroning}/2
+						{/if}
+					</button>
+				</span>
+			{/if}
 		</p>
 	</div>
 
 	<div id="monitor-content">
 		<hr />
-		<p>
-			Batchs | Size = Chunk Size * Depth / TTL / Price
-			<span>
-				{displaySize(BATCH_SIZE, 2)} =
-				{displaySize(CHUNK_SIZE, 0)} * 2<sup>{BATCH_DEPTH}</sup> /
-				{displayDuration(BATCH_TTL)} /
-				{displayBalance(currentBatchPrice, 16, 4)} Bzz
-			</span>
-		</p>
-		<p>
-			Stamps | TTL / Price per Unit
-			<span>
-				{displayDuration(STAMP_TTL)} /
-				{displayBalance(STAMP_PRICE, 16, 4)} BZZ per {displaySize(STAMP_SIZE, 0)}
-			</span>
-		</p>
-
-		<p>Chunks | Size / Last Price<span>{CHUNK_SIZE} bytes / {chunckPrice} Plur per block</span></p>
+		<DetailsMarket />
 		<hr />
-		<p>
-			Market | Balance / Address
-			<span>
-				{displayBalance(marketBalance, 16, 4)} Bzz /
-				{@html displayExplorerAddress($bzzChainId, marketAddress)}
-			</span>
-		</p>
-		<p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
+		<DetailsPostage />
 		<hr />
-		<p>
-			Swarm | Current Batch Owner <span
-				>{@html displayExplorerAddress($bzzChainId, currentBatchOwner || UNDEFINED_ADDRESS)}</span
-			>
-		</p>
-		<p>
-			Swarm | Current Batch Block - Last Updated Block = Delta
-			<span>
-				#{lastBlockNumber || UNDEFINED_DATA}
-				- #{currentBatchLastUpdatedBlockNumber || UNDEFINED_DATA}
-				= &#916;{lastBlockNumber && currentBatchLastUpdatedBlockNumber
-					? lastBlockNumber - currentBatchLastUpdatedBlockNumber
-					: UNDEFINED_DATA}
-			</span>
-		</p>
-		<p>
-			Swarm | Current Batch Immutable Flag / Bucket Depth / Depth
-			<span>
-				{currentBatchImmutableFlag ? 'immutable' : 'mutable'}
-				/ 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
-				/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup>
-			</span>
-		</p>
-		<p>
-			Swarm | Current Batch NormalisedBalance / TTL
-			<span>
-				{currentBatchNormalisedBalance || UNDEFINED_DATA} /
-				{displayTtl(currentBatchNormalisedBalance, chunckPrice)}
-			</span>
-		</p>
-		<p>
-			Swarm | Current Batch RemainingBalance / TTL
-			<span>
-				{currentBatchRemainingBalance || UNDEFINED_DATA} /
-				{displayTtl(currentBatchRemainingBalance, chunckPrice)}
-			</span>
-		</p>
+		<DetailsConstants />
 		<hr />
-		<p>
-			BZZ Chain Id / BZZ Token address
-			<span>
-				{@html displayExplorer($bzzChainId)} / {@html displayExplorerField($bzzChainId, 'BzzToken')}
-			</span>
-		</p>
-		<p>
-			AutoSwarmAccount<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
-		</p>
-		<p>
-			AutoSwarmMarket<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span>
-		</p>
-		<p>ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>
-		<p>PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span></p>
-		<p>PriceOracle<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span></p>
+		<DetailsAddresses />
+		<hr />
+		<DetailsWallet />
 		<hr />
 	</div>
 </div>
@@ -295,7 +149,7 @@
 
 	#monitor-buttons,
 	#monitor-content {
-		width: 900px;
+		width: 1100px;
 		display: block;
 		text-align: left;
 		justify-content: center;
