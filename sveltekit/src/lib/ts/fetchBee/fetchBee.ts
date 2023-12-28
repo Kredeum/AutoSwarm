@@ -6,12 +6,12 @@ import type { Hex } from 'viem';
 import { bzzTrim } from '../swarm/bzz';
 import { beeApiBzz, beeGatewayBzz, beeBatchId } from '../swarm/bee';
 
-const fetchBeeGet = async (beeHash: Hex): Promise<Response | undefined> => {
-	console.info('fetchBeeGet', beeHash);
+const fetchBeeGet = async (swarmHash: Hex): Promise<Response | undefined> => {
+	console.info('fetchBeeGet', swarmHash);
 
-	const url = `${beeGatewayBzz()}/${beeHash}`;
+	const url = `${beeGatewayBzz()}/${swarmHash}`;
 	const response = await fetchUrl(url);
-	// console.info('fetchBeeGet', beeHash, '\n', response);
+	// console.info('fetchBeeGet', swarmHash, '\n', response);
 	return response;
 };
 

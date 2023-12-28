@@ -255,13 +255,11 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         currentBatchFilling += swarmSize;
 
         uint256 normalisedBzzAmount = bzzAmount / swarmMbSize;
-        uint256 bzzAmountTotranfer = normalisedBzzAmount * swarmMbSize;
+        uint256 bzzAmountToTranfer = normalisedBzzAmount * swarmMbSize;
 
         stamp.normalisedBalance = normalisedBalance + normalisedBzzAmount;
 
-        require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountTotranfer), "Transfer failed");
-
-        sync();
+        require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountToTranfer), "Transfer failed");
     }
 
     function _diluteBatch(bytes32 batchId, uint8 depth) internal {

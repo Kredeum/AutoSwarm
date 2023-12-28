@@ -38,13 +38,13 @@ const sendRegistryCreateAccount = async (
 	return tba;
 };
 
-// const beeHash = ZERO_BYTES32;
+// const swarmHash = ZERO_BYTES32;
 // const nftSize = 0n;
 // const bzzAmount = 0n;
 // const data = encodeFunctionData({
 //   abi: autoSwarmAccountAbi,
 //   functionName: 'initialize',
-//   args: [json.PostageStamp as Address, beeHash as Hex, nftSize, bzzAmount]
+//   args: [json.PostageStamp as Address, swarmHash as Hex, nftSize, bzzAmount]
 // });
 
 export { sendRegistryCreateAccount };

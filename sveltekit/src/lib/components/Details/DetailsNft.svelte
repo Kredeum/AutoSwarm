@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Address, Hex } from 'viem';
 
-	import type { BeeMetadata, Metadata, NftMetadata, TbaMetadata } from '$lib/ts/constants/types';
+	import type { SwarmMetadata, Metadata, NftMetadata, TbaMetadata } from '$lib/ts/constants/types';
 	import { UNDEFINED_DATA } from '$lib/ts/constants/constants';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';

@@ -24,7 +24,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach1() public {
-        uint256 stampsTotalOutPayment0 = autoSwarmMarket.stampsTotalOutPayment();
+        // uint256 stampsTotalOutPayment0 = autoSwarmMarket.stampsTotalOutPayment();
 
         deal(address(bzzToken), address(this), 4);
         bzzToken.approve(address(autoSwarmMarket), 4);

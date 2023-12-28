@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { BeeMetadata, Metadata, NftMetadata, TbaMetadata } from '$lib/ts/constants/types';
+	import type { SwarmMetadata, Metadata, NftMetadata, TbaMetadata } from '$lib/ts/constants/types';
 	import { UNDEFINED_DATA } from '$lib/ts/constants/constants';
 
 	import { displayBzzURI } from '$lib/ts/display/display';
@@ -7,20 +7,20 @@
 	///////////////////////////// Details bee ///////////////////////////////////////
 	// <DetailsBee {beeMetadata}   />
 	/////////////////////////////////////////////////////////////////////////////////////
-	export let beeMetadata: BeeMetadata;
+	export let beeMetadata: SwarmMetadata;
 	/////////////////////////////////////////////////////////////////////////////////////
 </script>
 
 <p>
-	Swarm | Hash <span>{@html displayBzzURI(beeMetadata.beeHash) || UNDEFINED_DATA}</span>
+	Swarm | Hash <span>{@html displayBzzURI(beeMetadata.swarmHash) || UNDEFINED_DATA}</span>
 </p>
 <p>
 	Swarm | Metadata Path
-	<span>{@html displayBzzURI(beeMetadata.beeHash, 'metadata.json')}</span>
+	<span>{@html displayBzzURI(beeMetadata.swarmHash, 'metadata.json')}</span>
 </p>
 <p>
 	Swarm | Image Path
-	<span>{@html displayBzzURI(beeMetadata.beeHash, beeMetadata.beeImageName)}</span>
+	<span>{@html displayBzzURI(beeMetadata.swarmHash, beeMetadata.swarmImageName)}</span>
 </p>
 
 <style>

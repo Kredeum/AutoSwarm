@@ -6,16 +6,16 @@ import { ZERO_BYTES32 } from '../constants/constants';
 const sendTbaCreateStamp = async (
 	bzzChainId: number,
 	tba: Address,
-	beeHash = ZERO_BYTES32 as Hex,
+	swarmHash = ZERO_BYTES32 as Hex,
 	nftSize: bigint,
 	bzzAmount: bigint
 ) => {
-	console.info('sendTbaCreateStamp:', bzzChainId, tba, beeHash, nftSize);
+	console.info('sendTbaCreateStamp:', bzzChainId, tba, swarmHash, nftSize);
 
 	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
 	if (!nftSize) throw new Error('No Swarm Size!');
-	if (!beeHash) throw new Error('No Swarm Hash!');
+	if (!swarmHash) throw new Error('No Swarm Hash!');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -24,7 +24,7 @@ const sendTbaCreateStamp = async (
 		address: tba,
 		abi: autoSwarmAccountAbi,
 		functionName: 'createStamp',
-		args: [beeHash, nftSize, bzzAmount]
+		args: [swarmHash, nftSize, bzzAmount]
 	});
 
 	const hash = await walletClient.writeContract(request);
@@ -34,15 +34,15 @@ const sendTbaCreateStamp = async (
 const sendTbaSetAutoSwarmStamp = async (
 	bzzChainId: number,
 	tba: Address | undefined,
-	beeHash: Hex | undefined,
+	swarmHash: Hex | undefined,
 	nftSize: bigint | undefined,
 	bzzAmount: bigint | undefined
 ) => {
-	console.info('sendTbaSetAutoSwarmStamp:', bzzChainId, tba, beeHash, nftSize, bzzAmount);
+	console.info('sendTbaSetAutoSwarmStamp:', bzzChainId, tba, swarmHash, nftSize, bzzAmount);
 
 	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
-	if (!beeHash) throw new Error('No Swarm Hash!');
+	if (!swarmHash) throw new Error('No Swarm Hash!');
 	if (!nftSize) throw new Error('No Swarm Size!');
 	if (!bzzAmount) throw new Error('No BZZ!');
 
@@ -53,7 +53,7 @@ const sendTbaSetAutoSwarmStamp = async (
 		address: tba,
 		abi: autoSwarmAccountAbi,
 		functionName: 'setAutoSwarmStamp',
-		args: [nftSize, beeHash, bzzAmount]
+		args: [nftSize, swarmHash, bzzAmount]
 	});
 
 	const hash = await walletClient.writeContract(request);

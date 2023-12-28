@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Address } from 'viem';
+	import type { Address, Hex } from 'viem';
 	import { onMount } from 'svelte';
 
 	import { ONE_YEAR, STAMP_PRICE, STAMP_SIZE } from '$lib/ts/constants/constants.js';
-	import type { Metadata, NftMetadata, BeeMetadata, TbaMetadata } from '$lib/ts/constants/types';
+	import type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata } from '$lib/ts/constants/types';
 	import { localConfigInit } from '$lib/ts/common/local';
 	import { fetchNftTar } from '$lib/ts/fetchBee/fetchNftTar';
 	import { fetchBeeTarPost } from '$lib/ts/fetchBee/fetchBeeTar';
@@ -20,7 +20,7 @@
 		displaySize
 	} from '$lib/ts/display/display';
 
-	import { utilsDivUp, utilsBytes32Null } from '$lib/ts/common/utils.js';
+	import { utilsDivUp, utilsIsNullBytes32 } from '$lib/ts/common/utils.js';
 	import { bzzChainId, bzzImageName } from '$lib/ts/swarm/bzz';
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
@@ -46,20 +46,23 @@
 	let blockTimestamp: number = 0;
 	let blockNumber: number = 0;
 
-	let beeMetadata: BeeMetadata = {};
+	let beeMetadata: SwarmMetadata = {};
 	let tbaMetadata: TbaMetadata = {};
 
 	let tbaDeployed: boolean | undefined;
-	let tbaAddress: Address | undefined;
-	let resaveGaranteed: boolean;
+	let tbaBalance = 0n;
 
-	let duration: number | undefined;
-	let until: number | undefined;
+	let tbaAddress: Address | undefined;
+	let tbaPrice: bigint | undefined;
+	let tbaSwarmHash: Hex | undefined;
+	let tbaUntil: number | undefined;
+	let tbaResaved: boolean | undefined;
+	let tbaResavedGaranteed: boolean | undefined;
+	let tbaResavedDuration = 0;
+	let nftSize: bigint | undefined;
 
 	// State
 	let details = false;
-	let oneYearPrice: bigint;
-
 	let resaving: number;
 	let toping: number;
 
@@ -71,8 +74,13 @@
 			tbaMetadata = await callTbaMetadata($bzzChainId, ...nftIds(nftMetadata));
 			console.info('tbaMetadata', tbaMetadata);
 
+			tbaBalance = tbaMetadata.tbaBalance || 0n;
+			tbaPrice = tbaMetadata.tbaPrice || nftMetadata.nftPrice;
+			tbaSwarmHash = beeMetadata.swarmHash || tbaMetadata.tbaSwarmHash;
+			tbaResaved = !utilsIsNullBytes32(tbaMetadata.tbaStampId);
+			tbaResavedGaranteed = !utilsIsNullBytes32(tbaMetadata.tbaBatchId);
+			tbaResavedDuration = Number(tbaMetadata.tbaDuration);
 			({ tbaDeployed, tbaAddress } = tbaMetadata);
-			resaveGaranteed = !utilsBytes32Null(tbaMetadata.tbaSwarmHash);
 
 			// Block
 			{
@@ -80,15 +88,7 @@
 				blockTimestamp = Number(block.timestamp) || 0;
 				blockNumber = Number(block.number) || 0;
 			}
-
-			// Duration
-			{
-				oneYearPrice = nftMetadata.nftPrice || 0n;
-				if (tbaMetadata.tbaBalance !== undefined && oneYearPrice) {
-					duration = Number((tbaMetadata.tbaBalance * BigInt(ONE_YEAR)) / oneYearPrice);
-					until = blockTimestamp + duration;
-				}
-			}
+			tbaUntil = blockTimestamp + Number(tbaResavedDuration) || 0;
 		} catch (e) {
 			console.error('<NftMetadata refresh', e);
 			alertError('NftMetadata Refresh Error', e);
@@ -100,45 +100,45 @@
 		console.info('reSave');
 
 		try {
+      console.info('reSave1');
 			if (resaving) throw new Error('Already ReSaving!');
+      console.info('reSave2');
 			if (!tbaAddress) throw new Error('No Tba found');
-			if (!nftMetadata.nftSize) throw new Error('No Nft Size found');
+      console.info('reSave3');
+			if (!nftSize) throw new Error('No Nft Size found');
+      console.info('reSave4');
+			if (!tbaPrice) throw new Error('No Stamp Price found');
+      console.info('reSave5');
 
-			{
+      console.log("reSave ~ tbaSwarmHash1:", tbaSwarmHash);
+			if (utilsIsNullBytes32(tbaSwarmHash)) {
+        console.log("reSave ~ tbaSwarmHash2:", tbaSwarmHash);
 				resaving = 1;
 				beeMetadata = await fetchBeeMetadata(nftMetadata);
 				console.info('beeMetadata\n', beeMetadata);
-				refresh();
+				await refresh();
 			}
+      console.log("reSave ~ tbaSwarmHash3:", tbaSwarmHash);
 
-			{
+			if (!tbaDeployed) {
 				resaving = 2;
 				alertInfo(`Confirm transaction to create Token Bound Account (TBA)`);
 				await sendRegistryCreateAccount($bzzChainId, ...nftIds(nftMetadata));
-				refresh();
+				await refresh();
 			}
-
-			{
+			if (tbaBalance < tbaPrice) {
 				resaving = 3;
-				alertInfo(
-					`Confirm transaction to transfer ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`
-				);
-				await sendBzzTransfer($bzzChainId, tbaAddress, oneYearPrice);
-				refresh();
+				alertInfo(`Confirm transaction to transfer ${displayBalance(tbaPrice, 16, 3)} BZZ to TBA`);
+				await sendBzzTransfer($bzzChainId, tbaAddress, tbaPrice);
+				await refresh();
 			}
 
-			{
+			if (!tbaResaved) {
 				resaving = 4;
 				alertInfo(`Confirm transaction to setup your TBA`);
-				await sendTbaCreateStamp(
-					$bzzChainId,
-					tbaAddress,
-					beeMetadata.beeHash,
-					nftMetadata.nftSize,
-					oneYearPrice
-				);
+				await sendTbaCreateStamp($bzzChainId, tbaAddress, tbaSwarmHash, nftSize, tbaPrice);
 
-				refresh();
+				await refresh();
 			}
 
 			{
@@ -157,11 +157,13 @@
 		try {
 			if (toping) throw new Error('Already Topping Up!');
 			if (!tbaAddress) throw new Error('No Tba found');
+			if (!tbaPrice) throw new Error('No Stamp Price found');
 
 			{
 				toping = 1;
-				alertInfo(`Confirm transfer of ${displayBalance(oneYearPrice, 16, 3)} BZZ to TBA`);
-				await sendBzzTransfer($bzzChainId, tbaAddress, oneYearPrice);
+				console.log('topUp ~ tbaPrice:', tbaPrice);
+				alertInfo(`Confirm transfer of ${displayBalance(tbaPrice, 16, 3)} BZZ to TBA`);
+				await sendBzzTransfer($bzzChainId, tbaAddress, tbaPrice);
 				refresh();
 			}
 
@@ -179,6 +181,7 @@
 	onMount(async () => {
 		console.info('metadata:\n', metadata);
 		console.info('nftMetadata:\n', nftMetadata);
+		nftSize = nftMetadata.nftSize || 0n;
 
 		refresh();
 	});
@@ -189,23 +192,30 @@
 		<Nft {metadata} {nftMetadata} />
 
 		<div class="batch-topUp">
-			{#if tbaDeployed && !resaving}
+			{#if !tbaResaved}
+				<button class="btn btn-topup" on:click={reSave}>
+					ReSave NFT
+					{#if resaving}
+						&nbsp;
+						<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/3
+					{/if}
+				</button>
+			{:else}
 				<br />
-
-				{#if duration == 0}
-					<button class="btn btn-storage">Storage NOT Guaranteed</button>
-					<br />
-				{:else}
-					<button class="btn btn-storage"
-						>Storage {resaveGaranteed ? 'Guaranteed' : 'Estimation'}</button
-					>
+				{#if tbaResavedDuration > 0}
+					<button class="btn btn-storage">
+						Storage {tbaResavedGaranteed ? 'Guaranteed' : 'Estimation'}
+					</button>
 					<br />
 					<div class="batch-topUp-infos">
 						<p>for</p>
-						<p>{displayDuration(duration)}</p>
-						<p>until</p>
-						<p>{displayDate(until)}</p>
+						<p>{displayDuration(tbaResavedDuration)}</p>
+						<p>tbaUntil</p>
+						<p>{displayDate(tbaUntil)}</p>
 					</div>
+				{:else}
+					<button class="btn btn-storage">Storage NOT Guaranteed</button>
+					<br />
 				{/if}
 
 				<br />
@@ -217,17 +227,9 @@
 						<i class="fa-solid fa-spinner fa-spin-pulse" />
 					{/if}
 				</button>
-			{:else}
-				<button class="btn btn-topup" on:click={reSave}>
-					ReSave NFT
-					{#if resaving}
-						&nbsp;
-						<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {resaving - 1}/3
-					{/if}
-				</button>
 			{/if}
 			<div class="batch-topUp-below">
-				<p>Price: {displayBalance(oneYearPrice, 16, 2)} Bzz</p>
+				<p>Price: {displayBalance(tbaPrice, 16, 2)} Bzz</p>
 				<p><small>({displayBalance(STAMP_PRICE, 16, 2)} BZZ / Mb / Year)</small></p>
 			</div>
 		</div>
@@ -235,7 +237,7 @@
 </section>
 
 <br />
-{#if tbaDeployed}
+{#if tbaResaved}
 	<p class="intro-text">Click on TopUp button to Increase NFT storage duration</p>
 {:else}
 	<p class="intro-text">Click on ReSave button to Save your NFT on Swarm</p>
@@ -252,7 +254,7 @@
 	<div id="details">
 		<hr />
 		<DetailsNft {nftMetadata} />
-		{#if beeMetadata.beeHash}
+		{#if beeMetadata.swarmHash}
 			<hr />
 			<DetailsBee {beeMetadata} />
 		{/if}

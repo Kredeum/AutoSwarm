@@ -4,7 +4,7 @@ import { postageStampAbi, postageStampAbiBatcheslegacy } from '../constants/abis
 import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 import { BUCKET_DEPTH } from '../constants/constants';
-import { utilsBytes32Null } from '../common/utils';
+import { utilsIsNullBytes32 } from '../common/utils';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
@@ -71,7 +71,7 @@ const callPostageRemainingBalance = async (
 	bzzChainId: number,
 	batchId: Hex
 ): Promise<bigint | undefined> => {
-	if (utilsBytes32Null(batchId)) return;
+	if (utilsIsNullBytes32(batchId)) return;
 
 	const publicClient = await callPublicClient(bzzChainId);
 

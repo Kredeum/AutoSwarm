@@ -1,23 +1,23 @@
-import type { BeeMetadata, NftMetadata } from '../constants/types';
+import type { SwarmMetadata, NftMetadata } from '../constants/types';
 import { fetchNftTar } from '$lib/ts/fetchBee/fetchNftTar';
 import { fetchBeeTarPost } from '$lib/ts/fetchBee/fetchBeeTar';
 
 import { beeOk } from '../swarm/bee';
-import { utilsBytes32Null } from '../common/utils';
+import { utilsIsNullBytes32 } from '../common/utils';
 import { bzzImageName } from '../swarm/bzz';
 
-const fetchBeeMetadata = async (nftAutoSwarm: NftMetadata): Promise<BeeMetadata> => {
+const fetchBeeMetadata = async (nftAutoSwarm: NftMetadata): Promise<SwarmMetadata> => {
 	if (!(await beeOk())) return {};
 
-	const beeMetadata: BeeMetadata = {};
+	const beeMetadata: SwarmMetadata = {};
 
 	const [body] = await fetchNftTar([nftAutoSwarm.nftImageUri, nftAutoSwarm.nftMetadataUri]);
 
-	const beeHash = await fetchBeeTarPost(body);
-	if (!utilsBytes32Null(beeHash)) {
-		beeMetadata.beeHash = beeHash;
-		const imageName = await bzzImageName(beeHash);
-		if (imageName) beeMetadata.beeImageName = imageName;
+	const swarmHash = await fetchBeeTarPost(body);
+	if (!utilsIsNullBytes32(swarmHash)) {
+		beeMetadata.swarmHash = swarmHash;
+		const imageName = await bzzImageName(swarmHash);
+		if (imageName) beeMetadata.swarmImageName = imageName;
 	}
 
 	return beeMetadata;

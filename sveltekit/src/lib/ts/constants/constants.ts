@@ -1,6 +1,6 @@
 import { keccak256, toHex } from 'viem';
 
-const SALT = keccak256(toHex('AutoSwarm v0.0.4'));
+const SALT = keccak256(toHex('AutoSwarm v0.0.5s'));
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -31,7 +31,6 @@ const CHUNK_PRICE_DEFAULT = 24000n;
 const CHUNK_SIZE = 2n ** 12n; // 4096 bytes / 4 Kb
 const BUCKET_DEPTH = 16;
 
-
 // TESTS //////////////////////////////////////////////////////
 // const BATCH_TTL = 30 * ONE_HOUR; // 30 hours for TEST
 // const STAMP_SIZE = 1024n ** 1n; // 1 Ko for TEST
@@ -48,8 +47,9 @@ const BATCH_DEPTH = 23; // 2**23
 const BATCH_SIZE = CHUNK_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go
 
 const DIVISION_BY_ZERO = '?????';
-const UNDEFINED_ADDRESS = '0x****************************************';
 const UNDEFINED_DATA = '*****';
+const UNDEFINED_ADDRESS = '0x****************************************';
+const UNDEFINED_BYTES32 = '0x****************************************************************';
 
 export {
 	SALT,
@@ -66,6 +66,7 @@ export {
 	DIVISION_BY_ZERO,
 	UNDEFINED_ADDRESS,
 	UNDEFINED_DATA,
+	UNDEFINED_BYTES32,
 	ZERO_BYTES32,
 	BEE_API_DEFAULT,
 	BEE_BATCHID_DEFAULT,

@@ -15,7 +15,7 @@
 		callPostageRemainingBalance
 	} from '$lib/ts/call/callPostage';
 	import { addressesGetField } from '$lib/ts/common/addresses';
-	import { utilsBytes32Null } from '$lib/ts/common/utils';
+	import { utilsIsNullBytes32 } from '$lib/ts/common/utils';
 	import {
 		BATCH_DEPTH,
 		BATCH_SIZE,
@@ -70,7 +70,7 @@
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
 
-			if (!utilsBytes32Null(currentBatchId)) {
+			if (!utilsIsNullBytes32(currentBatchId)) {
 				[
 					currentBatchOwner,
 					currentBatchDepth,
@@ -131,10 +131,11 @@
 <p>
 	Market | Current Batch Immutable? / Bucket Depth / Depth / TTL
 	<span>
-    {currentBatchImmutableFlag ? 'immutable' : 'mutable'} /
-		2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup> /
-		2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup> /
-    {displayTtl(currentBatchRemainingBalance, chunckPrice)}
+		{currentBatchImmutableFlag ? 'immutable' : 'mutable'} / 2<sup
+			>{currentBatchBucketDepth || UNDEFINED_DATA}</sup
+		>
+		/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup> /
+		{displayTtl(currentBatchRemainingBalance, chunckPrice)}
 	</span>
 </p>
 <p>

@@ -15,9 +15,9 @@ type NftMetadata = {
 	nftPrice?: bigint;
 };
 
-type BeeMetadata = {
-	beeHash?: Hex;
-	beeImageName?: string;
+type SwarmMetadata = {
+	swarmHash?: Hex;
+	swarmImageName?: string;
 };
 
 type TbaMetadata = {
@@ -27,6 +27,10 @@ type TbaMetadata = {
 	tbaSwarmSize?: bigint;
 	tbaPrice?: bigint;
 	tbaStampId?: Hex;
+	tbaBatchId?: Hex;
+	tbaDuration?: bigint;
+	tbaBzzDuration?: bigint;
+	tbaStampDuration?: bigint;
 	tbaAddress?: Address;
 	tbaBalance?: bigint;
 	tbaDeployed?: boolean;
@@ -45,4 +49,4 @@ type Metadata = {
 };
 type AddressesType = Record<string, string>;
 
-export type { Metadata, NftMetadata, BeeMetadata, TbaMetadata, AddressesType };
+export type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata, AddressesType };

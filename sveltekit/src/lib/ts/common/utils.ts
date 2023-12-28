@@ -1,7 +1,7 @@
 import type { Hex } from 'viem';
 import { ZERO_BYTES32 } from '../constants/constants';
 
-const utilsBytes32Null = (b32: Hex | undefined): boolean => Boolean(!b32 || b32 === ZERO_BYTES32);
+const utilsIsNullBytes32 = (b32: Hex | undefined): boolean => Boolean(!b32 || b32 === ZERO_BYTES32);
 
 const utilsTruncate = (str: string | undefined, start = 45, end = 25): string | undefined => {
 	if (str === undefined) return;
@@ -20,4 +20,4 @@ const utilsUint8ArrayToHex = (bytes: Uint8Array): Hex => {
 	return `0x${hex}` as Hex;
 };
 
-export { utilsDivUp, utilsBytes32Null, utilsTruncate, utilsUint8ArrayToHex };
+export { utilsDivUp, utilsIsNullBytes32, utilsTruncate, utilsUint8ArrayToHex };
