@@ -3,13 +3,14 @@ import { autoSwarmAccountAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';
 import { ZERO_BYTES32 } from '../constants/constants';
 
-const sendTbaSetAutoSwarm = async (
+const sendTbaCreateStamp = async (
 	bzzChainId: number,
-	tba: Address | undefined,
-	nftSize: bigint | undefined,
-	beeHash = ZERO_BYTES32 as Hex
+	tba: Address,
+	beeHash = ZERO_BYTES32 as Hex,
+	nftSize: bigint,
+	bzzAmount: bigint
 ) => {
-	console.info('sendTbaSetAutoSwarm:', bzzChainId, tba, beeHash, nftSize);
+	console.info('sendTbaCreateStamp:', bzzChainId, tba, beeHash, nftSize);
 
 	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
@@ -22,8 +23,8 @@ const sendTbaSetAutoSwarm = async (
 		account: walletAddress,
 		address: tba,
 		abi: autoSwarmAccountAbi,
-		functionName: 'setAutoSwarm',
-		args: [nftSize, beeHash]
+		functionName: 'createStamp',
+		args: [beeHash, nftSize, bzzAmount]
 	});
 
 	const hash = await walletClient.writeContract(request);
@@ -37,7 +38,7 @@ const sendTbaSetAutoSwarmStamp = async (
 	nftSize: bigint | undefined,
 	bzzAmount: bigint | undefined
 ) => {
-	console.info('sendTbaSetAutoSwarm:', bzzChainId, tba, beeHash, nftSize, bzzAmount);
+	console.info('sendTbaSetAutoSwarmStamp:', bzzChainId, tba, beeHash, nftSize, bzzAmount);
 
 	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('No TBA!');
@@ -92,4 +93,4 @@ const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAdd
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-export { sendTbaTopUp, sendTbaWithdraw, sendTbaSetAutoSwarm, sendTbaSetAutoSwarmStamp };
+export { sendTbaTopUp, sendTbaWithdraw, sendTbaCreateStamp, sendTbaSetAutoSwarmStamp };

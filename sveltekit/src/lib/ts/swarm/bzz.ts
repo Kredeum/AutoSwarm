@@ -30,16 +30,16 @@ const bzz = (hash: Hex | string | undefined): string => (hash ? `bzz://${bzzTrim
 
 const bzz0 = (hash: Hex | string): Hex | undefined => (hash ? `0x${bzzTrim(hash)}` : ZERO_BYTES32);
 
-const nftImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
+const bzzImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
 	if (utilsBytes32Null(hash)) return;
 
 	const url = `${beeApiBzz()}/${bzzTrim(hash)}/${LIST_JSON}`;
-	// console.info('nftImageName', url);
+	// console.info('bzzImageName', url);
 
 	const json = (await fetchJson(url)) as ListJsonType;
-	// console.info('nftImageName ~ json', json);
+	// console.info('bzzImageName ~ json', json);
 
 	return json['image'];
 };
 
-export { bzz, bzz0, bzzTrim, bzzChain, bzzChainId, bzzJson, nftImageName };
+export { bzz, bzz0, bzzTrim, bzzChain, bzzChainId, bzzJson, bzzImageName };

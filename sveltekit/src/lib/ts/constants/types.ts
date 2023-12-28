@@ -17,6 +17,7 @@ type NftMetadata = {
 
 type BeeMetadata = {
 	beeHash?: Hex;
+	beeImageName?: string;
 };
 
 type TbaMetadata = {

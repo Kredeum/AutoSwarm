@@ -17,8 +17,8 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
     uint256 private constant _ERC6551_TBA_SIZE = 173;
     address private _autoSwarmMarket; // only implementation can set this
 
-    modifier onlyBzzAdmin() {
-        require(msg.sender == bzzAdmin(), "Not BZZ admin");
+    modifier onlyMarketOwner() {
+        require(msg.sender == marketOwner(), "Not BZZ admin");
         _;
     }
 
@@ -31,18 +31,31 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         _setAutoSwarmMarket(autoSwarmMarket_);
     }
 
-    function setAutoSwarmMarket(address autoSwarmMarket_) external onlyBzzAdmin {
+    function setAutoSwarmMarket(address autoSwarmMarket_) external override(IAutoSwarmAccount) onlyMarketOwner {
         _setAutoSwarmMarket(autoSwarmMarket_);
     }
 
-    function setAutoSwarmStamp(uint256 swarmSize_, bytes32 swarmHash_, uint256 bzzAmount_) external onlyBzzAdmin {
-        _setAutoSwarm(swarmSize_, swarmHash_);
+    function createStamp(bytes32 swarmHash_, uint256 swarmSize_, uint256 bzzAmount_)
+        external
+        override(IAutoSwarmAccount)
+        returns (bytes32)
+    {
+        require(stampId == bytes32(0), "Stamp already set");
+        require(swarmSize_ != 0, "Bad Swarm Size");
+        require(swarmHash_ != bytes32(0), "Bad Swarm Hash");
+
+        swarmHash = swarmHash_;
+        swarmSize = swarmSize_;
+        _bzzApproveMore(bzzAmount_);
         stampId = IAutoSwarmMarket(autoSwarmMarket()).createStamp(swarmHash_, swarmSize_, bzzAmount_);
+
+        return stampId;
     }
 
-    function setAutoSwarm(uint256 swarmSize_, bytes32 swarmHash_) external {
-        require(stampId == bytes32(0), "Stamp already set");
-        _setAutoSwarm(swarmSize_, swarmHash_);
+    function updateStamp(bytes32 swarmHash_, uint256 swarmSize_) external override(IAutoSwarmAccount) onlyMarketOwner {
+        swarmHash = swarmHash_;
+        swarmSize = swarmSize_;
+        IAutoSwarmMarket(autoSwarmMarket()).updateStamp(stampId, swarmHash_, swarmSize_);
     }
 
     function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) {
@@ -50,7 +63,7 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         IAutoSwarmMarket(autoSwarmMarket()).topUpStamp(stampId, bzzAmount);
     }
 
-    function withdraw(address tok) external {
+    function withdraw(address tok) external override(IAutoSwarmAccount) {
         if (tok == address(0)) {
             (bool success,) = owner().call{value: address(this).balance}("");
             require(success, "Withdraw failed!");
@@ -63,10 +76,10 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         return IAutoSwarmMarket(autoSwarmMarket()).getStampPriceOneYear(swarmSize);
     }
 
-    function owner() public view override returns (address) {
+    function owner() public view override(ERC6551Account) returns (address) {
         address superOwner = super.owner();
 
-        return (superOwner == address(0)) ? bzzAdmin() : superOwner;
+        return (superOwner == address(0)) ? marketOwner() : superOwner;
     }
 
     function implementation() public view returns (address addr) {
@@ -75,20 +88,12 @@ contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
         addr = address(uint160(uint256(bytes32(address(this).code)) >> 16));
     }
 
-    function autoSwarmMarket() public view returns (address) {
+    function autoSwarmMarket() public view override(IAutoSwarmAccount) returns (address) {
         return _autoSwarmMarket == address(0) ? IAutoSwarmAccount(implementation()).autoSwarmMarket() : _autoSwarmMarket;
     }
 
-    function bzzAdmin() public view returns (address) {
+    function marketOwner() public view override(IAutoSwarmAccount) returns (address) {
         return IERC173(autoSwarmMarket()).owner();
-    }
-
-    function _setAutoSwarm(uint256 swarmSize_, bytes32 swarmHash_) internal {
-        require(swarmSize_ != 0, "Bad Swarm Size");
-        require(swarmHash_ != bytes32(0), "Bad Swarm Hash");
-
-        swarmSize = swarmSize_;
-        swarmHash = swarmHash_;
     }
 
     function _bzzApproveMore(uint256 bzzAmount) internal {

@@ -20,7 +20,7 @@
 </p>
 <p>
 	Swarm | Image Path
-	<!-- <span>{@html displayBzzURI(beeMetadata.beeHash, beeMetadata.beeImageName)}</span> -->
+	<span>{@html displayBzzURI(beeMetadata.beeHash, beeMetadata.beeImageName)}</span>
 </p>
 
 <style>

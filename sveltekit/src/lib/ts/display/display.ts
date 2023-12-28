@@ -86,7 +86,7 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (days < 60) return `${Number(days).toFixed(2)} day${days >= 1.01 ? 's' : ''}`;
 
 	const weeks = Number(seconds) / ONE_WEEK;
-	if (weeks < 12) return `${Number(weeks).toFixed(2)} ZZweek${weeks >= 1.01 ? 's' : ''}`;
+	if (weeks < 12) return `${Number(weeks).toFixed(2)} week${weeks >= 1.01 ? 's' : ''}`;
 
 	const months = Number(seconds) / ONE_MONTH;
 	if (days < 365) return `${Number(months).toFixed(2)} month${months >= 1.01 ? 's' : ''}`;
@@ -94,7 +94,7 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	const years = Number(seconds) / ONE_YEAR;
 
 	const duration = `${Number(years).toFixed(2)} year${years >= 1.01 ? 's' : ''}`;
-	console.log('duration:', duration);
+	// console.log('duration:', duration);
 	return duration;
 };
 
@@ -156,11 +156,19 @@ const displayNftLink = (
 const displaySizeBytes = (size: bigint | number | undefined): string =>
 	`${size?.toString() || UNDEFINED_DATA} bytes`;
 
+const displayPerCent = (a: bigint | number | undefined, b: bigint | number | undefined) => {
+	if (a === undefined || b === undefined) return UNDEFINED_DATA;
+	if (b === 0n) return DIVISION_BY_ZERO;
+
+	return `${((Number(a) / Number(b)) * 100).toFixed(2)} %`;
+};
+
 export {
 	displayTxt,
 	displayTtl,
 	displayLink,
 	displayNftLink,
+	displayPerCent,
 	displayBalance,
 	displayAddress,
 	displayDuration,

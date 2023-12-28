@@ -2,6 +2,7 @@
 	import { callBlockNumber } from '$lib/ts/call/call';
 	import { callBzzBalance } from '$lib/ts/call/callBzz';
 	import {
+		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
 		callMarketCurrentSwarmNode,
 		callMarketGetStampsCount,
@@ -17,12 +18,13 @@
 	import { utilsBytes32Null } from '$lib/ts/common/utils';
 	import {
 		BATCH_DEPTH,
+		BATCH_SIZE,
 		BATCH_TTL,
 		CHUNK_PRICE_DEFAULT,
 		UNDEFINED_ADDRESS,
 		UNDEFINED_DATA
 	} from '$lib/ts/constants/constants';
-	import { displayBalance, displayTtl } from '$lib/ts/display/display';
+	import { displayBalance, displayPerCent, displaySize, displayTtl } from '$lib/ts/display/display';
 	import { displayExplorerAddress } from '$lib/ts/display/displayExplorer';
 	import { alertError } from '$lib/ts/stores/alertMessage';
 	import { batchPrice } from '$lib/ts/swarm/batch';
@@ -36,8 +38,7 @@
 	let lastBlockNumber: bigint | undefined;
 	let marketAddress: Address | undefined;
 	let marketBalance: bigint | undefined;
-	let currentBatchPrice: bigint | undefined;
-	let currentTotalOutPayment: bigint | undefined;
+
 	let chunckPrice: bigint | undefined;
 	let currentBatchId: Hex | undefined;
 	let currentSwarmNode: Address | undefined;
@@ -47,24 +48,28 @@
 	let currentBatchImmutableFlag: boolean | undefined;
 	let currentBatchNormalisedBalance: bigint | undefined;
 	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
-	let newBatchNeeded: boolean | undefined;
+
 	let stampsCount: number | undefined;
 	let currentBatchRemainingBalance: bigint | undefined;
+	let currentBatchFilling: bigint | undefined;
 
 	const refresh = async () => {
 		try {
 			lastBlockNumber = await callBlockNumber($bzzChainId);
 
+			stampsCount = await callMarketGetStampsCount($bzzChainId);
+
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
 				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
 			);
-			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
-			currentTotalOutPayment = await callPostageCurrentTotalOutPayment($bzzChainId);
+
 			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
 			currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
+			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
+
 			if (!utilsBytes32Null(currentBatchId)) {
 				[
 					currentBatchOwner,
@@ -80,11 +85,7 @@
 					currentBatchId
 				);
 
-				newBatchNeeded = await callMarketNewBatchNeeded($bzzChainId);
-
 				stampsCount = await callMarketGetStampsCount($bzzChainId);
-			} else {
-				newBatchNeeded = true;
 			}
 		} catch (e) {
 			alertError('<market Refresh', e);
@@ -128,25 +129,26 @@
 	</span>
 </p>
 <p>
-	Market | Current Batch Immutable Flag / Bucket Depth / Depth
+	Market | Current Batch Immutable? / Bucket Depth / Depth / TTL
 	<span>
-		{currentBatchImmutableFlag ? 'immutable' : 'mutable'}
-		/ 2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup>
-		/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup>
+    {currentBatchImmutableFlag ? 'immutable' : 'mutable'} /
+		2<sup>{currentBatchBucketDepth || UNDEFINED_DATA}</sup> /
+		2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup> /
+    {displayTtl(currentBatchRemainingBalance, chunckPrice)}
 	</span>
 </p>
-<!-- <p>
-  Market | Current Batch NormalisedBalance / TTL
-  <span>
-    {currentBatchNormalisedBalance || UNDEFINED_DATA} /
-    {displayTtl(currentBatchNormalisedBalance, chunckPrice)}
-  </span>
-</p> -->
 <p>
-	Market | Current Batch RemainingBalance / TTL
+	Market | Current Batch Size / Filling / Filling %
 	<span>
-		{currentBatchRemainingBalance || UNDEFINED_DATA} /
-		{displayTtl(currentBatchRemainingBalance, chunckPrice)}
+		{displaySize(BATCH_SIZE)} /
+		{displaySize(currentBatchFilling)} /
+		{displayPerCent(currentBatchFilling, BATCH_SIZE)}
+	</span>
+</p>
+<p>
+	Market | Stamps Count
+	<span>
+		{stampsCount}
 	</span>
 </p>
 

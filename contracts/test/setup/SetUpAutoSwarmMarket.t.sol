@@ -19,7 +19,7 @@ contract SetUpAutoSwarmMarket is SetUpSwarm {
         deal(address(bzzToken), address(autoSwarmMarket), bzzAmount);
 
         vm.prank(deployer);
-        autoSwarmMarket.newBatch(bzzAmount);
+        autoSwarmMarket.sync();
     }
 
     function setUp() public virtual {

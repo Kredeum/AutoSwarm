@@ -11,7 +11,7 @@
 	import { callTbaSwarmHash } from '$lib/ts/call/callTba';
 
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
-	import { sendTbaSetAutoSwarm, sendTbaTopUp } from '$lib/ts/send/sendTba';
+	import { sendTbaCreateStamp, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
 	import {
 		displayBalance,
@@ -21,7 +21,7 @@
 	} from '$lib/ts/display/display';
 
 	import { utilsDivUp, utilsBytes32Null } from '$lib/ts/common/utils.js';
-	import { bzzChainId, nftImageName } from '$lib/ts/swarm/bzz';
+	import { bzzChainId, bzzImageName } from '$lib/ts/swarm/bzz';
 	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
@@ -84,7 +84,7 @@
 			// Duration
 			{
 				oneYearPrice = nftMetadata.nftPrice || 0n;
-				if (tbaMetadata.tbaBalance !== undefined && oneYearPrice && oneYearPrice > 0n) {
+				if (tbaMetadata.tbaBalance !== undefined && oneYearPrice) {
 					duration = Number((tbaMetadata.tbaBalance * BigInt(ONE_YEAR)) / oneYearPrice);
 					until = blockTimestamp + duration;
 				}
@@ -101,6 +101,8 @@
 
 		try {
 			if (resaving) throw new Error('Already ReSaving!');
+			if (!tbaAddress) throw new Error('No Tba found');
+			if (!nftMetadata.nftSize) throw new Error('No Nft Size found');
 
 			{
 				resaving = 1;
@@ -128,11 +130,12 @@
 			{
 				resaving = 4;
 				alertInfo(`Confirm transaction to setup your TBA`);
-				await sendTbaSetAutoSwarm(
+				await sendTbaCreateStamp(
 					$bzzChainId,
 					tbaAddress,
+					beeMetadata.beeHash,
 					nftMetadata.nftSize,
-					beeMetadata.beeHash
+					oneYearPrice
 				);
 
 				refresh();
@@ -153,6 +156,7 @@
 
 		try {
 			if (toping) throw new Error('Already Topping Up!');
+			if (!tbaAddress) throw new Error('No Tba found');
 
 			{
 				toping = 1;
@@ -248,12 +252,12 @@
 	<div id="details">
 		<hr />
 		<DetailsNft {nftMetadata} />
-		<hr />
-		<DetailsBee {beeMetadata} />
+		{#if beeMetadata.beeHash}
+			<hr />
+			<DetailsBee {beeMetadata} />
+		{/if}
 		<hr />
 		<DetailsTba {tbaMetadata} />
-		<hr />
-		<DetailsPostage />
 		<hr />
 		<DetailsWallet />
 		<hr />

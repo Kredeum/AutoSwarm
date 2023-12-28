@@ -45,10 +45,35 @@ const callMarketGetStampsCount = async (bzzChainId: number): Promise<number> => 
 		})
 	);
 };
+const callMarketGetStampRemainingBalance = async (
+	bzzChainId: number,
+	stampId: Hex
+): Promise<bigint> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket') as Address,
+		abi: autoSwarmMarketAbi,
+		functionName: 'getStampRemainingBalance',
+		args: [stampId]
+	});
+};
+
+const callMarketCurrentBatchFilling = async (bzzChainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket') as Address,
+		abi: autoSwarmMarketAbi,
+		functionName: 'currentBatchFilling'
+	});
+};
 
 export {
 	callMarketCurrentBatchId,
 	callMarketNewBatchNeeded,
 	callMarketCurrentSwarmNode,
-	callMarketGetStampsCount
+	callMarketGetStampsCount,
+	callMarketCurrentBatchFilling,
+	callMarketGetStampRemainingBalance
 };

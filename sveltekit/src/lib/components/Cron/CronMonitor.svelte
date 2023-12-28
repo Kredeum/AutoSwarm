@@ -126,9 +126,11 @@
 
 	<div id="monitor-content">
 		<hr />
-		<DetailsMarket />
-		<hr />
 		<DetailsPostage />
+		<hr />
+		{#key monthlyCroning || dailyCroning}
+			<DetailsMarket />
+		{/key}
 		<hr />
 		<DetailsConstants />
 		<hr />

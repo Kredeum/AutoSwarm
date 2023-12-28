@@ -2,7 +2,7 @@ import { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId } from './callTba
 import type { TbaMetadata } from '../constants/types';
 import { callRegistryAccount } from './callRegistry';
 import { fetchAltUrl } from '../fetch/fetchAlt';
-import { nftImageName } from '../swarm/bzz';
+import { bzzImageName } from '../swarm/bzz';
 import { utilsDivUp, utilsBytes32Null } from '../common/utils';
 import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
@@ -39,7 +39,7 @@ const callTbaMetadata = async (
 			if (utilsBytes32Null(tbaMetadata.tbaStampId))
 				tbaMetadata.tbaStampId = await callTbaBzzStampId(bzzChainId, tbaMetadata.tbaAddress);
 
-			const imageName = await nftImageName(tbaMetadata.tbaSwarmHash!);
+			const imageName = await bzzImageName(tbaSwarmHash);
 			if (imageName) {
 				tbaMetadata.tbaImageName = imageName;
 				tbaMetadata.tbaTokenUriAlt ||= await fetchAltUrl(tbaMetadata.tbaTokenUri);

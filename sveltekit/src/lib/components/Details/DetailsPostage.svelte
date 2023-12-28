@@ -16,20 +16,17 @@
 	/////////////////////////////////////////////////////////////////////////////////////
 	let latestChunkPrice: bigint | undefined;
 	let latestBatchPrice: bigint | undefined;
-	let stampsCount: number | undefined;
-
 	const refresh = async () => {
-		latestChunkPrice = await callPostageLastPrice($bzzChainId);
+    latestChunkPrice = await callPostageLastPrice($bzzChainId);
 		latestBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL, latestChunkPrice);
-		stampsCount = await callMarketGetStampsCount($bzzChainId);
 	};
 	onMount(refresh);
 </script>
 
 <p>
-	Postage | Stamps Count / Chunk Last Price / Batch Last Price
+	Postage | Chunk Last Price / Batch Last Price
 	<span>
-		{stampsCount} /
+
 		{displayBalance(latestChunkPrice, 0, 0)} PLUR per block /
 		{displayBalance(latestBatchPrice, 16, 4)} Bzz
 	</span>

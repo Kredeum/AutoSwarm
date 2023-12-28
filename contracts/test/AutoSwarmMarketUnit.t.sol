@@ -12,7 +12,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         assert(true);
     }
 
-    function test_AutoSwarmMarketUnit_Math(uint256 depth, uint256 bzzAmount) public view {
+    function test_AutoSwarmMarketUnit_Math(uint256 depth, uint256 bzzAmount) public pure {
         vm.assume(depth < 32);
 
         assert((bzzAmount >> depth) << depth == (bzzAmount - bzzAmount % (1 << depth)));
@@ -24,21 +24,19 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach1() public {
-        uint256 currentStampUnitPaid0 = autoSwarmMarket.currentStampUnitPaid();
-        console.log("test_AutoSwarmMarketUnit_getStampsToAttach1 ~ currentStampUnitPaid0:", currentStampUnitPaid0);
+        uint256 stampsTotalOutPayment0 = autoSwarmMarket.stampsTotalOutPayment();
 
         deal(address(bzzToken), address(this), 4);
         bzzToken.approve(address(autoSwarmMarket), 4);
         autoSwarmMarket.createStamp("1", 1, 4);
 
-        uint256 currentStampUnitPaid1 = autoSwarmMarket.currentStampUnitPaid();
-        console.log("test_AutoSwarmMarketUnit_getStampsToAttach1 ~ currentStampUnitPaid1:", currentStampUnitPaid1);
+        uint256 stampsTotalOutPayment1 = autoSwarmMarket.stampsTotalOutPayment();
 
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 1);
         assert(stampIds.length == 1);
-        (address owner, bytes32 swarmHash, uint256 swarmSize, bytes32 batchId, uint256 unitBalance) = autoSwarmMarket.stamps(stampIds[0]);
+        (bytes32 swarmHash, uint256 swarmSize, bytes32 batchId, uint256 unitBalance) =
+            autoSwarmMarket.stamps(stampIds[0]);
 
-        assert(owner == address(this));
         assert(swarmHash == "1");
         assert(swarmSize == 1);
         assert(batchId == "");

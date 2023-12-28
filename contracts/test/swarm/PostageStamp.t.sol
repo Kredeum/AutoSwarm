@@ -68,17 +68,15 @@ contract PostageStampTest is SetUpSwarm {
         if (block.chainid != 100) return;
         console.log("PostageStamp_Gnosis_Batch 1");
 
-        bytes32 batchIdGnosis0 = 0xf20636dc0e9bc9f208ca4adbb43b3e538b9a4681437a7db992bd7617f7338fb1;
+        // bytes32 batchIdGnosis0 = 0xf20636dc0e9bc9f208ca4adbb43b3e538b9a4681437a7db992bd7617f7338fb1;
         bytes32 batchIdGnosis1 = 0x71d81776d3db5fa8b0c952bfa56295723ebc0b2d00901fb767217542951f016e;
         bytes32 batchId = batchIdGnosis1;
 
-        (address owner, uint8 depth, bool const, uint256 nbal) =
+        // (address owner, uint8 depth, bool const, uint256 nbal) =
             IPostageStampGnosis(address(postageStamp)).batches(batchId);
-        console.log("PostageStamp_Gnosis_Batch 2");
-        uint256 tbal = postageStamp.currentTotalOutPayment();
-        console.log("PostageStamp_Gnosis_Batch 3");
+
+        // uint256 tbal = postageStamp.currentTotalOutPayment();
         uint256 rbal = postageStamp.remainingBalance(batchId);
-        console.log("PostageStamp_Gnosis_Batch 4");
 
         console.log("test_PostageStamp_Batch ~ rbal:", rbal);
 

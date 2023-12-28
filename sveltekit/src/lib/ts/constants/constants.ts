@@ -1,6 +1,6 @@
 import { keccak256, toHex } from 'viem';
 
-const SALT = keccak256(toHex('AutoSwarm v0.0.3'));
+const SALT = keccak256(toHex('AutoSwarm v0.0.4'));
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -32,9 +32,6 @@ const CHUNK_SIZE = 2n ** 12n; // 4096 bytes / 4 Kb
 const BUCKET_DEPTH = 16;
 
 
-const STAMP_TTL = ONE_YEAR;
-
-
 // TESTS //////////////////////////////////////////////////////
 // const BATCH_TTL = 30 * ONE_HOUR; // 30 hours for TEST
 // const STAMP_SIZE = 1024n ** 1n; // 1 Ko for TEST
@@ -44,6 +41,8 @@ const STAMP_TTL = ONE_YEAR;
 const BATCH_TTL = ONE_MONTH; // 30 days
 const STAMP_SIZE = 1024n ** 2n; // 100 Ko for PROD
 const STAMP_PRICE = 10n ** 15n; // 0.01 BZZ for PROD
+
+const STAMP_TTL = ONE_YEAR;
 
 const BATCH_DEPTH = 23; // 2**23
 const BATCH_SIZE = CHUNK_SIZE * 2n ** BigInt(BATCH_DEPTH); // 32 Go

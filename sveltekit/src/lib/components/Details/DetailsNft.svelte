@@ -45,8 +45,6 @@
 		)}
 	</span>
 </p>
-<hr />
-
 <p>
 	NFT | Metadata URI / URL
 	<span>

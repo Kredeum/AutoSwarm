@@ -23,11 +23,7 @@ const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint | undefined)
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendBzzTransfer = async (
-	bzzChainId: number,
-	to: Address | undefined,
-	bzzAmount: bigint | undefined
-) => {
+const sendBzzTransfer = async (bzzChainId: number, to: Address, bzzAmount: bigint) => {
 	console.info('sendBzzTransfer', bzzChainId, to, bzzAmount);
 
 	if (bzzAmount === undefined) throw new Error('Transfer amount undefined');
