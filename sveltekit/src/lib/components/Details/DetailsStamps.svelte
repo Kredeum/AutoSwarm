@@ -5,7 +5,7 @@
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
 		callMarketCurrentSwarmNode,
- 
+
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -13,7 +13,7 @@
 		callPostageLastPrice,
 		callPostageRemainingBalance
 	} from '$lib/ts/call/callPostage';
-	import { callMarketGetStampsCount } from '$lib/ts/call/callStamps';
+	import { callMarketGetAllStampsIds, callMarketGetAllStampsIdsToAttach, callMarketGetStampsCount } from '$lib/ts/call/callStamps';
 	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { utilsIsNullBytes32 } from '$lib/ts/common/utils';
 	import {
@@ -49,14 +49,25 @@
 	let currentBatchNormalisedBalance: bigint | undefined;
 	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
 
+	let stampsCountToAttach: number | undefined;
 	let stampsCount: number | undefined;
 	let currentBatchRemainingBalance: bigint | undefined;
 	let currentBatchFilling: bigint | undefined;
+	let stampsIdsToAttach: readonly Hex[] | undefined;
+	let stampsIds: readonly Hex[] | undefined;
 
 	const refresh = async () => {
 		try {
 			lastBlockNumber = await callBlockNumber($bzzChainId);
+
 			stampsCount = await callMarketGetStampsCount($bzzChainId);
+			stampsIds = await callMarketGetAllStampsIds($bzzChainId );
+			if (stampsCount !== stampsIds.length)
+				throw new Error(`Bad stamp count ${stampsCount} !== ${stampsIds.length}`);
+
+			stampsIdsToAttach = await callMarketGetAllStampsIdsToAttach($bzzChainId, 2);
+			stampsCountToAttach = stampsIdsToAttach.length;
+
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
 				addressesGetField($bzzChainId, 'AutoSwarmMarket')
@@ -84,7 +95,7 @@
 				);
 			}
 		} catch (e) {
-			alertError('<market Refresh', e);
+			alertError('<DetailsStamps refresh', e);
 		}
 	};
 
@@ -96,17 +107,30 @@
 </script>
 
 <p>
-  Market | Current Swarm Node <span
-  >{@html displayExplorerAddress($bzzChainId, currentSwarmNode || UNDEFINED_ADDRESS)}</span
-	>
+	Market | Stamps To Attach / Total
+	<span>
+		{stampsCountToAttach} /
+		{stampsCount}
+	</span>
 </p>
-<p>
-  Market | Balance / Address
-  <span>
-    {displayBalance(marketBalance, 16, 4)} Bzz /
-    {@html displayExplorerAddress($bzzChainId, marketAddress)}
-  </span>
-</p>
+<hr />
+{#each stampsIdsToAttach || [] as stampId, index}
+	<p>
+		Market | Stamp#{index} To Attach - StampId
+		<span>
+			{stampId}
+		</span>
+	</p>
+{/each}
+<hr />
+{#each stampsIds || [] as stampId, index}
+	<p>
+		Market | StampId #{index}
+		<span>
+			{stampId}
+		</span>
+	</p>
+{/each}
 
 <style>
 	p span {

@@ -52,6 +52,6 @@ const displayExplorerAddress = (chainId: number | undefined, addr: Address | und
 		: UNDEFINED_ADDRESS;
 };
 const displayExplorerField = (chainId: number, field: string): string =>
-	displayExplorerAddress(chainId, addressesGetField(chainId, field) as Address);
+	displayExplorerAddress(chainId, addressesGetField(chainId, field));
 
 export { displayExplorer, displayExplorerNft, displayExplorerAddress, displayExplorerField };

@@ -1,20 +1,6 @@
 <script lang="ts">
-	import type { Address, Hex } from 'viem';
-
-	import type { SwarmMetadata, Metadata, NftMetadata, TbaMetadata } from '$lib/ts/constants/types';
-	import {
-		ONE_DAY,
-		ONE_YEAR,
-		STAMP_PRICE,
-		UNDEFINED_BYTES32,
-		UNDEFINED_DATA,
-		ZERO_BYTES32
-	} from '$lib/ts/constants/constants';
-	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import {
-		callMarketCurrentBatchId,
-		callMarketGetStampRemainingBalance
-	} from '$lib/ts/call/callMarket';
+	import type { TbaMetadata } from '$lib/ts/constants/types';
+	import { UNDEFINED_BYTES32, UNDEFINED_DATA } from '$lib/ts/constants/constants';
 
 	import {
 		displayBalance,
@@ -27,17 +13,9 @@
 		displayTtl
 	} from '$lib/ts/display/display';
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
-	import {
-		displayExplorer,
-		displayExplorerAddress,
-		displayExplorerNft
-	} from '$lib/ts/display/displayExplorer';
-	import { alertError } from '$lib/ts/stores/alertMessage';
-	import DetailsWallet from './DetailsWallet.svelte';
-	import DetailsPostage from './DetailsPostage.svelte';
+	import { displayExplorer, displayExplorerAddress } from '$lib/ts/display/displayExplorer';
+
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import { onMount } from 'svelte';
-	import { utilsIsNullBytes32, utilsDivUp } from '$lib/ts/common/utils';
 
 	///////////////////////////// Details TBA ///////////////////////////////////////
 	// <DetailsTba  {tbaMetadata} />

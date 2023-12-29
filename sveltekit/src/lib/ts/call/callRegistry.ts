@@ -14,8 +14,8 @@ const callRegistryAccount = async (
 
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry') as Address;
-	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount') as Address;
+	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry');
+	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount');
 
 	const tba = await publicClient.readContract({
 		address: erc6551Registry,

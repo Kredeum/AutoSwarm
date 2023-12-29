@@ -15,11 +15,13 @@
 	import DetailsConstants from '../Details/DetailsConstants.svelte';
 	import DetailsMarket from '../Details/DetailsMarket.svelte';
 	import DetailsPostage from '../Details/DetailsPostage.svelte';
+	import { goto } from '$app/navigation';
+	import DetailsBatchs from '../Details/DetailsBatchs.svelte';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
-	// <Monitor />
+	// <MonitorBuyBatch />
 	/////////////////////////////////////////////////////////////////////////////////////
-	// Daily Cron and Monthly Cron
+	// Buy Batch
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	let marketAddress: Address;
@@ -28,115 +30,82 @@
 	let newBatchNeeded: boolean | undefined;
 
 	// State
-	let monthlyCroning = 0;
-	let dailyCroning = 0;
+	let buying = 0;
 
 	const refresh = async () => {
 		try {
-			// AutoSwarmMarket
-			marketBalance = await callBzzBalance(
-				$bzzChainId,
-				addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address
-			);
+			marketBalance = await callBzzBalance($bzzChainId, marketAddress);
 			currentBatchPrice = await batchPrice($bzzChainId, BATCH_DEPTH, BATCH_TTL);
-			console.log('refresh1 ~ currentBatchPrice:', currentBatchPrice, $bzzChainId);
-
 			newBatchNeeded = await callMarketNewBatchNeeded($bzzChainId);
-			console.log('refresh2 ~ currentBatchPrice:', currentBatchPrice);
 		} catch (e) {
 			alertError('<Monitor Refresh', e);
 		}
-		console.log('refresh ~ monthlyCroning:', monthlyCroning);
+		console.log('refresh ~ buying:', buying);
 	};
 
-	const dailyCron = async () => {
-		console.info('DailyCron');
+	const buyBatch = async () => {
+		console.info('buyBatch');
 
 		try {
-			if (dailyCroning) throw new Error('Daily Cron already running!');
-			dailyCroning = 1;
-		} catch (e) {
-			alertError('<Monitor Daily Cron:', e);
-		}
-
-		dailyCroning = 0;
-	};
-
-	const monthlyCron = async () => {
-		console.info('MonthlyCron');
-
-		try {
-			if (monthlyCroning) throw new Error('Already running!');
+			if (buying) throw new Error('Already running!');
 			if (!currentBatchPrice) throw new Error('No Batch Price');
 
 			{
-				monthlyCroning = 1;
+				buying = 1;
 				const amount = currentBatchPrice - (marketBalance || 0n);
 				if (amount > 0) {
 					alertInfo(`Send needed Bzz to AutoSwarm Market`);
 					await sendBzzTransfer($bzzChainId, marketAddress, amount);
-					refresh();
+					await refresh();
 				}
 			}
 
 			{
-				monthlyCroning = 2;
+				buying = 2;
 				alertInfo(`Confirm Sync`);
 				await sendMarketSync($bzzChainId);
-				refresh();
+				await refresh();
 			}
 		} catch (e) {
 			alertError('<Monitor Monthly:', e);
 		}
 
-		monthlyCroning = 0;
-		refresh();
+		buying = 0;
 	};
 
 	onMount(async () => {
-		marketAddress = addressesGetField($bzzChainId, 'AutoSwarmMarket') as Address;
+		marketAddress = addressesGetField($bzzChainId, 'AutoSwarmMarket');
 
 		await refresh();
 	});
 </script>
 
 <div id="monitor">
-	<h2>Monitor</h2>
+	<h2>Monitor - Buy Batch</h2>
 	<div id="monitor-buttons">
 		<p>
-			<button class="btn btn-topup" on:click={dailyCron}>
-				Get Stamps
-				{#if dailyCroning}
-					<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {dailyCroning}/1
-				{/if}
+			<button class="btn btn-topup" on:click={() => goto('./monitor-stamps')}>
+				Monitor Stamps
 			</button>
 
-			{#if newBatchNeeded}
-				<span>
-					<button class="btn btn-topup" on:click={monthlyCron}>
-						Buy Batch
-						{#if monthlyCroning}
-							<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {monthlyCroning}/2
-						{/if}
-					</button>
-				</span>
-			{/if}
+			<span>
+				<button class="btn btn-topup" on:click={buyBatch} disabled={!newBatchNeeded}>
+					Buy Batch
+					{#if buying}
+						<i class="fa-solid fa-spinner fa-spin-pulse" /> &nbsp; {buying}/2
+					{/if}
+				</button>
+			</span>
 		</p>
 	</div>
 
 	<div id="monitor-content">
 		<hr />
-		<DetailsPostage />
-		<hr />
-		{#key monthlyCroning || dailyCroning}
-			<DetailsMarket />
-		{/key}
-		<hr />
-		<DetailsConstants />
-		<hr />
-		<DetailsAddresses />
-		<hr />
+		<DetailsBatchs />
+    <hr />
 		<DetailsWallet />
+		<hr />
+		<DetailsPostage />
 		<hr />
 	</div>
 </div>

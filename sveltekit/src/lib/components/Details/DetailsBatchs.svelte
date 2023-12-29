@@ -84,7 +84,7 @@
 				);
 			}
 		} catch (e) {
-			alertError('<market Refresh', e);
+			alertError('<DetailsBatchs Refresh', e);
 		}
 	};
 
@@ -95,17 +95,49 @@
 	});
 </script>
 
+
+<p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
 <p>
-  Market | Current Swarm Node <span
-  >{@html displayExplorerAddress($bzzChainId, currentSwarmNode || UNDEFINED_ADDRESS)}</span
+	Market | Current Batch Owner <span
+		>{@html displayExplorerAddress($bzzChainId, currentBatchOwner || UNDEFINED_ADDRESS)}</span
 	>
 </p>
 <p>
-  Market | Balance / Address
-  <span>
-    {displayBalance(marketBalance, 16, 4)} Bzz /
-    {@html displayExplorerAddress($bzzChainId, marketAddress)}
-  </span>
+	Market | Current Batch Immutable? / Bucket Depth / Depth / TTL
+	<span>
+		{currentBatchImmutableFlag ? 'immutable' : 'mutable'} / 2<sup
+			>{currentBatchBucketDepth || UNDEFINED_DATA}</sup
+		>
+		/ 2<sup>{currentBatchDepth || UNDEFINED_DATA}</sup> /
+		{displayTtl(currentBatchRemainingBalance, chunckPrice)}
+	</span>
+</p>
+<p>
+	Market | Current Batch Block - Last Updated Block = Delta
+	<span>
+		#{lastBlockNumber || UNDEFINED_DATA}
+		- #{currentBatchLastUpdatedBlockNumber || UNDEFINED_DATA}
+		= &#916;{lastBlockNumber && currentBatchLastUpdatedBlockNumber
+			? lastBlockNumber - currentBatchLastUpdatedBlockNumber
+			: UNDEFINED_DATA}
+	</span>
+</p>
+<p>
+	Market | Current Batch Size / Filling / Filling % / Stamps Count
+	<span>
+		{displaySize(BATCH_SIZE)} /
+		{displaySize(currentBatchFilling)} /
+		{displayPerCent(currentBatchFilling, BATCH_SIZE)} /
+		{stampsCount}
+	</span>
+</p>
+<hr />
+<p>
+	Market | Balance / Address
+	<span>
+		{displayBalance(marketBalance, 16, 4)} Bzz /
+		{@html displayExplorerAddress($bzzChainId, marketAddress)}
+	</span>
 </p>
 
 <style>

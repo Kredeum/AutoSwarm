@@ -17,8 +17,8 @@ const sendRegistryCreateAccount = async (
 
 	if (await callIsContract(bzzChainId, tba)) return tba;
 
-	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry') as Address;
-	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount') as Address;
+	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry');
+	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -44,7 +44,7 @@ const sendRegistryCreateAccount = async (
 // const data = encodeFunctionData({
 //   abi: autoSwarmAccountAbi,
 //   functionName: 'initialize',
-//   args: [json.PostageStamp as Address, swarmHash as Hex, nftSize, bzzAmount]
+//   args: [json.PostageStamp , swarmHash as Hex, nftSize, bzzAmount]
 // });
 
 export { sendRegistryCreateAccount };

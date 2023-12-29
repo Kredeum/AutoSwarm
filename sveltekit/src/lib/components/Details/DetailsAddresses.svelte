@@ -14,13 +14,23 @@
 	</span>
 </p>
 <p>
-	Addresses | AutoSwarmAccount<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span>
+	Addresses | AutoSwarmAccount<span
+		>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span
+	>
 </p>
 <p>
-	Addresses | AutoSwarmMarket<span>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span>
+	Addresses | AutoSwarmMarket<span
+		>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span
+	>
 </p>
-<p>Addresses | ERC6551 Registry<span>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span></p>
-<p>Addresses | PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span></p>
+<p>
+	Addresses | ERC6551 Registry<span
+		>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span
+	>
+</p>
+<p>
+	Addresses | PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span>
+</p>
 <p>Addresses | PriceOracle<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span></p>
 
 <style>

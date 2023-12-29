@@ -41,7 +41,7 @@
 	<span>
 		2<sup>{BUCKET_DEPTH}</sup> /
 		{displaySize(2 ** BUCKET_DEPTH)} /
-		{displaySizeBytes(2 ** BUCKET_DEPTH)} 
+		{displaySizeBytes(2 ** BUCKET_DEPTH)}
 	</span>
 </p>
 

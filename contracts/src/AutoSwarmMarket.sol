@@ -18,7 +18,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     address public currentSwarmNode;
     uint256 public currentBatchFilling;
 
-    bytes32[] public stampIds;
+    bytes32[] public stampsIds;
     mapping(bytes32 => Stamp) public stamps;
 
     // stamp UNIT size is 1 Mb
@@ -88,7 +88,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         stampId = keccak256(abi.encode(msg.sender, swarmHash, block.number));
 
         stamps[stampId] = stamp;
-        stampIds.push(stampId);
+        stampsIds.push(stampId);
 
         if (bzzAmount > 0) _topUpStamp(stamps[stampId], bzzAmount);
     }
@@ -105,19 +105,19 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         emit UpdateStampsUnitPrice(stampsUnitPrice);
     }
 
-    function setStampsSize(bytes32[] memory stampIdsToSize, uint256 size) public override(IAutoSwarmMarket) {
-        uint256 len = stampIdsToSize.length;
+    function setStampsSize(bytes32[] memory stampsIdsToSize, uint256 size) public override(IAutoSwarmMarket) {
+        uint256 len = stampsIdsToSize.length;
 
         for (uint256 index; index < len; index++) {
-            stamps[stampIdsToSize[index]].swarmSize = size;
+            stamps[stampsIdsToSize[index]].swarmSize = size;
         }
     }
 
-    function setStampsAttached(bytes32[] memory stampIdsAttached, bytes32 batchId) public override(IAutoSwarmMarket) {
-        uint256 len = stampIdsAttached.length;
+    function attachStamps(bytes32[] memory stampsIdsToAttach) public override(IAutoSwarmMarket) {
+        uint256 len = stampsIdsToAttach.length;
 
         for (uint256 index; index < len; index++) {
-            stamps[stampIdsAttached[index]].batchId = batchId;
+            stamps[stampsIdsToAttach[index]].batchId = currentBatchId;
         }
     }
 
@@ -194,36 +194,38 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function getStampsCount() public view override(IAutoSwarmMarket) returns (uint256) {
-        return stampIds.length;
+        return stampsIds.length;
     }
 
-    function getStamps(bytes32[] memory stampIdsList)
+    function getStampsIds(uint256 skip, uint256 limit)
         public
         view
         override(IAutoSwarmMarket)
-        returns (Stamp[] memory stampsList)
+        returns (bytes32[] memory stampsIdsSubset)
     {
-        uint256 len = stampIdsList.length;
-        stampsList = new Stamp[](len);
+        if ((skip >= stampsIds.length) || (limit == 0)) return stampsIdsSubset;
+        if (skip + limit > stampsIds.length) limit = stampsIds.length - skip;
 
-        for (uint256 index; index < len; index++) {
-            stampsList[index] = stamps[stampIdsList[index]];
+        stampsIdsSubset = new bytes32[](limit);
+        for (uint256 index = 0; index < limit; index++) {
+            stampsIdsSubset[index] = stampsIds[skip + index];
         }
     }
 
-    function getStampIdsToAttach(uint256 skip, uint256 limit)
+    function getStampsIdsToAttach(uint256 skip, uint256 limit)
         public
         view
         override(IAutoSwarmMarket)
-        returns (bytes32[] memory stampIdsToAttach)
+        returns (bytes32[] memory stampsIdsToAttach)
     {
-        require(skip + limit <= stampIds.length, "Out of bounds");
+        if ((skip >= stampsIds.length) || (limit == 0)) return stampsIdsToAttach;
+        if (skip + limit > stampsIds.length) limit = stampsIds.length - skip;
 
-        uint256 toAttachIndex;
-        stampIdsToAttach = new bytes32[](limit);
+        uint256 indexCount;
+        bytes32[] memory stampsIdsTmp = new bytes32[](limit);
 
         for (uint256 index = skip; index < (skip + limit); index++) {
-            bytes32 stampId = stampIds[index];
+            bytes32 stampId = stampsIds[index];
             Stamp memory stamp = stamps[stampId];
 
             // test Stamp is active AND not already attached to current batch
@@ -231,8 +233,15 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
             bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
 
             if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
-                stampIdsToAttach[toAttachIndex++] = stampId;
+                stampsIdsTmp[indexCount++] = stampId;
             }
+        }
+
+        if (indexCount == 0) return stampsIdsToAttach;
+        stampsIdsToAttach = new bytes32[](indexCount);
+
+        for (uint256 index = 0; index < indexCount; index++) {
+            stampsIdsToAttach[index] = stampsIdsTmp[index];
         }
     }
 

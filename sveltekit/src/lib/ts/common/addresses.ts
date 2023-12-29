@@ -1,3 +1,4 @@
+import { zeroAddress, type Address } from 'viem';
 import type { BzzChainIdType } from './chains';
 import type { AddressesType } from '../constants/types';
 
@@ -20,7 +21,7 @@ const _addressesGet = (chainId: number): AddressesType => {
 const addressesGet = (chainId: number): AddressesType =>
 	_addresses.get(chainId as BzzChainIdType) || _addressesGet(chainId);
 
-const addressesGetField = (chainId: number, field: string): string =>
-	(addressesGet(chainId) as AddressesType)[field] || '';
+const addressesGetField = (chainId: number, field: string): Address =>
+	(addressesGet(chainId)[field] || zeroAddress) as Address;
 
 export { addressesGet, addressesGetField };

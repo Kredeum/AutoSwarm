@@ -1,4 +1,10 @@
 import type { Address, Hex } from 'viem';
+type StampType = {
+	swarmHash: Hex;
+	swarmSize: bigint;
+	batchId: Hex;
+	normalisedBalance: bigint;
+};
 
 type NftMetadata = {
 	nftChainId: number;
@@ -49,4 +55,4 @@ type Metadata = {
 };
 type AddressesType = Record<string, string>;
 
-export type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata, AddressesType };
+export type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata, AddressesType, StampType };

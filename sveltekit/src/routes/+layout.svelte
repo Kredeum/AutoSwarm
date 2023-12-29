@@ -16,7 +16,7 @@
 
 	bzzChainId.set(Number(localConfigGet('chainId')));
 
-	$: document.body.style.backgroundColor = ['/monitor'].includes($page.route.id || '')
+	$: document.body.style.backgroundColor = ($page.route.id || '').includes('/monitor')
 		? '#444'
 		: '#000';
 </script>

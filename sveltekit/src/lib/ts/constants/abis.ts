@@ -46,10 +46,14 @@ const autoSwarmMarketAbi = parseAbi([
 	'function getStampsCount() external view returns (uint256)',
 	'function currentBatchFilling() external view returns (uint256)',
 	'function getStampRemainingBalance(bytes32) external view returns (uint256)',
+  'function getStampsIds(uint256, uint256) external view returns (bytes32[] memory)',
+	'function getStampsIdsToAttach(uint256, uint256) external view returns (bytes32[] memory)',
 	'function currentBatchId() external view returns (bytes32)',
 	'function lastPrice() external view returns(uint64)',
 	'function newBatchNeeded() external view returns (bool)',
 	'function sync() external',
+	'function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256)',
+	'function attachStamps(bytes32[] memory) external',
 	'function newBatch(uint256) external returns (bytes32)',
 	'function extendsBatch(bytes32,uint8) external'
 ]);

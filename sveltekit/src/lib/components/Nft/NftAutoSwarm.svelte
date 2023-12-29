@@ -100,25 +100,25 @@
 		console.info('reSave');
 
 		try {
-      console.info('reSave1');
+			console.info('reSave1');
 			if (resaving) throw new Error('Already ReSaving!');
-      console.info('reSave2');
+			console.info('reSave2');
 			if (!tbaAddress) throw new Error('No Tba found');
-      console.info('reSave3');
+			console.info('reSave3');
 			if (!nftSize) throw new Error('No Nft Size found');
-      console.info('reSave4');
+			console.info('reSave4');
 			if (!tbaPrice) throw new Error('No Stamp Price found');
-      console.info('reSave5');
+			console.info('reSave5');
 
-      console.log("reSave ~ tbaSwarmHash1:", tbaSwarmHash);
+			console.log('reSave ~ tbaSwarmHash1:', tbaSwarmHash);
 			if (utilsIsNullBytes32(tbaSwarmHash)) {
-        console.log("reSave ~ tbaSwarmHash2:", tbaSwarmHash);
+				console.log('reSave ~ tbaSwarmHash2:', tbaSwarmHash);
 				resaving = 1;
 				beeMetadata = await fetchBeeMetadata(nftMetadata);
 				console.info('beeMetadata\n', beeMetadata);
 				await refresh();
 			}
-      console.log("reSave ~ tbaSwarmHash3:", tbaSwarmHash);
+			console.log('reSave ~ tbaSwarmHash3:', tbaSwarmHash);
 
 			if (!tbaDeployed) {
 				resaving = 2;

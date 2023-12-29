@@ -20,7 +20,7 @@ const callPostageBatches = async (
 
 	const [owner, depth, bucketDepth, immutableFlag, normalisedBalance, lastUpdatedBlockNumber] =
 		await publicClient.readContract({
-			address: addressesGetField(bzzChainId, 'PostageStamp') as Address,
+			address: addressesGetField(bzzChainId, 'PostageStamp'),
 			abi: postageStampAbi,
 			functionName: 'batches',
 			args: [batchId]
@@ -38,7 +38,7 @@ const callPostageBatchesLegacy = async (
 	const publicClient = await callPublicClient(bzzChainId);
 
 	const [owner, depth, immutableFlag, normalisedBalance] = await publicClient.readContract({
-		address: addressesGetField(bzzChainId, 'PostageStamp') as Address,
+		address: addressesGetField(bzzChainId, 'PostageStamp'),
 		abi: postageStampAbiBatcheslegacy,
 		functionName: 'batches',
 		args: [batchId]
@@ -51,7 +51,7 @@ const callPostageCurrentTotalOutPayment = async (bzzChainId: number): Promise<bi
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: addressesGetField(bzzChainId, 'PostageStamp') as Address,
+		address: addressesGetField(bzzChainId, 'PostageStamp'),
 		abi: postageStampAbi,
 		functionName: 'currentTotalOutPayment'
 	});
@@ -61,7 +61,7 @@ const callPostageLastPrice = async (bzzChainId: number): Promise<bigint> => {
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: addressesGetField(bzzChainId, 'PostageStamp') as Address,
+		address: addressesGetField(bzzChainId, 'PostageStamp'),
 		abi: postageStampAbi,
 		functionName: 'lastPrice'
 	});
@@ -76,7 +76,7 @@ const callPostageRemainingBalance = async (
 	const publicClient = await callPublicClient(bzzChainId);
 
 	const data = await publicClient.readContract({
-		address: addressesGetField(bzzChainId, 'PostageStamp') as Address,
+		address: addressesGetField(bzzChainId, 'PostageStamp'),
 		abi: postageStampAbi,
 		functionName: 'remainingBalance',
 		args: [batchId]

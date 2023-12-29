@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Monitor from '$lib/components/Cron/CronMonitor.svelte';
+	import Monitor from '$lib/components/Monitor/Monitor.svelte';
 </script>
 
 <Monitor />

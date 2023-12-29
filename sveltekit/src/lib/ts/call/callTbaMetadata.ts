@@ -8,7 +8,7 @@ import { callIsContract } from './call';
 import { callBzzBalance } from './callBzz';
 import { STAMP_SIZE, STAMP_PRICE, ONE_YEAR } from '../constants/constants';
 import type { Address } from 'viem';
-import { callMarketGetStampRemainingBalance } from './callMarket';
+import { callMarketGetStampRemainingBalance } from './callStamps';
 
 const callTbaMetadata = async (
 	bzzChainId: number,
