@@ -85,7 +85,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
     }
 
     function test_AutoSwarmAccount_implementation() public view {
-        address impl = tba.implementation();
+        address impl = tba.getImplementation();
         console.log("test_AutoSwarmAccount_implementation ~ implementation:", impl);
     }
 }
