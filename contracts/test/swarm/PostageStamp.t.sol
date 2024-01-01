@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
@@ -73,7 +73,7 @@ contract PostageStampTest is SetUpSwarm {
         bytes32 batchId = batchIdGnosis1;
 
         // (address owner, uint8 depth, bool const, uint256 nbal) =
-            IPostageStampGnosis(address(postageStamp)).batches(batchId);
+        IPostageStampGnosis(address(postageStamp)).batches(batchId);
 
         // uint256 tbal = postageStamp.currentTotalOutPayment();
         uint256 rbal = postageStamp.remainingBalance(batchId);

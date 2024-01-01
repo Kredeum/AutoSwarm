@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import "@autoswarm/test/setup/SetUpAutoSwarmAccount.t.sol";
 

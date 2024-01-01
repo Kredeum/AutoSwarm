@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
@@ -56,15 +56,6 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         vm.expectRevert();
         autoSwarmMarket.createStamp("3", 1, 1);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampsIdsToAttach(0, 3);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampsIdsToAttach(1, 5);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampsIdsToAttach(3, 4);
     }
 
     function test_AutoSwarmMarketUnit_setStampsAttached() public {

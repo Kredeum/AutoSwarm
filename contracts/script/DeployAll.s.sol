@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {DeployNFTCollection} from "@autoswarm/script/deploy/00_DeployNFTCollection.s.sol";
 import {DeployBzzToken} from "@autoswarm/script/deploy/01_DeployBzzToken.s.sol";

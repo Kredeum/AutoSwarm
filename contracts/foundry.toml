@@ -3,7 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
-solc_version = "0.8.19"
+solc_version = "0.8.23"
 
 fs_permissions = [
   { access = "read-write", path = "./addresses.json" },
@@ -29,8 +29,6 @@ src = 'lib/storage-incentives'
 test = 'lib/storage-incentives/test'
 script = 'lib/storage-incentives/script'
 lib = ['lib/storage-incentives/lib']
-solc_version = '0.8.1'
-
 
 [rpc_endpoints]
 gnosis1 = "https://rpc.gnosischain.com"
