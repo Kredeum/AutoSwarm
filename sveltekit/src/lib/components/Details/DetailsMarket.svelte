@@ -4,8 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode,
- 
+		callMarketCurrentSwarmNode
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -96,16 +95,16 @@
 </script>
 
 <p>
-  Market | Current Swarm Node <span
-  >{@html displayExplorerAddress($bzzChainId, currentSwarmNode || UNDEFINED_ADDRESS)}</span
+	Market | Current Swarm Node <span
+		>{@html displayExplorerAddress($bzzChainId, currentSwarmNode || UNDEFINED_ADDRESS)}</span
 	>
 </p>
 <p>
-  Market | Balance / Address
-  <span>
-    {displayBalance(marketBalance, 16, 4)} Bzz /
-    {@html displayExplorerAddress($bzzChainId, marketAddress)}
-  </span>
+	Market | Balance / Address
+	<span>
+		{displayBalance(marketBalance, 16, 4)} Bzz /
+		{@html displayExplorerAddress($bzzChainId, marketAddress)}
+	</span>
 </p>
 
 <style>

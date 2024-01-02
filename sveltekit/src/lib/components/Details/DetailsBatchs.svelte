@@ -4,8 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode,
- 
+		callMarketCurrentSwarmNode
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -94,7 +93,6 @@
 		await refresh();
 	});
 </script>
-
 
 <p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
 <p>

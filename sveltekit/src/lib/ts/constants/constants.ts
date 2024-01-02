@@ -1,6 +1,6 @@
 import { keccak256, toHex } from 'viem';
 
-const SALT = keccak256(toHex('AutoSwarm v0.0.7'));
+const SALT = keccak256(toHex('AutoSwarm v0.0.8'));
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 

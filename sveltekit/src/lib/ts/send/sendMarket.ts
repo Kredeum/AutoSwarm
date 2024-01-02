@@ -32,7 +32,7 @@ const sendMarketSync = async (bzzChainId: number) => {
 
 const sendMarketAttachStamps = async (bzzChainId: number, stampIds: readonly Hex[]) => {
 	if (stampIds.length === 0) return;
-  const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
+	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
 	const { request } = await publicClient.simulateContract({
 		account: walletAddress,

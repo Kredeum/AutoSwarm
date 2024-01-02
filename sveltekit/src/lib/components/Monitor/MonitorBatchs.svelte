@@ -102,7 +102,7 @@
 	<div id="monitor-content">
 		<hr />
 		<DetailsBatchs />
-    <hr />
+		<hr />
 		<DetailsWallet />
 		<hr />
 		<DetailsPostage />

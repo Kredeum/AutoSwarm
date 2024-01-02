@@ -17,79 +17,79 @@ const callMarketGetStampsCount = async (bzzChainId: number): Promise<number> => 
 	);
 };
 
-const callMarketGetAllStampsIds = async (bzzChainId: number, limit = 100): Promise<Hex[]> => {
+const callMarketGetAllStampIds = async (bzzChainId: number, limit = 100): Promise<Hex[]> => {
 	const CALL_LIMIT = 3;
 
-  const stampsCount = await callMarketGetStampsCount(bzzChainId);
-	console.info('callMarketGetAllStampsIds  IN', stampsCount, limit);
+	const stampsCount = await callMarketGetStampsCount(bzzChainId);
+	console.info('callMarketGetAllStampIds  IN', stampsCount, limit);
 
-	const stampsIds: Hex[] = [];
+	const stampIds: Hex[] = [];
 
-	for (let n = 0; n * CALL_LIMIT < stampsCount && stampsIds.length < limit; n++) {
-		const newStampsIds = await callMarketGetStampsIds(bzzChainId, n * CALL_LIMIT, CALL_LIMIT);
-		stampsIds.push(...newStampsIds);
+	for (let n = 0; n * CALL_LIMIT < stampsCount && stampIds.length < limit; n++) {
+		const newStampIds = await callMarketGetStampIds(bzzChainId, n * CALL_LIMIT, CALL_LIMIT);
+		stampIds.push(...newStampIds);
 	}
 
-	console.info('callMarketGetAllStampsIds OUT', stampsIds.length);
-	return stampsIds;
+	console.info('callMarketGetAllStampIds OUT', stampIds.length);
+	return stampIds;
 };
 
-const callMarketGetAllStampsIdsToAttach = async (
+const callMarketGetAllStampIdsToAttach = async (
 	bzzChainId: number,
 	limit = 3,
 	callLimit = 3
 ): Promise<Hex[]> => {
 	const stampsCount = await callMarketGetStampsCount(bzzChainId);
-	// console.info('callMarketGetAllStampsIdsToAttach  IN', stampsCount);
+	// console.info('callMarketGetAllStampIdsToAttach  IN', stampsCount);
 
-	const stampsIds: Hex[] = [];
+	const stampIds: Hex[] = [];
 
-	for (let n = 0; n * callLimit < stampsCount && stampsIds.length < limit; n++) {
-		const newStampsIds = await callMarketGetStampsIdsToAttach(bzzChainId, n * callLimit, callLimit);
-		stampsIds.push(...newStampsIds);
+	for (let n = 0; n * callLimit < stampsCount && stampIds.length < limit; n++) {
+		const newStampIds = await callMarketGetStampIdsToAttach(bzzChainId, n * callLimit, callLimit);
+		stampIds.push(...newStampIds);
 	}
 
-	// console.info('callMarketGetAllStampsIdsToAttach OUT', stampsIds.length);
-	return stampsIds;
+	// console.info('callMarketGetAllStampIdsToAttach OUT', stampIds.length);
+	return stampIds;
 };
 
-const callMarketGetStampsIds = async (
+const callMarketGetStampIds = async (
 	bzzChainId: number,
 	skip = 0,
 	limit = 3
 ): Promise<readonly Hex[]> => {
-	// console.info('callMarketGetStampsIds  IN', skip, limit);
+	// console.info('callMarketGetStampIds  IN', skip, limit);
 
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const stampsIds = await publicClient.readContract({
+	const stampIds = await publicClient.readContract({
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
-		functionName: 'getStampsIds',
+		functionName: 'getStampIds',
 		args: [BigInt(skip), BigInt(limit)]
 	});
 
-	// console.info('callMarketGetStampsIdscallMarketGetStampsIds OUT', stampsIds.length);
-	return stampsIds;
+	// console.info('callMarketGetStampIdscallMarketGetStampIds OUT', stampIds.length);
+	return stampIds;
 };
-const callMarketGetStampsIdsToAttach = async (
+const callMarketGetStampIdsToAttach = async (
 	bzzChainId: number,
 	skip = 0,
 	limit = 3
 ): Promise<readonly Hex[]> => {
-	// console.info('callMarketGetStampsIdsToAttach  IN', skip, limit);
+	// console.info('callMarketGetStampIdsToAttach  IN', skip, limit);
 
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const stampsIds = await publicClient.readContract({
+	const stampIds = await publicClient.readContract({
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
-		functionName: 'getStampsIdsToAttach',
+		functionName: 'getStampIdsToAttach',
 		args: [BigInt(skip), BigInt(limit)]
 	});
 
-	// console.info('callMarketGetStampsIdsToAttach OUT', stampsIds.length);
-	return stampsIds;
+	// console.info('callMarketGetStampIdsToAttach OUT', stampIds.length);
+	return stampIds;
 };
 
 const callMarketGetStampRemainingBalance = async (
@@ -123,8 +123,8 @@ export {
 	callMarketGetStamp,
 	callMarketGetStampRemainingBalance,
 	callMarketGetStampsCount,
-	callMarketGetStampsIds,
-	callMarketGetStampsIdsToAttach,
-	callMarketGetAllStampsIds,
-	callMarketGetAllStampsIdsToAttach
+	callMarketGetStampIds,
+	callMarketGetStampIdsToAttach,
+	callMarketGetAllStampIds,
+	callMarketGetAllStampIdsToAttach
 };

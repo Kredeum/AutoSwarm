@@ -6,7 +6,7 @@
 	import { displayExplorer, displayExplorerAddress } from '$lib/ts/display/displayExplorer';
 	import { onMount } from 'svelte';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
- 
+
 	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
 	import { BATCH_DEPTH, BATCH_TTL, UNDEFINED_DATA } from '$lib/ts/constants/constants';
 	import { batchPrice } from '$lib/ts/swarm/batch';

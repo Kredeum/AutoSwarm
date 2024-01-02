@@ -31,35 +31,6 @@ const sendTbaCreateStamp = async (
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendTbaSetAutoSwarmStamp = async (
-	bzzChainId: number,
-	tba: Address | undefined,
-	swarmHash: Hex | undefined,
-	nftSize: bigint | undefined,
-	bzzAmount: bigint | undefined
-) => {
-	console.info('sendTbaSetAutoSwarmStamp:', bzzChainId, tba, swarmHash, nftSize, bzzAmount);
-
-	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
-	if (!tba) throw new Error('No TBA!');
-	if (!swarmHash) throw new Error('No Swarm Hash!');
-	if (!nftSize) throw new Error('No Swarm Size!');
-	if (!bzzAmount) throw new Error('No BZZ!');
-
-	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
-
-	const { request } = await publicClient.simulateContract({
-		account: walletAddress,
-		address: tba,
-		abi: autoSwarmAccountAbi,
-		functionName: 'setAutoSwarmStamp',
-		args: [nftSize, swarmHash, bzzAmount]
-	});
-
-	const hash = await walletClient.writeContract(request);
-	await publicClient.waitForTransactionReceipt({ hash });
-};
-
 const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmount: bigint) => {
 	if (!(bzzChainId > 0)) throw new Error('Bad chain!');
 	if (!tba) throw new Error('Bad TBA!');
@@ -93,4 +64,4 @@ const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAdd
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-export { sendTbaTopUp, sendTbaWithdraw, sendTbaCreateStamp, sendTbaSetAutoSwarmStamp };
+export { sendTbaTopUp, sendTbaWithdraw, sendTbaCreateStamp };

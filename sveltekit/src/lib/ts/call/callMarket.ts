@@ -46,7 +46,7 @@ const callMarketCurrentBatchFilling = async (bzzChainId: number): Promise<bigint
 };
 
 export {
-  callMarketNewBatchNeeded,
+	callMarketNewBatchNeeded,
 	callMarketCurrentSwarmNode,
 	callMarketCurrentBatchId,
 	callMarketCurrentBatchFilling

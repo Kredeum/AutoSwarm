@@ -10,7 +10,7 @@
 	import { alertError, alertInfo } from '$lib/ts/stores/alertMessage';
 	import DetailsStamps from '../Details/DetailsStamps.svelte';
 	import { goto } from '$app/navigation';
-	import { callMarketGetAllStampsIdsToAttach } from '$lib/ts/call/callStamps';
+	import { callMarketGetAllStampIdsToAttach } from '$lib/ts/call/callStamps';
 
 	/////////////////////////////// Monitor Stamps Component ////////////////////////////
 	// <MonitorStamps />
@@ -22,7 +22,7 @@
 
 	const refresh = async () => {
 		try {
-			stampIdsToAttach = await callMarketGetAllStampsIdsToAttach($bzzChainId);
+			stampIdsToAttach = await callMarketGetAllStampIdsToAttach($bzzChainId);
 			attachStampsNeeded = stampIdsToAttach.length > 0;
 		} catch (e) {
 			alertError('<Monitor Stamps Refresh', e);

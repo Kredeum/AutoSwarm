@@ -27,13 +27,13 @@ interface IAutoSwarmMarket {
     error NotEnoughBalance(uint256, uint256);
     error TransferFailed();
     error AmountZero();
-    
+
     event SetBatch(bytes32 indexed, uint256 indexed);
     event BuyBatch(bytes32 indexed, uint256 indexed, uint8 indexed, uint256);
     event UpdateBatch(bytes32 indexed, uint8 indexed, uint256 indexed);
     event StampId(bytes32 indexed, bytes32 indexed, bool indexed, uint256);
 
-    event SetStampsUnitPrice(uint256);
+    event SetStampUnitPrice(uint256);
     event CreateStamp(bytes32 indexed, bytes32 indexed, uint256 indexed, uint256);
     event UpdateStamp(bytes32 indexed, bytes32 indexed, uint256 indexed);
     event ExtendsBatch(bytes32 indexed, uint8 indexed, uint256 indexed);
@@ -41,30 +41,38 @@ interface IAutoSwarmMarket {
     event AttachStamp(bytes32 indexed, bytes32 indexed);
 
     function bzzToken() external view returns (IERC20);
-    function getStampsUnitPriceOneYear() external view returns (uint256);
+    function postageStamp() external view returns (IPostageStamp);
+    function getStampUnitPriceOneYear() external view returns (uint256);
+
+    function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256);
+
+    function stampIds(uint256) external view returns (bytes32);
+    function batchIds(uint256) external view returns (bytes32);
+    function currentBatchId() external view returns (bytes32);
+    function currentSwarmNode() external view returns (address);
+    function currentBatchFilling() external view returns (uint256);
+    function newBatchNeeded() external view returns (bool);
+    function stampUnitPrice() external view returns (uint256);
+    function stampsTotalOutPayment() external view returns (uint256);
+    function stampsLastBlockUpdate() external view returns (uint256);
 
     function getStampRemainingBalance(bytes32) external view returns (uint256);
     function getStampPriceOneYear(uint256) external view returns (uint256);
     function isStampActive(bytes32) external returns (bool);
     function getStampsCount() external view returns (uint256);
-    function getStampsIds(uint256, uint256) external view returns (bytes32[] memory);
-    function getStampsIdsToAttach(uint256, uint256) external view returns (bytes32[] memory);
+    function getStampIds(uint256, uint256) external view returns (bytes32[] memory);
+    function getStampIdsToAttach(uint256, uint256) external view returns (bytes32[] memory);
     function getMbSize(uint256) external pure returns (uint256);
-    function batchPrice() external view returns (uint256);
+    function getBatchPrice() external view returns (uint256);
 
     function createStamp(bytes32, uint256, uint256) external returns (bytes32);
     function updateStamp(bytes32, bytes32, uint256) external;
     function topUpStamp(bytes32, uint256) external;
-
-    function setBatch(address, bytes32, uint256) external;
-    function extendsBatch(bytes32, uint8) external;
+    function setStampUnitPrice(uint256) external;
+    function setStampsSize(bytes32[] memory, uint256) external;
 
     function sync() external returns (bytes32);
-    function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256);
+    function setBatch(address, bytes32, uint256) external;
+    function extendsBatch(bytes32, uint8) external;
     function attachStamps(bytes32[] memory) external;
-    function stampsUnitPrice() external view returns (uint256);
-    function stampsTotalOutPayment() external view returns (uint256);
-    function setStampsUnitPrice(uint256) external;
-    function setStampsSize(bytes32[] memory, uint256) external;
-    function newBatchNeeded() external view returns (bool);
 }

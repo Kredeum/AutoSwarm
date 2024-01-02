@@ -4,8 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode,
-
+		callMarketCurrentSwarmNode
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -13,7 +12,11 @@
 		callPostageLastPrice,
 		callPostageRemainingBalance
 	} from '$lib/ts/call/callPostage';
-	import { callMarketGetAllStampsIds, callMarketGetAllStampsIdsToAttach, callMarketGetStampsCount } from '$lib/ts/call/callStamps';
+	import {
+		callMarketGetAllStampIds,
+		callMarketGetAllStampIdsToAttach,
+		callMarketGetStampsCount
+	} from '$lib/ts/call/callStamps';
 	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { utilsIsNullBytes32 } from '$lib/ts/common/utils';
 	import {
@@ -53,20 +56,20 @@
 	let stampsCount: number | undefined;
 	let currentBatchRemainingBalance: bigint | undefined;
 	let currentBatchFilling: bigint | undefined;
-	let stampsIdsToAttach: readonly Hex[] | undefined;
-	let stampsIds: readonly Hex[] | undefined;
+	let stampIdsToAttach: readonly Hex[] | undefined;
+	let stampIds: readonly Hex[] | undefined;
 
 	const refresh = async () => {
 		try {
 			lastBlockNumber = await callBlockNumber($bzzChainId);
 
 			stampsCount = await callMarketGetStampsCount($bzzChainId);
-			stampsIds = await callMarketGetAllStampsIds($bzzChainId );
-			if (stampsCount !== stampsIds.length)
-				throw new Error(`Bad stamp count ${stampsCount} !== ${stampsIds.length}`);
+			stampIds = await callMarketGetAllStampIds($bzzChainId);
+			if (stampsCount !== stampIds.length)
+				throw new Error(`Bad stamp count ${stampsCount} !== ${stampIds.length}`);
 
-			stampsIdsToAttach = await callMarketGetAllStampsIdsToAttach($bzzChainId, 2);
-			stampsCountToAttach = stampsIdsToAttach.length;
+			stampIdsToAttach = await callMarketGetAllStampIdsToAttach($bzzChainId, 2);
+			stampsCountToAttach = stampIdsToAttach.length;
 
 			marketBalance = await callBzzBalance(
 				$bzzChainId,
@@ -114,7 +117,7 @@
 	</span>
 </p>
 <hr />
-{#each stampsIdsToAttach || [] as stampId, index}
+{#each stampIdsToAttach || [] as stampId, index}
 	<p>
 		Market | Stamp#{index} To Attach - StampId
 		<span>
@@ -123,7 +126,7 @@
 	</p>
 {/each}
 <hr />
-{#each stampsIds || [] as stampId, index}
+{#each stampIds || [] as stampId, index}
 	<p>
 		Market | StampId #{index}
 		<span>

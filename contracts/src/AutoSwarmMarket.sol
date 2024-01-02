@@ -20,19 +20,20 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     address public currentSwarmNode;
     uint256 public currentBatchFilling;
 
-    bytes32[] public stampsIds;
+    bytes32[] public stampIds;
+
     mapping(bytes32 => Stamp) public stamps;
 
     // stamp UNIT size is 1 Mb
     uint256 public constant STAMP_UNIT_SIZE = 1024 ** 2; // 1 Mb
 
     // mimic PostageStamp batch calculation, for stamp calculation
-    uint256 public stampsUnitPrice;
+    uint256 public stampUnitPrice;
     uint256 public stampsLastOutPayment;
     uint256 public stampsLastBlockUpdate;
 
-    IPostageStamp public immutable postageStamp;
-    IERC20 public immutable bzzToken;
+    IPostageStamp public postageStamp;
+    IERC20 public bzzToken;
 
     uint256 internal constant _EXPIRATION_TTL = 7 days;
     uint256 internal constant _BATCH_TTL = 30 days;
@@ -51,7 +52,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
         bzzToken = IERC20(postageStamp.bzzToken());
 
-        setStampsUnitPrice(2e8);
+        setStampUnitPrice(2e8);
     }
 
     function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {
@@ -101,7 +102,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         stampId = keccak256(abi.encode(msg.sender, swarmHash, block.number));
 
         stamps[stampId] = stamp;
-        stampsIds.push(stampId);
+        stampIds.push(stampId);
 
         if (bzzAmount > 0) _topUpStamp(stampId, bzzAmount);
 
@@ -112,18 +113,18 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         _topUpStamp(stampId, bzzAmount);
     }
 
-    function setStampsUnitPrice(uint256 price) public  onlyOwner override(IAutoSwarmMarket) {
+    function setStampUnitPrice(uint256 price) public override(IAutoSwarmMarket) onlyOwner {
         stampsLastOutPayment = stampsTotalOutPayment();
         stampsLastBlockUpdate = block.number;
-        stampsUnitPrice = price;
+        stampUnitPrice = price;
 
-        emit SetStampsUnitPrice(stampsUnitPrice);
+        emit SetStampUnitPrice(stampUnitPrice);
     }
 
-    function setStampsSize(bytes32[] memory stampsIdsToSize, uint256 size) public  onlyOwner override(IAutoSwarmMarket) {
-        uint256 len = stampsIdsToSize.length;
+    function setStampsSize(bytes32[] memory stampIdsToSize, uint256 size) public override(IAutoSwarmMarket) onlyOwner {
+        uint256 len = stampIdsToSize.length;
         for (uint256 index; index < len; index++) {
-            bytes32 stampId = stampsIdsToSize[index];
+            bytes32 stampId = stampIdsToSize[index];
             Stamp storage stamp = stamps[stampId];
             stamp.swarmSize = size;
 
@@ -131,11 +132,11 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         }
     }
 
-    function attachStamps(bytes32[] memory stampsIdsToAttach) public  onlyOwner override(IAutoSwarmMarket) {
-        uint256 len = stampsIdsToAttach.length;
+    function attachStamps(bytes32[] memory stampIdsToAttach) public override(IAutoSwarmMarket) onlyOwner {
+        uint256 len = stampIdsToAttach.length;
 
         for (uint256 index; index < len; index++) {
-            bytes32 stampId = stampsIdsToAttach[index];
+            bytes32 stampId = stampIdsToAttach[index];
             stamps[stampId].batchId = currentBatchId;
 
             emit AttachStamp(stampId, currentBatchId);
@@ -143,7 +144,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function sync() public override(IAutoSwarmMarket) returns (bytes32) {
-        if (newBatchNeeded()) _newBatch(batchPrice());
+        if (newBatchNeeded()) _newBatch(getBatchPrice());
 
         return currentBatchId;
     }
@@ -176,16 +177,16 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         return aboutToExpire || aboutToSemiFull;
     }
 
-    function batchPrice() public view override(IAutoSwarmMarket) returns (uint256) {
+    function getBatchPrice() public view override(IAutoSwarmMarket) returns (uint256) {
         return (postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
     }
 
-    function getStampsUnitPriceOneYear() public view override(IAutoSwarmMarket) returns (uint256) {
-        return stampsUnitPrice * (_SECOND_PER_YEAR / _SECONDS_PER_BLOCK);
+    function getStampUnitPriceOneYear() public view override(IAutoSwarmMarket) returns (uint256) {
+        return stampUnitPrice * (_SECOND_PER_YEAR / _SECONDS_PER_BLOCK);
     }
 
     function getStampPriceOneYear(uint256 size) public view override(IAutoSwarmMarket) returns (uint256) {
-        return getStampsUnitPriceOneYear() * getMbSize(size);
+        return getStampUnitPriceOneYear() * getMbSize(size);
     }
 
     function isStampActive(bytes32 stampId) public view override(IAutoSwarmMarket) returns (bool) {
@@ -193,38 +194,38 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function getStampsCount() public view override(IAutoSwarmMarket) returns (uint256) {
-        return stampsIds.length;
+        return stampIds.length;
     }
 
-    function getStampsIds(uint256 skip, uint256 limit)
+    function getStampIds(uint256 skip, uint256 limit)
         public
         view
         override(IAutoSwarmMarket)
-        returns (bytes32[] memory stampsIdsSubset)
+        returns (bytes32[] memory stampIdsSubset)
     {
-        if ((skip >= stampsIds.length) || (limit == 0)) return stampsIdsSubset;
-        if (skip + limit > stampsIds.length) limit = stampsIds.length - skip;
+        if ((skip >= stampIds.length) || (limit == 0)) return stampIdsSubset;
+        if (skip + limit > stampIds.length) limit = stampIds.length - skip;
 
-        stampsIdsSubset = new bytes32[](limit);
+        stampIdsSubset = new bytes32[](limit);
         for (uint256 index = 0; index < limit; index++) {
-            stampsIdsSubset[index] = stampsIds[skip + index];
+            stampIdsSubset[index] = stampIds[skip + index];
         }
     }
 
-    function getStampsIdsToAttach(uint256 skip, uint256 limit)
+    function getStampIdsToAttach(uint256 skip, uint256 limit)
         public
         view
         override(IAutoSwarmMarket)
-        returns (bytes32[] memory stampsIdsToAttach)
+        returns (bytes32[] memory stampIdsToAttach)
     {
-        if ((skip >= stampsIds.length) || (limit == 0)) return stampsIdsToAttach;
-        if (skip + limit > stampsIds.length) limit = stampsIds.length - skip;
+        if ((skip >= stampIds.length) || (limit == 0)) return stampIdsToAttach;
+        if (skip + limit > stampIds.length) limit = stampIds.length - skip;
 
         uint256 indexCount;
-        bytes32[] memory stampsIdsTmp = new bytes32[](limit);
+        bytes32[] memory stampIdsTmp = new bytes32[](limit);
 
         for (uint256 index = skip; index < (skip + limit); index++) {
-            bytes32 stampId = stampsIds[index];
+            bytes32 stampId = stampIds[index];
             Stamp memory stamp = stamps[stampId];
 
             // test Stamp is active AND not already attached to current batch
@@ -232,27 +233,27 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
             bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
 
             if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
-                stampsIdsTmp[indexCount++] = stampId;
+                stampIdsTmp[indexCount++] = stampId;
             }
         }
 
-        if (indexCount == 0) return stampsIdsToAttach;
-        stampsIdsToAttach = new bytes32[](indexCount);
+        if (indexCount == 0) return stampIdsToAttach;
+        stampIdsToAttach = new bytes32[](indexCount);
 
         for (uint256 index = 0; index < indexCount; index++) {
-            stampsIdsToAttach[index] = stampsIdsTmp[index];
+            stampIdsToAttach[index] = stampIdsTmp[index];
         }
     }
 
     function stampsTotalOutPayment() public view override(IAutoSwarmMarket) returns (uint256) {
         uint256 blocks = block.number - stampsLastBlockUpdate;
-        uint256 stampsOutPaymentIncrease = stampsUnitPrice * blocks;
+        uint256 stampsOutPaymentIncrease = stampUnitPrice * blocks;
         return stampsLastOutPayment + stampsOutPaymentIncrease;
     }
 
     function getStampRemainingBalance(bytes32 stampId) public view override(IAutoSwarmMarket) returns (uint256) {
         Stamp memory stamp = stamps[stampId];
-        if (stamp.swarmHash == bytes32(0)) revert StampNull();
+        if (stamp.swarmHash == bytes32(0)) return 0;
 
         return _subPos(stamp.normalisedBalance, stampsTotalOutPayment());
     }
