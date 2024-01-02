@@ -1,0 +1,8 @@
+{
+  "exclude_informational": true,
+  "exclude_low": false,
+  "exclude_medium": false,
+  "exclude_high": false,
+  "detectors_to_exclude": "reentrancy-events, reentrancy-benign, divide-before-multiply,uninitialized-local,incorrect-equality",
+  "filter_paths": "(mocks/|old/|lib/)"
+}

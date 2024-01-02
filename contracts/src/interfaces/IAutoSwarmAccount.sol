@@ -8,12 +8,22 @@ interface IAutoSwarmAccount {
     event TopUp(bytes32 indexed, uint256 indexed);
     event Withdraw(address indexed, uint256 indexed);
 
+    error StampExists();
+    error NotOwner();
+    error NotMarketOwner();
+    error SwarmSizeZero();
+    error SwarmHashNull();
+    error AutoSwarmMarketNull();
+    error NotEnoughBalance(uint256, uint256);
+    error AmountZero();
+
     function swarmSize() external view returns (uint256);
     function swarmHash() external view returns (bytes32);
     function stampId() external view returns (bytes32);
+    function getBzzToken() external view returns (address);
     function getMarketOwner() external view returns (address);
     function getImplementation() external view returns (address);
-    function getTopUpYearPrice() external view returns (uint256);
+    function getOneYearPrice() external view returns (uint256);
     function getAutoSwarmMarket() external view returns (address);
 
     function setAutoSwarmMarket(address) external;

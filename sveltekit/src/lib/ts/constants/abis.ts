@@ -38,7 +38,7 @@ const autoSwarmAccountAbi = parseAbi([
 	'function createStamp(bytes32, uint256, uint256) external returns (bytes32)',
 	'function setAutoSwarmStamp(uint256,bytes32,uint256) external',
 	'function topUp(uint256) external',
-	'function getTopUpYearPrice() external view returns (uint256)',
+	'function getOneYearPrice() external view returns (uint256)',
 	'function withdraw(address) external'
 ]);
 const autoSwarmMarketAbi = parseAbi([
@@ -46,7 +46,7 @@ const autoSwarmMarketAbi = parseAbi([
 	'function getStampsCount() external view returns (uint256)',
 	'function currentBatchFilling() external view returns (uint256)',
 	'function getStampRemainingBalance(bytes32) external view returns (uint256)',
-  'function getStampsIds(uint256, uint256) external view returns (bytes32[] memory)',
+	'function getStampsIds(uint256, uint256) external view returns (bytes32[] memory)',
 	'function getStampsIdsToAttach(uint256, uint256) external view returns (bytes32[] memory)',
 	'function currentBatchId() external view returns (bytes32)',
 	'function lastPrice() external view returns(uint64)',

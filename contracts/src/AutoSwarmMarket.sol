@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {IAutoSwarmMarket, IPostageStamp, IERC20} from "./interfaces/IAutoSwarmMarket.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+import {IAutoSwarmMarket, IPostageStamp, IERC20} from "./interfaces/IAutoSwarmMarket.sol";
 
 // import {console} from "forge-std/console.sol";
 // struct Stamp {
@@ -29,8 +31,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     uint256 public stampsLastOutPayment;
     uint256 public stampsLastBlockUpdate;
 
-    IPostageStamp public postageStamp;
-    IERC20 public bzzToken;
+    IPostageStamp public immutable postageStamp;
+    IERC20 public immutable bzzToken;
 
     uint256 internal constant _EXPIRATION_TTL = 7 days;
     uint256 internal constant _BATCH_TTL = 30 days;
@@ -41,6 +43,9 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     uint256 internal constant _SECOND_PER_YEAR = 365 * 24 * 3600;
 
     constructor(address postageStamp_, address swarmNode_) {
+        if (postageStamp_ == address(0)) revert PostageStampNull();
+        if (swarmNode_ == address(0)) revert SwarmNodeNull();
+
         postageStamp = IPostageStamp(payable(postageStamp_));
         currentSwarmNode = swarmNode_;
 
@@ -49,9 +54,9 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         setStampsUnitPrice(2e8);
     }
 
-    function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) {
+    function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {
         uint256 ttl = postageStamp.remainingBalance(batchId);
-        require(ttl > 0, "Batch not valid");
+        if (ttl == 0) revert InvalidBatch();
 
         uint8 newDepth = postageStamp.batchDepth(batchId) + deltaDepth;
 
@@ -67,9 +72,13 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         assert(postageStamp.remainingBalance(batchId) == ttl);
     }
 
-    function updateStamp(bytes32 stampId, bytes32 swarmHash, uint256 swarmSize) public override(IAutoSwarmMarket) {
-        require(swarmHash != bytes32(0), "Bad Swarm Hash!");
-        require(swarmSize != 0, "Bad Swarm Size!");
+    function updateStamp(bytes32 stampId, bytes32 swarmHash, uint256 swarmSize)
+        public
+        override(IAutoSwarmMarket)
+        onlyOwner
+    {
+        if (swarmHash == bytes32(0)) revert SwarmHashNull();
+        if (swarmSize == 0) revert SwarmSizeZero();
 
         Stamp storage stamp = stamps[stampId];
 
@@ -84,8 +93,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         override(IAutoSwarmMarket)
         returns (bytes32 stampId)
     {
-        require(swarmHash != bytes32(0), "Bad Swarm Hash!");
-        require(swarmSize != 0, "Bad Swarm Size!");
+        if (swarmHash == bytes32(0)) revert SwarmHashNull();
+        if (swarmSize == 0) revert SwarmSizeZero();
 
         Stamp memory stamp =
             Stamp({swarmHash: swarmHash, swarmSize: swarmSize, batchId: "", normalisedBalance: stampsTotalOutPayment()});
@@ -103,7 +112,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         _topUpStamp(stampId, bzzAmount);
     }
 
-    function setStampsUnitPrice(uint256 price) public override(IAutoSwarmMarket) {
+    function setStampsUnitPrice(uint256 price) public  onlyOwner override(IAutoSwarmMarket) {
         stampsLastOutPayment = stampsTotalOutPayment();
         stampsLastBlockUpdate = block.number;
         stampsUnitPrice = price;
@@ -111,7 +120,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         emit SetStampsUnitPrice(stampsUnitPrice);
     }
 
-    function setStampsSize(bytes32[] memory stampsIdsToSize, uint256 size) public override(IAutoSwarmMarket) {
+    function setStampsSize(bytes32[] memory stampsIdsToSize, uint256 size) public  onlyOwner override(IAutoSwarmMarket) {
         uint256 len = stampsIdsToSize.length;
         for (uint256 index; index < len; index++) {
             bytes32 stampId = stampsIdsToSize[index];
@@ -122,7 +131,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         }
     }
 
-    function attachStamps(bytes32[] memory stampsIdsToAttach) public override(IAutoSwarmMarket) {
+    function attachStamps(bytes32[] memory stampsIdsToAttach) public  onlyOwner override(IAutoSwarmMarket) {
         uint256 len = stampsIdsToAttach.length;
 
         for (uint256 index; index < len; index++) {
@@ -133,12 +142,29 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         }
     }
 
+    function sync() public override(IAutoSwarmMarket) returns (bytes32) {
+        if (newBatchNeeded()) _newBatch(batchPrice());
+
+        return currentBatchId;
+    }
+
+    function setBatch(address swarmNode, bytes32 batchId, uint256 batchFilling)
+        public
+        override(IAutoSwarmMarket)
+        onlyOwner
+    {
+        if (swarmNode == address(0)) revert SwarmNodeNull();
+
+        currentSwarmNode = swarmNode;
+        _setBatch(batchId, batchFilling);
+    }
+
     function newBatchNeeded() public view override(IAutoSwarmMarket) returns (bool) {
         if (currentBatchId == bytes32(0)) return true;
 
         // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
         uint256 remainingBalance = postageStamp.remainingBalance(currentBatchId);
-        uint256 neededBalance = postageStamp.lastPrice() * (7 days / _SECONDS_PER_BLOCK);
+        uint256 neededBalance = postageStamp.lastPrice() * (_EXPIRATION_TTL / _SECONDS_PER_BLOCK);
         bool aboutToExpire = remainingBalance <= neededBalance;
 
         // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
@@ -152,47 +178,6 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
     function batchPrice() public view override(IAutoSwarmMarket) returns (uint256) {
         return (postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
-    }
-
-    function sync() public override(IAutoSwarmMarket) returns (bytes32) {
-        if (newBatchNeeded()) _newBatch(batchPrice());
-
-        return currentBatchId;
-    }
-
-    function _newBatch(uint256 bzzAmount) internal returns (bytes32 batchId) {
-        require(currentSwarmNode != address(0), "Swarm node not set");
-
-        bzzToken.approve(address(postageStamp), bzzAmount);
-        batchId = postageStamp.createBatch(
-            currentSwarmNode,
-            bzzAmount >> _BATCH_DEPTH,
-            _BATCH_DEPTH,
-            _BUCKET_DEPTH,
-            keccak256(abi.encode("Batch #index", batchIds.length)),
-            false
-        );
-
-        _setBatch(batchId, 0);
-    }
-
-    function setBatch(address swarmNode, bytes32 batchId, uint256 batchFilling)
-        public
-        override(IAutoSwarmMarket)
-        onlyOwner
-    {
-        currentSwarmNode = swarmNode;
-        _setBatch(batchId, batchFilling);
-    }
-
-    function _setBatch(bytes32 batchId, uint256 batchFilling) internal {
-        require(batchId != currentBatchId, "Current BatchId already set");
-
-        currentBatchId = batchId;
-        currentBatchFilling = batchFilling;
-        batchIds.push(batchId);
-
-        emit SetBatch(batchId, batchFilling);
     }
 
     function getStampsUnitPriceOneYear() public view override(IAutoSwarmMarket) returns (uint256) {
@@ -265,17 +250,37 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         return stampsLastOutPayment + stampsOutPaymentIncrease;
     }
 
+    function getStampRemainingBalance(bytes32 stampId) public view override(IAutoSwarmMarket) returns (uint256) {
+        Stamp memory stamp = stamps[stampId];
+        if (stamp.swarmHash == bytes32(0)) revert StampNull();
+
+        return _subPos(stamp.normalisedBalance, stampsTotalOutPayment());
+    }
+
     function getMbSize(uint256 size) public pure override(IAutoSwarmMarket) returns (uint256) {
         return _divUp(size, STAMP_UNIT_SIZE);
     }
 
+    function _setBatch(bytes32 batchId, uint256 batchFilling) internal {
+        if (batchId == currentBatchId) revert BatchExists();
+
+        // slither-disable-next-line reentrancy-no-eth
+        currentBatchId = batchId;
+        // slither-disable-next-line reentrancy-no-eth
+        currentBatchFilling = batchFilling;
+        batchIds.push(batchId);
+
+        emit SetBatch(batchId, batchFilling);
+    }
+
     function _topUpStamp(bytes32 stampId, uint256 bzzAmount) internal {
         Stamp storage stamp = stamps[stampId];
+        if (stamp.swarmHash == bytes32(0)) revert StampNull();
 
         uint256 swarmSize = stamp.swarmSize;
         uint256 normalisedBalance = stamp.normalisedBalance;
         uint256 swarmMbSize = getMbSize(swarmSize);
-        require(swarmMbSize > 0, "Bad Swarm size");
+        if (swarmMbSize == 0) revert SwarmMbSizeZero();
 
         currentBatchFilling += swarmSize;
 
@@ -286,7 +291,25 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
         emit TopUpStamp(stampId, bzzAmount);
 
-        require(bzzToken.transferFrom(msg.sender, address(this), bzzAmountToTranfer), "Transfer failed");
+        if (!bzzToken.transferFrom(msg.sender, address(this), bzzAmountToTranfer)) revert TransferFailed();
+    }
+
+    function _newBatch(uint256 bzzAmount) internal returns (bytes32 batchId) {
+        if (currentSwarmNode == address(0)) revert SwarmNodeNull();
+        if (bzzAmount == 0) revert AmountZero();
+
+        // slither-disable-next-line reentrancy-no-eth
+        SafeERC20.safeIncreaseAllowance(bzzToken, address(postageStamp), bzzAmount);
+        batchId = postageStamp.createBatch(
+            currentSwarmNode,
+            bzzAmount >> _BATCH_DEPTH,
+            _BATCH_DEPTH,
+            _BUCKET_DEPTH,
+            keccak256(abi.encode("Batch #index", batchIds.length)),
+            false
+        );
+
+        _setBatch(batchId, 0);
     }
 
     function _diluteBatch(bytes32 batchId, uint8 depth) internal {
@@ -294,15 +317,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function _topUpBatch(bytes32 batchId, uint256 ttl) internal {
-        bzzToken.approve(address(postageStamp), ttl << postageStamp.batchDepth(batchId));
+        SafeERC20.safeIncreaseAllowance(bzzToken, address(postageStamp), ttl << postageStamp.batchDepth(batchId));
         postageStamp.topUp(batchId, ttl);
-    }
-
-    function getStampRemainingBalance(bytes32 stampId) public view returns (uint256) {
-        Stamp memory stamp = stamps[stampId];
-        require(stamp.swarmHash != bytes32(0), "Stamp not exists");
-
-        return _subPos(stamp.normalisedBalance, stampsTotalOutPayment());
     }
 
     // _divUp: ceiled integer div (instead of floored)

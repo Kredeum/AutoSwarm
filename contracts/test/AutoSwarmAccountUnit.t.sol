@@ -48,7 +48,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         // assert(tba.swarmHash() == bytes32("1"));
         // assert(tba.swarmSize() == 1);
         // assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
-        // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+        // assert(tba.getOneYearPrice() == 2e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_initialize2() public {
@@ -61,7 +61,7 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
 
         // assert(tba.swarmHash() == bytes32("1"));
         // assert(bzzToken.allowance(address(tba), address(autoSwarmMarket)) == 0);
-        // assert(tba.getTopUpYearPrice() == 4e8 * BLOCKS_PER_YEAR);
+        // assert(tba.getOneYearPrice() == 4e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_swarhHash() public view {
@@ -72,8 +72,8 @@ contract AutoSwarmAccountUnitTest is SetUpAutoSwarmAccount {
         // assert(tba.swarmSize() == 1);
     }
 
-    function test_AutoSwarmAccount_getTopUpYearPrice() public view {
-        // assert(tba.getTopUpYearPrice() == 2e8 * BLOCKS_PER_YEAR);
+    function test_AutoSwarmAccount_getOneYearPrice() public view {
+        // assert(tba.getOneYearPrice() == 2e8 * BLOCKS_PER_YEAR);
     }
 
     function test_AutoSwarmAccount_token() public view {

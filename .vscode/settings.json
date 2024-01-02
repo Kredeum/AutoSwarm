@@ -52,5 +52,7 @@
       "filePath": "sveltekit/src/lib/components/Cron/CronMonitor.svelte",
       "group": "Default"
     }
-  ]
+  ],
+  "slither.solcPath": "",
+  "slither.hiddenDetectors": ["assembly"]
 }
