@@ -14,8 +14,6 @@
 	// Layout for all AutoSwarm pages
 	/////////////////////////////////////////////////////////////////////////////
 
-	bzzChainId.set(Number(localConfigGet('chainId')));
-
 	$: document.body.style.backgroundColor = ($page.route.id || '').includes('/monitor')
 		? '#444'
 		: '#000';

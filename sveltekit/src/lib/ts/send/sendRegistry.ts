@@ -1,4 +1,3 @@
-import 'viem/window';
 import type { Address } from 'viem';
 import { erc6551RegistryAbi } from '$lib/ts/constants/abis';
 import { callIsContract } from '$lib/ts/call/call';

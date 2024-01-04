@@ -12,14 +12,20 @@
     "chainName": "gnosis"
   },
   "31337": {
-    "AutoSwarmAccount": "0xded2cB506a7374B9645726565b1bD790E605B7b1",
-    "AutoSwarmMarket": "0x80F43505d8d1A739504eB4237Eb15b2e0048Da8d",
+    "AutoSwarmAccount": "0x80F43505d8d1A739504eB4237Eb15b2e0048Da8d",
+    "AutoSwarmAccount_last": "0x80F43505d8d1A739504eB4237Eb15b2e0048Da8d",
+    "AutoSwarmMarket": "0xBDF9001c5d3fFc03AB6564CA28E530665594dfF7",
+    "AutoSwarmMarket_last": "0xBDF9001c5d3fFc03AB6564CA28E530665594dfF7",
     "BzzToken": "0x1Eb835EB7BEEEE9E6bbFe08F16a2d2eF668204bd",
+    "BzzToken_last": "0x1Eb835EB7BEEEE9E6bbFe08F16a2d2eF668204bd",
     "ERC6551Registry": "0x8aBb8E62Bd73f4c73b2CE7a02631B2dC911Ab720",
+    "ERC6551Registry_last": "0x8aBb8E62Bd73f4c73b2CE7a02631B2dC911Ab720",
     "NFTCollection": "0x0116686E2291dbd5e317F47faDBFb43B599786Ef",
+    "NFTCollection_last": "0x0116686E2291dbd5e317F47faDBFb43B599786Ef",
     "PostageStamp": "0x2706A171ECb68E0038378D40Dd1d136361d0cB7d",
+    "PostageStamp_last": "0x2706A171ECb68E0038378D40Dd1d136361d0cB7d",
     "PriceOracle": "0x4A3111F8974Cb2429f98597bB8e7A58A2b29db9D",
-    "SwarmNode": "0xf28d35a822bda22400b4b620deb8e7889fab63ac",
+    "SwarmNode": "0xF28D35A822bDA22400B4B620dEB8E7889FaB63ac",
     "chainName": "anvil"
   },
   "11155111": {

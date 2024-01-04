@@ -71,13 +71,13 @@
 		</p>
 	</div>
 
-	<div id="monitor-content">
-		<hr />
-		{#key attaching}
+	{#key attaching}
+		<div id="monitor-content">
+			<hr />
 			<DetailsStamps />
-		{/key}
-		<hr />
-	</div>
+			<hr />
+		</div>
+	{/key}
 </div>
 
 <style>

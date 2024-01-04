@@ -67,20 +67,19 @@
 		</p>
 	</div>
 
-	<div id="monitor-content">
-		<hr />
-		<DetailsPostage />
-		<hr />
-		{#key buying}
+	{#key buying}
+		<div id="monitor-content">
+			<hr />
+			<DetailsPostage />
+			<hr />
 			<DetailsMarket />
-		{/key}
-
-		<hr />
-		<DetailsAddresses />
-		<hr />
-		<DetailsConstants />
-		<hr />
-	</div>
+			<hr />
+			<DetailsAddresses />
+			<hr />
+			<DetailsConstants />
+			<hr />
+		</div>
+	{/key}
 </div>
 
 <style>

@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 
 import { addressesGet } from '../common/addresses';
-import { chainGet, type BzzChainIdType } from '../common/chains';
+import { chainGet } from '../common/chains';
 import type { Chain, Hex } from 'viem';
 import { LIST_JSON, ZERO_BYTES32 } from '../constants/constants';
 import { utilsIsNullBytes32 } from '../common/utils';
@@ -15,7 +15,7 @@ const bzzChainId = writable<number>();
 
 const bzzChain = (): Chain | undefined => chainGet(get(bzzChainId));
 
-const bzzJson = (): AddressesType => addressesGet(get(bzzChainId) as BzzChainIdType);
+const bzzJson = (): AddressesType => addressesGet(get(bzzChainId));
 
 const bzzTrim = (hash: Hex | string | undefined): string =>
 	hash

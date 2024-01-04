@@ -1,4 +1,3 @@
-import 'viem/window';
 import type { Address, Hex } from 'viem';
 import { postageStampAbi } from '$lib/ts/constants/abis';
 import { sendWallet } from './send';

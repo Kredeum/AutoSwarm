@@ -99,15 +99,17 @@
 		</p>
 	</div>
 
-	<div id="monitor-content">
-		<hr />
-		<DetailsBatchs />
-		<hr />
-		<DetailsWallet />
-		<hr />
-		<DetailsPostage />
-		<hr />
-	</div>
+	{#key buying}
+		<div id="monitor-content">
+			<hr />
+			<DetailsBatchs />
+			<hr />
+			<DetailsWallet />
+			<hr />
+			<DetailsPostage />
+			<hr />
+		</div>
+	{/key}
 </div>
 
 <style>
