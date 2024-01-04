@@ -1,41 +1,25 @@
 <script lang="ts">
-	import { displayExplorer, displayExplorerField } from '$lib/ts/display/displayExplorer';
+	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import DetailsAddress from './DetailsAddress.svelte';
 
-	///////////////////////////// Details Addresses ///////////////////////////////////////
+	///////////////////////////// Details Addresses /////////////////////////////////////
 	// <DetailsAddresses />
 	/////////////////////////////////////////////////////////////////////////////////////
 </script>
 
-<p>
-	Addresses | BZZ Chain Id / BZZ Token address
-	<span>
-		{@html displayExplorer($bzzChainId)} / {@html displayExplorerField($bzzChainId, 'BzzToken')}
-	</span>
-</p>
-<p>
-	Addresses | AutoSwarmAccount<span
-		>{@html displayExplorerField($bzzChainId, 'AutoSwarmAccount')}</span
-	>
-</p>
-<p>
-	Addresses | AutoSwarmMarket<span
-		>{@html displayExplorerField($bzzChainId, 'AutoSwarmMarket')}</span
-	>
-</p>
-<p>
-	Addresses | ERC6551 Registry<span
-		>{@html displayExplorerField($bzzChainId, 'ERC6551Registry')}</span
-	>
-</p>
-<p>
-	Addresses | PostageStamp<span>{@html displayExplorerField($bzzChainId, 'PostageStamp')}</span>
-</p>
-<p>Addresses | PriceOracle<span>{@html displayExplorerField($bzzChainId, 'PriceOracle')}</span></p>
-
-<style>
-	p span {
-		float: right;
-		font-family: Monaco;
-	}
-</style>
+<DetailsAddress label="BzzToken" address={addressesGetField($bzzChainId, 'BzzToken')} />
+<DetailsAddress
+	label="AutoSwarmAccount"
+	address={addressesGetField($bzzChainId, 'AutoSwarmAccount')}
+/>
+<DetailsAddress
+	label="AutoSwarmMarket"
+	address={addressesGetField($bzzChainId, 'AutoSwarmMarket')}
+/>
+<DetailsAddress
+	label="ERC6551Registry"
+	address={addressesGetField($bzzChainId, 'ERC6551Registry')}
+/>
+<DetailsAddress label="PostageStamp" address={addressesGetField($bzzChainId, 'PostageStamp')} />
+<DetailsAddress label="PriceOracle" address={addressesGetField($bzzChainId, 'PriceOracle')} />

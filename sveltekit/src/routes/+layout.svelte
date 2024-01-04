@@ -8,7 +8,6 @@
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { page } from '$app/stores';
-	import { localConfigGet, localConfigInit } from '$lib/ts/common/local';
 
 	////////////////////// AutoSwarm Layout ///////////////////////////////////////
 	// Layout for all AutoSwarm pages

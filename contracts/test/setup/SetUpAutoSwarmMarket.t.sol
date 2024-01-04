@@ -4,9 +4,12 @@ pragma solidity 0.8.23;
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpSwarm} from "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
+import {console} from "forge-std/console.sol";
+
 contract SetUpAutoSwarmMarket is SetUpSwarm {
     AutoSwarmMarket public autoSwarmMarket;
     address public swarmNode = makeAddr("SwarmNode");
+    bytes32 public currentBatchId;
 
     uint8 internal constant _INITIAL_DEPTH = 23;
     uint256 internal constant _INITIAL_TTL = 30 days;
@@ -19,7 +22,9 @@ contract SetUpAutoSwarmMarket is SetUpSwarm {
         deal(address(bzzToken), address(autoSwarmMarket), bzzAmount);
 
         vm.prank(deployer);
-        autoSwarmMarket.sync();
+        currentBatchId = autoSwarmMarket.sync();
+        console.log("setUpAutoSwarmMarket ~ currentBatchId:");
+        console.logBytes32(currentBatchId);
     }
 
     function setUp() public virtual {

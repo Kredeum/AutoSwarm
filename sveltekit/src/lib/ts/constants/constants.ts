@@ -11,7 +11,8 @@ const BZZ_CHAIN_ID_DEFAULT = '100';
 
 const BEE_API_DEFAULT = 'http://127.0.0.1:1633';
 const BEE_BATCHID_DEFAULT = ZERO_BYTES32;
-const BEE_GATEWAY_DEFAULT = 'http://127.0.0.1:1633';
+const BEE_GATEWAY_DEFAULT = 'http://127.0.0.1:1633/bzz';
+// const BEE_GATEWAY_DEFAULT = 'https://gateway.fairdatasociety.org/bzz';
 // const BEE_GATEWAY_DEFAULT = 'https://api.gateway.ethswarm.org/bzz';
 
 const IPFS_GATEWAY_DEFAULT = 'https://ipfs.io/ipfs';

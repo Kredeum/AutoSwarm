@@ -11,6 +11,7 @@
 	import DetailsStamps from '../Details/DetailsStamps.svelte';
 	import { goto } from '$app/navigation';
 	import { callMarketGetAllStampIdsToAttach } from '$lib/ts/call/callStamps';
+	import DetailsLocalStorage from '../Details/DetailsLocalStorage.svelte';
 
 	/////////////////////////////// Monitor Stamps Component ////////////////////////////
 	// <MonitorStamps />
@@ -31,6 +32,7 @@
 	};
 
 	const attachStamps = async () => {
+		if (!attachStampsNeeded) return;
 		console.info('attachStamps');
 
 		try {
@@ -38,6 +40,18 @@
 
 			{
 				attaching = 1;
+				// console.log(`attach Stamps to batchId ${batchId}`);
+
+				stampIdsToAttach.map((stampId, i) => {
+					console.log(`attach stampId #${i} = ${stampId}`);
+
+					//  await fetchBee()
+				});
+				await refresh();
+			}
+
+			{
+				attaching = 2;
 				await sendMarketAttachStamps($bzzChainId, stampIdsToAttach);
 				await refresh();
 			}
@@ -64,7 +78,7 @@
 				{/if}
 			</button>
 			<span>
-				<button class="btn btn-topup" on:click={() => goto('./monitor-batchs')}>
+				<button class="btn btn-topup" on:click={() => goto('/monitor/batchs')}>
 					Monitor Batchs
 				</button>
 			</span>

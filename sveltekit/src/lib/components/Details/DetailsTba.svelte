@@ -7,15 +7,11 @@
 		displayBzzURI,
 		displayBzzURL,
 		displayDuration,
-		displayLink,
 		displaySize,
-		displaySizeBytes,
-		displayTtl
+		displaySizeBytes
 	} from '$lib/ts/display/display';
-	import { callPostageLastPrice } from '$lib/ts/call/callPostage';
-	import { displayExplorer, displayExplorerAddress } from '$lib/ts/display/displayExplorer';
 
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import DetailsAddress from './DetailsAddress.svelte';
 
 	///////////////////////////// Details TBA ///////////////////////////////////////
 	// <DetailsTba  {tbaMetadata} />
@@ -24,18 +20,12 @@
 	/////////////////////////////////////////////////////////////////////////////////////
 </script>
 
+<DetailsAddress address={tbaMetadata.tbaAddress} label="TBA" />
+
 <p>
-	TBA | Deployed? / ChainId / Address
+	TBA | Deployed? / Tba TTL + Stamp TTL = TTL
 	<span>
 		{#if !tbaMetadata.tbaDeployed}Not{/if} deployed /
-		{@html displayExplorer($bzzChainId)} /
-		{@html displayExplorerAddress($bzzChainId, tbaMetadata.tbaAddress)}
-	</span>
-</p>
-<p>
-	TBA | Balance / Tba TTL + Stamp TTL = TTL
-	<span>
-		{displayBalance(tbaMetadata.tbaBalance, 16, 4)} BZZ /
 		{displayDuration(tbaMetadata.tbaBzzDuration)} +
 		{displayDuration(tbaMetadata.tbaStampDuration)}
 		{#if tbaMetadata.tbaBzzDuration && tbaMetadata.tbaStampDuration}={:else}>={/if}

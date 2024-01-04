@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IPostageStamp} from "./IPostageStamp.sol";
-
 interface IAutoSwarmMarket {
     struct Stamp {
         bytes32 swarmHash;
@@ -12,13 +9,17 @@ interface IAutoSwarmMarket {
         uint256 normalisedBalance;
     }
 
-    error SwarmNodeNull();
-    error InvalidBatch();
     error BatchExists();
     error StampExists();
     error StampNull();
+    error SwarmNodeNull();
     error NotOwner();
     error NotMarketOwner();
+    error NotCurrentBatch();
+    error CurrentBatchNull();
+    error InvalidBatch();
+
+    error AmountZero();
     error SwarmSizeZero();
     error SwarmMbSizeZero();
     error SwarmHashNull();
@@ -26,7 +27,6 @@ interface IAutoSwarmMarket {
     error PostageStampNull();
     error NotEnoughBalance(uint256, uint256);
     error TransferFailed();
-    error AmountZero();
 
     event SetBatch(bytes32 indexed, uint256 indexed);
     event BuyBatch(bytes32 indexed, uint256 indexed, uint8 indexed, uint256);
@@ -40,8 +40,8 @@ interface IAutoSwarmMarket {
     event TopUpStamp(bytes32 indexed, uint256 indexed);
     event AttachStamp(bytes32 indexed, bytes32 indexed);
 
-    function bzzToken() external view returns (IERC20);
-    function postageStamp() external view returns (IPostageStamp);
+    function bzzToken() external view returns (address);
+    function postageStamp() external view returns (address);
     function getStampUnitPriceOneYear() external view returns (uint256);
 
     function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256);
@@ -74,5 +74,5 @@ interface IAutoSwarmMarket {
     function sync() external returns (bytes32);
     function setBatch(address, bytes32, uint256) external;
     function extendsBatch(bytes32, uint8) external;
-    function attachStamps(bytes32[] memory) external;
+    function attachStamps(bytes32[] memory, bytes32 batchId) external;
 }

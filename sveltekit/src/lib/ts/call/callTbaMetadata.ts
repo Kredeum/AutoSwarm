@@ -56,16 +56,14 @@ const callTbaMetadata = async (
 		}
 
 		if (!utilsIsNullBytes32(tbaMetadata.tbaStampId)) {
-			console.log('remainingBalance1:', tbaMetadata.tbaStampId);
 			try {
 				const remainingBalance = await callMarketGetStampRemainingBalance(
 					bzzChainId,
 					tbaMetadata.tbaStampId!
 				);
-				console.log('remainingBalance2:', remainingBalance);
 				tbaMetadata.tbaStampDuration = utilsDivUp(remainingBalance, STAMP_PRICE) * BigInt(ONE_YEAR);
 			} catch (e) {
-				console.log('remainingBalance3:', e);
+				console.error('remainingBalance:', e);
 			}
 		}
 

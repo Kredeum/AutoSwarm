@@ -69,6 +69,6 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
         // upload / sync swarm hash to node on currentBatchid
 
         vm.prank(deployer);
-        autoSwarmMarket.attachStamps(stampIds);
+        autoSwarmMarket.attachStamps(stampIds, currentBatchId);
     }
 }

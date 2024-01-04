@@ -30,6 +30,8 @@
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { onMount } from 'svelte';
 	import type { Address, Hex } from 'viem';
+	import DetailsMarket from './DetailsMarket.svelte';
+	import DetailsAddress from './DetailsAddress.svelte';
 
 	///////////////////////////// Details Market ///////////////////////////////////////
 	// <DetailsMarket />
@@ -94,14 +96,14 @@
 	});
 </script>
 
-<p>Market | Current Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
+<p>Market | Batch Id <span>{currentBatchId || UNDEFINED_DATA}</span></p>
+
+<DetailsAddress address={currentBatchOwner} label="Market | Batch Owner" />
+
+<hr />
+
 <p>
-	Market | Current Batch Owner <span
-		>{@html displayExplorerAddress($bzzChainId, currentBatchOwner || UNDEFINED_ADDRESS)}</span
-	>
-</p>
-<p>
-	Market | Current Batch Immutable? / Bucket Depth / Depth / TTL
+	Market | Batch Immutable? / Bucket Depth / Depth / TTL
 	<span>
 		{currentBatchImmutableFlag ? 'immutable' : 'mutable'} / 2<sup
 			>{currentBatchBucketDepth || UNDEFINED_DATA}</sup
@@ -110,8 +112,9 @@
 		{displayTtl(currentBatchRemainingBalance, chunckPrice)}
 	</span>
 </p>
+
 <p>
-	Market | Current Batch Block - Last Updated Block = Delta
+	Market | Batch Block - Last Updated Block = Delta
 	<span>
 		#{lastBlockNumber || UNDEFINED_DATA}
 		- #{currentBatchLastUpdatedBlockNumber || UNDEFINED_DATA}
@@ -121,20 +124,12 @@
 	</span>
 </p>
 <p>
-	Market | Current Batch Size / Filling / Filling % / Stamps Count
+	Market | Batch Size / Filling / Filling % / Stamps Count
 	<span>
 		{displaySize(BATCH_SIZE)} /
 		{displaySize(currentBatchFilling)} /
 		{displayPerCent(currentBatchFilling, BATCH_SIZE)} /
 		{stampsCount}
-	</span>
-</p>
-<hr />
-<p>
-	Market | Balance / Address
-	<span>
-		{displayBalance(marketBalance, 16, 4)} Bzz /
-		{@html displayExplorerAddress($bzzChainId, marketAddress)}
 	</span>
 </p>
 

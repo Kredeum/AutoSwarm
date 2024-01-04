@@ -2,38 +2,29 @@
 	import type { Address, Hex } from 'viem';
 	import { onMount } from 'svelte';
 
-	import { ONE_YEAR, STAMP_PRICE, STAMP_SIZE } from '$lib/ts/constants/constants.js';
+	import { STAMP_PRICE } from '$lib/ts/constants/constants.js';
 	import type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata } from '$lib/ts/constants/types';
-	import { localConfigInit } from '$lib/ts/common/local';
-	import { fetchNftTar } from '$lib/ts/fetchBee/fetchNftTar';
-	import { fetchBeeTarPost } from '$lib/ts/fetchBee/fetchBeeTar';
+
 	import { callBlock } from '$lib/ts/call/call.js';
-	import { callTbaSwarmHash } from '$lib/ts/call/callTba';
 
 	import { sendBzzTransfer } from '$lib/ts/send/sendBzz';
 	import { sendTbaCreateStamp, sendTbaTopUp } from '$lib/ts/send/sendTba';
 	import { sendRegistryCreateAccount } from '$lib/ts/send/sendRegistry';
-	import {
-		displayBalance,
-		displayDate,
-		displayDuration,
-		displaySize
-	} from '$lib/ts/display/display';
+	import { displayBalance, displayDate, displayDuration } from '$lib/ts/display/display';
 
-	import { utilsDivUp, utilsIsNullBytes32 } from '$lib/ts/common/utils.js';
-	import { bzzChainId, bzzImageName } from '$lib/ts/swarm/bzz';
-	import { alertError, alertInfo, alertMessage, alertSuccess } from '$lib/ts/stores/alertMessage';
+	import { utilsIsNullBytes32 } from '$lib/ts/common/utils.js';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { alertError, alertInfo, alertSuccess } from '$lib/ts/stores/alertMessage';
 
 	import Nft from '$lib/components/Nft/Nft.svelte';
 
-	import { callTbaMetadata } from '$lib/ts/call/callTbametadata';
 	import { nftIds } from '$lib/ts/common/nft';
 	import { fetchBeeMetadata } from '$lib/ts/fetch/fetchBeeMetadata';
 	import DetailsNft from '../Details/DetailsNft.svelte';
 	import DetailsBee from '../Details/DetailsBee.svelte';
 	import DetailsTba from '../Details/DetailsTba.svelte';
-	import DetailsPostage from '../Details/DetailsPostage.svelte';
 	import DetailsWallet from '../Details/DetailsWallet.svelte';
+	import { callTbaMetadata } from '$lib/ts/call/callTbaMetadata';
 
 	////////////////////// AutoSwarm Component /////////////////////////////////
 	// <AutoSwarm {metadata} {nftMetadata} />
@@ -100,25 +91,17 @@
 		console.info('reSave');
 
 		try {
-			console.info('reSave1');
 			if (resaving) throw new Error('Already ReSaving!');
-			console.info('reSave2');
 			if (!tbaAddress) throw new Error('No Tba found');
-			console.info('reSave3');
 			if (!nftSize) throw new Error('No Nft Size found');
-			console.info('reSave4');
 			if (!tbaPrice) throw new Error('No Stamp Price found');
-			console.info('reSave5');
 
-			console.log('reSave ~ tbaSwarmHash1:', tbaSwarmHash);
 			if (utilsIsNullBytes32(tbaSwarmHash)) {
-				console.log('reSave ~ tbaSwarmHash2:', tbaSwarmHash);
 				resaving = 1;
 				beeMetadata = await fetchBeeMetadata(nftMetadata);
 				console.info('beeMetadata\n', beeMetadata);
 				await refresh();
 			}
-			console.log('reSave ~ tbaSwarmHash3:', tbaSwarmHash);
 
 			if (!tbaDeployed) {
 				resaving = 2;
@@ -161,7 +144,6 @@
 
 			{
 				toping = 1;
-				console.log('topUp ~ tbaPrice:', tbaPrice);
 				alertInfo(`Confirm transfer of ${displayBalance(tbaPrice, 16, 3)} BZZ to TBA`);
 				await sendBzzTransfer($bzzChainId, tbaAddress, tbaPrice);
 				refresh();

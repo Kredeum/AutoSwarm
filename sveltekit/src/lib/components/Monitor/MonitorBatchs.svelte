@@ -16,7 +16,8 @@
 	import DetailsMarket from '../Details/DetailsMarket.svelte';
 	import DetailsPostage from '../Details/DetailsPostage.svelte';
 	import { goto } from '$app/navigation';
-	import DetailsBatchs from '../Details/DetailsBatchs.svelte';
+	import DetailsCurrentBatch from '../Details/DetailsCurrentBatch.svelte';
+	import DetailsLocalStorage from '../Details/DetailsLocalStorage.svelte';
 
 	/////////////////////////////// Monitor Component ///////////////////////////////////
 	// <MonitorBuyBatch />
@@ -84,7 +85,7 @@
 	<h2>Monitor - Buy Batch</h2>
 	<div id="monitor-buttons">
 		<p>
-			<button class="btn btn-topup" on:click={() => goto('./monitor-stamps')}>
+			<button class="btn btn-topup" on:click={() => goto('/monitor/stamps')}>
 				Monitor Stamps
 			</button>
 
@@ -102,9 +103,12 @@
 	{#key buying}
 		<div id="monitor-content">
 			<hr />
-			<DetailsBatchs />
+			<DetailsMarket fields="" />
 			<hr />
 			<DetailsWallet />
+			<DetailsLocalStorage fields="batchId" />
+			<hr />
+			<DetailsCurrentBatch />
 			<hr />
 			<DetailsPostage />
 			<hr />

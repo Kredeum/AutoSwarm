@@ -6,14 +6,12 @@ import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 
 contract DeployAutoSwarmAccount is DeployLite {
-    function deployAutoSwarmAccount() public returns (address autoSwarmAccountAddress) {
-        AutoSwarmMarket autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
+    function deployAutoSwarmAccount() public returns (address autoSwarmAccount) {
+        address autoSwarmMarket = deploy("AutoSwarmMarket");
 
         vm.startBroadcast(deployer);
-        AutoSwarmAccount autoSwarmAccount = new AutoSwarmAccount(autoSwarmMarket);
+        autoSwarmAccount = address(new AutoSwarmAccount(autoSwarmMarket));
         vm.stopBroadcast();
-
-        autoSwarmAccountAddress = address(autoSwarmAccount);
     }
 
     function run() public virtual {

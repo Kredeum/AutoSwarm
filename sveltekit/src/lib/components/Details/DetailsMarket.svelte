@@ -1,115 +1,36 @@
 <script lang="ts">
-	import { callBlockNumber } from '$lib/ts/call/call';
-	import { callBzzBalance } from '$lib/ts/call/callBzz';
-	import {
-		callMarketCurrentBatchFilling,
-		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode
-	} from '$lib/ts/call/callMarket';
-	import {
-		callPostageBatches,
-		callPostageCurrentTotalOutPayment,
-		callPostageLastPrice,
-		callPostageRemainingBalance
-	} from '$lib/ts/call/callPostage';
-	import { callMarketGetStampsCount } from '$lib/ts/call/callStamps';
+	import { callMarketCurrentSwarmNode } from '$lib/ts/call/callMarket';
 	import { addressesGetField } from '$lib/ts/common/addresses';
-	import { utilsIsNullBytes32 } from '$lib/ts/common/utils';
-	import {
-		BATCH_DEPTH,
-		BATCH_SIZE,
-		BATCH_TTL,
-		CHUNK_PRICE_DEFAULT,
-		UNDEFINED_ADDRESS,
-		UNDEFINED_DATA
-	} from '$lib/ts/constants/constants';
-	import { displayBalance, displayPerCent, displaySize, displayTtl } from '$lib/ts/display/display';
-	import { displayExplorerAddress } from '$lib/ts/display/displayExplorer';
-	import { alertError } from '$lib/ts/stores/alertMessage';
-	import { batchPrice } from '$lib/ts/swarm/batch';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { onMount } from 'svelte';
 	import type { Address, Hex } from 'viem';
+	import DetailsAddress from './DetailsAddress.svelte';
 
 	///////////////////////////// Details Market ///////////////////////////////////////
-	// <DetailsMarket />
+	// <DetailsMarket fields />
 	/////////////////////////////////////////////////////////////////////////////////////
-	let lastBlockNumber: bigint | undefined;
+	export let fields: string | undefined = undefined;
+	/////////////////////////////////////////////////////////////////////////////////////
+
 	let marketAddress: Address | undefined;
-	let marketBalance: bigint | undefined;
-
-	let chunckPrice: bigint | undefined;
-	let currentBatchId: Hex | undefined;
 	let currentSwarmNode: Address | undefined;
-	let currentBatchOwner: Address | undefined;
-	let currentBatchDepth: number | undefined;
-	let currentBatchBucketDepth: number | undefined;
-	let currentBatchImmutableFlag: boolean | undefined;
-	let currentBatchNormalisedBalance: bigint | undefined;
-	let currentBatchLastUpdatedBlockNumber: bigint | undefined;
-
-	let stampsCount: number | undefined;
-	let currentBatchRemainingBalance: bigint | undefined;
-	let currentBatchFilling: bigint | undefined;
 
 	const refresh = async () => {
-		try {
-			lastBlockNumber = await callBlockNumber($bzzChainId);
-			stampsCount = await callMarketGetStampsCount($bzzChainId);
-			marketBalance = await callBzzBalance(
-				$bzzChainId,
-				addressesGetField($bzzChainId, 'AutoSwarmMarket')
-			);
-
-			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
-
-			currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
-			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
-			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
-
-			if (!utilsIsNullBytes32(currentBatchId)) {
-				[
-					currentBatchOwner,
-					currentBatchDepth,
-					currentBatchBucketDepth,
-					currentBatchImmutableFlag,
-					currentBatchNormalisedBalance,
-					currentBatchLastUpdatedBlockNumber
-				] = await callPostageBatches($bzzChainId, currentBatchId);
-
-				currentBatchRemainingBalance = await callPostageRemainingBalance(
-					$bzzChainId,
-					currentBatchId
-				);
-			}
-		} catch (e) {
-			alertError('<market Refresh', e);
-		}
+		marketAddress = addressesGetField($bzzChainId, 'AutoSwarmMarket');
+		currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
 	};
 
-	onMount(async () => {
-		marketAddress = addressesGetField($bzzChainId, 'AutoSwarmMarket');
+	const isField = (field: string): boolean => !fields || fields.includes(field);
 
+	onMount(async () => {
 		await refresh();
 	});
 </script>
 
-<p>
-	Market | Current Swarm Node <span
-		>{@html displayExplorerAddress($bzzChainId, currentSwarmNode || UNDEFINED_ADDRESS)}</span
-	>
-</p>
-<p>
-	Market | Balance / Address
-	<span>
-		{displayBalance(marketBalance, 16, 4)} Bzz /
-		{@html displayExplorerAddress($bzzChainId, marketAddress)}
-	</span>
-</p>
+{#if isField('address')}
+	<DetailsAddress address={marketAddress} label="Market | Contract" />
+{/if}
 
-<style>
-	p span {
-		float: right;
-		font-family: Monaco;
-	}
-</style>
+{#if isField('owner')}
+	<DetailsAddress address={currentSwarmNode} label="Market | SwarmNode" />
+{/if}

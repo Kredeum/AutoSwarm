@@ -2,17 +2,13 @@
 pragma solidity 0.8.23;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IAutoSwarmMarket, IPostageStamp, IERC20} from "./interfaces/IAutoSwarmMarket.sol";
+import {IPostageStamp} from "./interfaces/IPostageStamp.sol";
+import {IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
 
 // import {console} from "forge-std/console.sol";
-// struct Stamp {
-//     bytes32 swarmHash;
-//     uint256 swarmSize;
-//     bytes32 batchId;
-//     uint256 normalisedBalance;
-// }
 
 contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     bytes32[] public batchIds;
@@ -32,8 +28,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     uint256 public stampsLastOutPayment;
     uint256 public stampsLastBlockUpdate;
 
-    IPostageStamp public postageStamp;
-    IERC20 public bzzToken;
+    address public postageStamp;
+    address public bzzToken;
 
     uint256 internal constant _EXPIRATION_TTL = 7 days;
     uint256 internal constant _BATCH_TTL = 30 days;
@@ -47,22 +43,22 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         if (postageStamp_ == address(0)) revert PostageStampNull();
         if (swarmNode_ == address(0)) revert SwarmNodeNull();
 
-        postageStamp = IPostageStamp(payable(postageStamp_));
+        postageStamp = postageStamp_;
         currentSwarmNode = swarmNode_;
 
-        bzzToken = IERC20(postageStamp.bzzToken());
+        bzzToken = IPostageStamp(postageStamp).bzzToken();
 
         setStampUnitPrice(2e8);
     }
 
     function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {
-        uint256 ttl = postageStamp.remainingBalance(batchId);
+        uint256 ttl = IPostageStamp(postageStamp).remainingBalance(batchId);
         if (ttl == 0) revert InvalidBatch();
 
-        uint8 newDepth = postageStamp.batchDepth(batchId) + deltaDepth;
+        uint8 newDepth = IPostageStamp(postageStamp).batchDepth(batchId) + deltaDepth;
 
         _diluteBatch(batchId, newDepth);
-        assert(postageStamp.batchDepth(batchId) == newDepth);
+        assert(IPostageStamp(postageStamp).batchDepth(batchId) == newDepth);
 
         uint256 mul = 1 << deltaDepth;
         uint256 newTtl = (ttl * (mul - 1)) / mul;
@@ -70,7 +66,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         emit ExtendsBatch(batchId, newDepth, newTtl);
         _topUpBatch(batchId, newTtl);
 
-        assert(postageStamp.remainingBalance(batchId) == ttl);
+        assert(IPostageStamp(postageStamp).remainingBalance(batchId) == ttl);
     }
 
     function updateStamp(bytes32 stampId, bytes32 swarmHash, uint256 swarmSize)
@@ -132,7 +128,14 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         }
     }
 
-    function attachStamps(bytes32[] memory stampIdsToAttach) public override(IAutoSwarmMarket) onlyOwner {
+    function attachStamps(bytes32[] memory stampIdsToAttach, bytes32 batchId)
+        public
+        override(IAutoSwarmMarket)
+        onlyOwner
+    {
+        if (currentBatchId == bytes32(0)) revert CurrentBatchNull();
+        if (batchId != currentBatchId) revert NotCurrentBatch();
+
         uint256 len = stampIdsToAttach.length;
 
         for (uint256 index; index < len; index++) {
@@ -164,8 +167,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         if (currentBatchId == bytes32(0)) return true;
 
         // 1/ Check if current batch is about to expire ? i.e. 1 week before expiration
-        uint256 remainingBalance = postageStamp.remainingBalance(currentBatchId);
-        uint256 neededBalance = postageStamp.lastPrice() * (_EXPIRATION_TTL / _SECONDS_PER_BLOCK);
+        uint256 remainingBalance = IPostageStamp(postageStamp).remainingBalance(currentBatchId);
+        uint256 neededBalance = IPostageStamp(postageStamp).lastPrice() * (_EXPIRATION_TTL / _SECONDS_PER_BLOCK);
         bool aboutToExpire = remainingBalance <= neededBalance;
 
         // 2/ Check if batch is about to be full ? i.e. 1/2 of batch filled for depth 23
@@ -178,7 +181,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function getBatchPrice() public view override(IAutoSwarmMarket) returns (uint256) {
-        return (postageStamp.lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
+        return (IPostageStamp(postageStamp).lastPrice() << _BATCH_DEPTH) * (_BATCH_TTL / _SECONDS_PER_BLOCK);
     }
 
     function getStampUnitPriceOneYear() public view override(IAutoSwarmMarket) returns (uint256) {
@@ -292,7 +295,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
         emit TopUpStamp(stampId, bzzAmount);
 
-        if (!bzzToken.transferFrom(msg.sender, address(this), bzzAmountToTranfer)) revert TransferFailed();
+        SafeERC20.safeTransferFrom(IERC20(bzzToken), msg.sender, address(this), bzzAmountToTranfer);
     }
 
     function _newBatch(uint256 bzzAmount) internal returns (bytes32 batchId) {
@@ -300,8 +303,8 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         if (bzzAmount == 0) revert AmountZero();
 
         // slither-disable-next-line reentrancy-no-eth
-        SafeERC20.safeIncreaseAllowance(bzzToken, address(postageStamp), bzzAmount);
-        batchId = postageStamp.createBatch(
+        SafeERC20.safeIncreaseAllowance(IERC20(bzzToken), address(postageStamp), bzzAmount);
+        batchId = IPostageStamp(postageStamp).createBatch(
             currentSwarmNode,
             bzzAmount >> _BATCH_DEPTH,
             _BATCH_DEPTH,
@@ -314,12 +317,14 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function _diluteBatch(bytes32 batchId, uint8 depth) internal {
-        postageStamp.increaseDepth(batchId, depth);
+        IPostageStamp(postageStamp).increaseDepth(batchId, depth);
     }
 
     function _topUpBatch(bytes32 batchId, uint256 ttl) internal {
-        SafeERC20.safeIncreaseAllowance(bzzToken, address(postageStamp), ttl << postageStamp.batchDepth(batchId));
-        postageStamp.topUp(batchId, ttl);
+        SafeERC20.safeIncreaseAllowance(
+            IERC20(bzzToken), address(postageStamp), ttl << IPostageStamp(postageStamp).batchDepth(batchId)
+        );
+        IPostageStamp(postageStamp).topUp(batchId, ttl);
     }
 
     // _divUp: ceiled integer div (instead of floored)

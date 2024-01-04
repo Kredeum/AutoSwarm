@@ -87,7 +87,7 @@
 			if (isChainIdValid(chainId)) {
 				successMessage = 'Swarm config stored';
 				bzzChainId.set(Number(chainId));
-				localConfigSet('chainId', chainId);
+				localConfigSet('bzzChainId', chainId);
 			} else {
 				errMessage = `Invalid chainId '${chainId}'`;
 				chainId = $bzzChainId.toString();
@@ -112,11 +112,11 @@
 			on:input={resetMessages}
 		/>
 
-		<label class="input-label" for="swarm-gateway">Bee node URL</label>
+		<label class="input-label" for="swarm-gateway">Bee node API URL</label>
 		<input
 			type="text"
 			class="input-field"
-			placeholder="Enter your Bee node URL"
+			placeholder="Enter your Bee node API URL"
 			bind:value={swarmApi}
 			id="swarm-api"
 			on:input={resetMessages}

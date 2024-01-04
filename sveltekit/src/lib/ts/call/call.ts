@@ -6,7 +6,7 @@ import { chainGetWithTransport } from '../common/chains';
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// publicClients Map used as cache
+// publicClients Map used as cache // not used with updated viem2, type pb
 const _publicClients: Map<number, PublicClient> = new Map();
 
 const _publicClient = (chainId: number) => {
@@ -27,7 +27,7 @@ const callBlockNumber = async (chainId: number): Promise<bigint> => {
 };
 
 const callBlock = async (chainId: number, blockNumber?: bigint): Promise<Block> => {
-	// const publicClient = callPublicClient(chainId);
+	// const publicClient = callPublicClient(chainId); // type pb with updated viem2
 	const publicClient = _publicClient(chainId);
 
 	const param = blockNumber ? { blockNumber } : {};
