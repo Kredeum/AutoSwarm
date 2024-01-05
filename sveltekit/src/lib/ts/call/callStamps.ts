@@ -17,21 +17,30 @@ const callMarketGetStampsCount = async (bzzChainId: number): Promise<number> => 
 	);
 };
 
-const callMarketGetAllStampIds = async (bzzChainId: number, limit = 100): Promise<Hex[]> => {
+const callMarketGetAllStampIds = async (bzzChainId: number, limit = 100): Promise<[Hex, Hex][]> => {
 	const CALL_LIMIT = 3;
 
 	const stampsCount = await callMarketGetStampsCount(bzzChainId);
 	console.info('callMarketGetAllStampIds  IN', stampsCount, limit);
 
-	const stampIds: Hex[] = [];
+	const stampAndBatchIds: [Hex, Hex][] = [];
 
-	for (let n = 0; n * CALL_LIMIT < stampsCount && stampIds.length < limit; n++) {
-		const newStampIds = await callMarketGetStampIds(bzzChainId, n * CALL_LIMIT, CALL_LIMIT);
-		stampIds.push(...newStampIds);
+	for (let n = 0; n * CALL_LIMIT < stampsCount && stampAndBatchIds.length < limit; n++) {
+		const [stampIdsSubset, batchIdsSubset] = await callMarketGetStampIds(
+			bzzChainId,
+			n * CALL_LIMIT,
+			CALL_LIMIT
+		);
+		// add to the followinf array of couple stampId/batchId
+		const stampAndBatchIdsSubset: [Hex, Hex][] = [];
+		for (let i = 0; i < stampIdsSubset.length; i++) {
+			stampAndBatchIdsSubset[i] = [stampIdsSubset[i], batchIdsSubset[i]];
+		}
+		stampAndBatchIds.push(...stampAndBatchIdsSubset);
 	}
 
-	console.info('callMarketGetAllStampIds OUT', stampIds.length);
-	return stampIds;
+	console.info('callMarketGetAllStampIds OUT', stampAndBatchIds.length);
+	return stampAndBatchIds;
 };
 
 const callMarketGetAllStampIdsToAttach = async (
@@ -57,12 +66,12 @@ const callMarketGetStampIds = async (
 	bzzChainId: number,
 	skip = 0,
 	limit = 3
-): Promise<readonly Hex[]> => {
+): Promise<readonly [readonly Hex[], readonly Hex[]]> => {
 	// console.info('callMarketGetStampIds  IN', skip, limit);
 
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const stampIds = await publicClient.readContract({
+	const stampAndBatchIds = await publicClient.readContract({
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
 		functionName: 'getStampIds',
@@ -70,7 +79,7 @@ const callMarketGetStampIds = async (
 	});
 
 	// console.info('callMarketGetStampIdscallMarketGetStampIds OUT', stampIds.length);
-	return stampIds;
+	return stampAndBatchIds;
 };
 const callMarketGetStampIdsToAttach = async (
 	bzzChainId: number,

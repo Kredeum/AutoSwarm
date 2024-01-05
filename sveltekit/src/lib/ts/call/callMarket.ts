@@ -3,7 +3,6 @@ import { autoSwarmMarketAbi } from '../constants/abis';
 
 import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
-import type { StampType } from '../constants/types';
 
 const callMarketCurrentBatchId = async (bzzChainId: number): Promise<Hex> => {
 	const publicClient = await callPublicClient(bzzChainId);
@@ -22,6 +21,17 @@ const callMarketCurrentSwarmNode = async (bzzChainId: number): Promise<Hex> => {
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
 		functionName: 'currentSwarmNode'
+	});
+};
+
+const callMarketStampToBatchId = async (bzzChainId: number, stampId: Hex): Promise<Hex> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
+		abi: autoSwarmMarketAbi,
+		functionName: 'stampToBatchId',
+		args: [stampId]
 	});
 };
 
@@ -49,5 +59,6 @@ export {
 	callMarketNewBatchNeeded,
 	callMarketCurrentSwarmNode,
 	callMarketCurrentBatchId,
+	callMarketStampToBatchId,
 	callMarketCurrentBatchFilling
 };

@@ -3,9 +3,9 @@ pragma solidity ^0.8.4;
 
 interface IAutoSwarmMarket {
     struct Stamp {
+        address owner;
         bytes32 swarmHash;
         uint256 swarmSize;
-        bytes32 batchId;
         uint256 normalisedBalance;
     }
 
@@ -44,7 +44,7 @@ interface IAutoSwarmMarket {
     function postageStamp() external view returns (address);
     function getStampUnitPriceOneYear() external view returns (uint256);
 
-    function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256);
+    function stamps(bytes32) external view returns (address, bytes32, uint256, uint256);
 
     function stampIds(uint256) external view returns (bytes32);
     function batchIds(uint256) external view returns (bytes32);
@@ -60,7 +60,7 @@ interface IAutoSwarmMarket {
     function getStampPriceOneYear(uint256) external view returns (uint256);
     function isStampActive(bytes32) external returns (bool);
     function getStampsCount() external view returns (uint256);
-    function getStampIds(uint256, uint256) external view returns (bytes32[] memory);
+    function getStampIds(uint256, uint256) external view returns (bytes32[] memory, bytes32[] memory);
     function getStampIdsToAttach(uint256, uint256) external view returns (bytes32[] memory);
     function getMbSize(uint256) external pure returns (uint256);
     function getBatchPrice() external view returns (uint256);

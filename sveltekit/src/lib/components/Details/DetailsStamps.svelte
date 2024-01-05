@@ -57,16 +57,16 @@
 	let currentBatchRemainingBalance: bigint | undefined;
 	let currentBatchFilling: bigint | undefined;
 	let stampIdsToAttach: readonly Hex[] | undefined;
-	let stampIds: readonly Hex[] | undefined;
+	let stampAndBatchIds: readonly [Hex,Hex][] | undefined;
 
 	const refresh = async () => {
 		try {
 			lastBlockNumber = await callBlockNumber($bzzChainId);
 
 			stampsCount = await callMarketGetStampsCount($bzzChainId);
-			stampIds = await callMarketGetAllStampIds($bzzChainId);
-			if (stampsCount !== stampIds.length)
-				throw new Error(`Bad stamp count ${stampsCount} !== ${stampIds.length}`);
+			stampAndBatchIds = await callMarketGetAllStampIds($bzzChainId);
+			if (stampsCount !== stampAndBatchIds.length)
+				throw new Error(`Bad stamp count ${stampsCount} !== ${stampAndBatchIds.length}`);
 
 			stampIdsToAttach = await callMarketGetAllStampIdsToAttach($bzzChainId, 2);
 			stampsCountToAttach = stampIdsToAttach.length;
@@ -117,23 +117,31 @@
 	</span>
 </p>
 <hr />
-{#each stampIdsToAttach || [] as stampId, index}
+{#each stampIdsToAttach || [] as  stampId , index}
 	<p>
 		Market | Stamp#{index} To Attach - StampId
 		<span>
-			{stampId}
+      {stampId}
+
 		</span>
 	</p>
 {/each}
 <hr />
-{#each stampIds || [] as stampId, index}
-	<p>
-		Market | StampId #{index}
-		<span>
-			{stampId}
-		</span>
-	</p>
+{#each stampAndBatchIds || [] as [stampId,batchId], index}
+<p>
+  Market | StampId #{index}
+  <span>
+    {stampId}
+  </span>
+</p>
+<p>
+  Market | StampId #{index} BatchId
+  <span>
+    {batchId}
+  </span>
+</p>
 {/each}
+
 
 <style>
 	p span {

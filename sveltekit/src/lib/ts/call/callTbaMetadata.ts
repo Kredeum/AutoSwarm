@@ -9,6 +9,7 @@ import { callBzzBalance } from './callBzz';
 import { STAMP_SIZE, STAMP_PRICE, ONE_YEAR } from '../constants/constants';
 import type { Address } from 'viem';
 import { callMarketGetStampRemainingBalance } from './callStamps';
+import { callMarketStampToBatchId } from './callMarket';
 
 const callTbaMetadata = async (
 	bzzChainId: number,
@@ -55,8 +56,9 @@ const callTbaMetadata = async (
 			if (!utilsIsNullBytes32(tbaStampId)) tbaMetadata.tbaStampId = tbaStampId;
 		}
 
-		if (!utilsIsNullBytes32(tbaMetadata.tbaStampId)) {
+		if (tbaMetadata.tbaStampId && !utilsIsNullBytes32(tbaMetadata.tbaStampId)) {
 			try {
+				tbaMetadata.tbaBatchId = await callMarketStampToBatchId(bzzChainId, tbaMetadata.tbaStampId);
 				const remainingBalance = await callMarketGetStampRemainingBalance(
 					bzzChainId,
 					tbaMetadata.tbaStampId!

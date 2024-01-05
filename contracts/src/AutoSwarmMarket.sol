@@ -18,6 +18,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
     bytes32[] public stampIds;
 
+    mapping(bytes32 => bytes32) public stampToBatchId;
     mapping(bytes32 => Stamp) public stamps;
 
     // stamp UNIT size is 1 Mb
@@ -93,8 +94,12 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         if (swarmHash == bytes32(0)) revert SwarmHashNull();
         if (swarmSize == 0) revert SwarmSizeZero();
 
-        Stamp memory stamp =
-            Stamp({swarmHash: swarmHash, swarmSize: swarmSize, batchId: "", normalisedBalance: stampsTotalOutPayment()});
+        Stamp memory stamp = Stamp({
+            owner: msg.sender,
+            swarmHash: swarmHash,
+            swarmSize: swarmSize,
+            normalisedBalance: stampsTotalOutPayment()
+        });
         stampId = keccak256(abi.encode(msg.sender, swarmHash, block.number));
 
         stamps[stampId] = stamp;
@@ -140,7 +145,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
         for (uint256 index; index < len; index++) {
             bytes32 stampId = stampIdsToAttach[index];
-            stamps[stampId].batchId = currentBatchId;
+            stampToBatchId[stampId] = currentBatchId;
 
             emit AttachStamp(stampId, currentBatchId);
         }
@@ -204,14 +209,17 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         public
         view
         override(IAutoSwarmMarket)
-        returns (bytes32[] memory stampIdsSubset)
+        returns (bytes32[] memory stampIdsSubset, bytes32[] memory batchIdsSubset)
     {
-        if ((skip >= stampIds.length) || (limit == 0)) return stampIdsSubset;
+        if ((skip >= stampIds.length) || (limit == 0)) return (stampIdsSubset, batchIdsSubset);
         if (skip + limit > stampIds.length) limit = stampIds.length - skip;
 
         stampIdsSubset = new bytes32[](limit);
+        batchIdsSubset = new bytes32[](limit);
         for (uint256 index = 0; index < limit; index++) {
-            stampIdsSubset[index] = stampIds[skip + index];
+            bytes32 stampId = stampIds[skip + index];
+            stampIdsSubset[index] = stampId;
+            batchIdsSubset[index] = stampToBatchId[stampId];
         }
     }
 
@@ -233,7 +241,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
             // test Stamp is active AND not already attached to current batch
             bool stampIsActive = stamp.normalisedBalance >= stampsTotalOutPayment();
-            bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
+            bool stampIsNotAttachedToCurrentBatch = stampToBatchId[stampId] != currentBatchId;
 
             if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
                 stampIdsTmp[indexCount++] = stampId;

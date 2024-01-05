@@ -2,27 +2,30 @@
 	import type { Hex } from 'viem';
 	import { onMount } from 'svelte';
 
-	import { addressesGetField } from '$lib/ts/common/addresses';
-
 	import { sendMarketAttachStamps, sendMarketSync } from '$lib/ts/send/sendMarket';
 
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
-	import { alertError, alertInfo } from '$lib/ts/stores/alertMessage';
+	import { alertError } from '$lib/ts/stores/alertMessage';
 	import DetailsStamps from '../Details/DetailsStamps.svelte';
 	import { goto } from '$app/navigation';
-	import { callMarketGetAllStampIdsToAttach } from '$lib/ts/call/callStamps';
-	import DetailsLocalStorage from '../Details/DetailsLocalStorage.svelte';
+	import { callMarketGetAllStampIdsToAttach, callMarketGetStamp } from '$lib/ts/call/callStamps';
+	import { callMarketCurrentBatchId } from '$lib/ts/call/callMarket';
+	import { callNftMetadata } from '$lib/ts/call/callNftMetadata';
+	import { fetchBeeMetadata } from '$lib/ts/fetch/fetchBeeMetadata';
+	import { callTbaToken } from '$lib/ts/call/callTba';
 
 	/////////////////////////////// Monitor Stamps Component ////////////////////////////
 	// <MonitorStamps />
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	let attaching = 0;
-	let stampIdsToAttach: Hex[] = [];
-	let attachStampsNeeded: boolean | undefined;
+	let stampIdsToAttach: Hex[];
+	let attachStampsNeeded: boolean;
+	let currentBatchId: Hex;
 
 	const refresh = async () => {
 		try {
+			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			stampIdsToAttach = await callMarketGetAllStampIdsToAttach($bzzChainId);
 			attachStampsNeeded = stampIdsToAttach.length > 0;
 		} catch (e) {
@@ -42,17 +45,28 @@
 				attaching = 1;
 				// console.log(`attach Stamps to batchId ${batchId}`);
 
-				stampIdsToAttach.map((stampId, i) => {
-					console.log(`attach stampId #${i} = ${stampId}`);
+				let i = 0;
+				for await (const stampId of stampIdsToAttach) {
+					console.log(`attach stampId #${i++} = ${stampId}`);
 
-					//  await fetchBee()
-				});
+					const tbaAddress = (await callMarketGetStamp($bzzChainId, stampId)).owner;
+					const [nftChainId, nftCollection, nftTokenId] = await callTbaToken(
+						$bzzChainId,
+						tbaAddress
+					);
+					const [, nftMetadata] = await callNftMetadata(
+						Number(nftChainId),
+						nftCollection,
+						nftTokenId
+					);
+					const tbaMetadata = await fetchBeeMetadata(nftMetadata);
+				}
 				await refresh();
 			}
 
 			{
 				attaching = 2;
-				await sendMarketAttachStamps($bzzChainId, stampIdsToAttach);
+				await sendMarketAttachStamps($bzzChainId, stampIdsToAttach, currentBatchId);
 				await refresh();
 			}
 		} catch (e) {

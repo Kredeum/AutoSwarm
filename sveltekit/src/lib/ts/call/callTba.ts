@@ -43,4 +43,17 @@ const callTbaSwarmSize = async (bzzChainId: number, tba: Address | undefined): P
 	});
 };
 
-export { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId };
+const callTbaToken = async (
+	bzzChainId: number,
+	tba: Address
+): Promise<readonly [bigint, Address, bigint]> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: tba,
+		abi: autoSwarmAccountAbi,
+		functionName: 'token'
+	});
+};
+
+export { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId, callTbaToken };
