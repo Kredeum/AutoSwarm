@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { callMarketCurrentSwarmNode } from '$lib/ts/call/callMarket';
+	import { callMarketCurrentNodeOwner } from '$lib/ts/call/callMarket';
 	import { addressesGetField } from '$lib/ts/common/addresses';
 	import { bzzChainId } from '$lib/ts/swarm/bzz';
 	import { onMount } from 'svelte';
@@ -13,11 +13,11 @@
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	let marketAddress: Address | undefined;
-	let currentSwarmNode: Address | undefined;
+	let currentNodeOwner: Address | undefined;
 
 	const refresh = async () => {
 		marketAddress = addressesGetField($bzzChainId, 'AutoSwarmMarket');
-		currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
+		currentNodeOwner = await callMarketCurrentNodeOwner($bzzChainId);
 	};
 
 	const isField = (field: string): boolean => !fields || fields.includes(field);
@@ -32,5 +32,5 @@
 {/if}
 
 {#if isField('owner')}
-	<DetailsAddress address={currentSwarmNode} label="Market | SwarmNode" />
+	<DetailsAddress address={currentNodeOwner} label="Market | SwarmNode" />
 {/if}

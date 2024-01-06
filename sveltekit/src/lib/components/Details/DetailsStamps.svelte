@@ -4,7 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode
+		callMarketCurrentNodeOwner
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -44,7 +44,7 @@
 
 	let chunckPrice: bigint | undefined;
 	let currentBatchId: Hex | undefined;
-	let currentSwarmNode: Address | undefined;
+	let currentNodeOwner: Address | undefined;
 	let currentBatchOwner: Address | undefined;
 	let currentBatchDepth: number | undefined;
 	let currentBatchBucketDepth: number | undefined;
@@ -57,7 +57,7 @@
 	let currentBatchRemainingBalance: bigint | undefined;
 	let currentBatchFilling: bigint | undefined;
 	let stampIdsToAttach: readonly Hex[] | undefined;
-	let stampAndBatchIds: readonly [Hex,Hex][] | undefined;
+	let stampAndBatchIds: readonly [Hex, Hex][] | undefined;
 
 	const refresh = async () => {
 		try {
@@ -78,7 +78,7 @@
 
 			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
-			currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
+			currentNodeOwner = await callMarketCurrentNodeOwner($bzzChainId);
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
 
@@ -117,31 +117,29 @@
 	</span>
 </p>
 <hr />
-{#each stampIdsToAttach || [] as  stampId , index}
+{#each stampIdsToAttach || [] as stampId, index}
 	<p>
 		Market | Stamp#{index} To Attach - StampId
 		<span>
-      {stampId}
-
+			{stampId}
 		</span>
 	</p>
 {/each}
 <hr />
-{#each stampAndBatchIds || [] as [stampId,batchId], index}
-<p>
-  Market | StampId #{index}
-  <span>
-    {stampId}
-  </span>
-</p>
-<p>
-  Market | StampId #{index} BatchId
-  <span>
-    {batchId}
-  </span>
-</p>
+{#each stampAndBatchIds || [] as [stampId, batchId], index}
+	<p>
+		Market | StampId #{index}
+		<span>
+			{stampId}
+		</span>
+	</p>
+	<p>
+		Market | StampId #{index} BatchId
+		<span>
+			{batchId}
+		</span>
+	</p>
 {/each}
-
 
 <style>
 	p span {

@@ -53,7 +53,7 @@ const autoSwarmAccountAbi = parseAbi([
 ]);
 
 const autoSwarmMarketAbi = parseAbi([
-	'error SwarmNodeNull()',
+	'error NodeOwnerNull()',
 	'error InvalidBatch()',
 	'error BatchExists()',
 	'error StampExists()',
@@ -68,7 +68,7 @@ const autoSwarmMarketAbi = parseAbi([
 	'error NotEnoughBalance(uint256, uint256)',
 	'error TransferFailed()',
 	'error AmountZero()',
-	'function currentSwarmNode() external view returns (address)',
+	'function currentNodeOwner() external view returns (address)',
 	'function getStampsCount() external view returns (uint256)',
 	'function currentBatchFilling() external view returns (uint256)',
 	'function getStampRemainingBalance(bytes32) external view returns (uint256)',

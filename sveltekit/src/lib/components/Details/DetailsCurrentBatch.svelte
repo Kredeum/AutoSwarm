@@ -4,7 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode
+		callMarketCurrentNodeOwner
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -42,7 +42,7 @@
 
 	let chunckPrice: bigint | undefined;
 	let currentBatchId: Hex | undefined;
-	let currentSwarmNode: Address | undefined;
+	let currentNodeOwner: Address | undefined;
 	let currentBatchOwner: Address | undefined;
 	let currentBatchDepth: number | undefined;
 	let currentBatchBucketDepth: number | undefined;
@@ -65,7 +65,7 @@
 
 			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
-			currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
+			currentNodeOwner = await callMarketCurrentNodeOwner($bzzChainId);
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
 

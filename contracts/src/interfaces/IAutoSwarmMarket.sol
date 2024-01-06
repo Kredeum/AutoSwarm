@@ -12,7 +12,7 @@ interface IAutoSwarmMarket {
     error BatchExists();
     error StampExists();
     error StampNull();
-    error SwarmNodeNull();
+    error NodeOwnerNull();
     error NotOwner();
     error NotMarketOwner();
     error NotCurrentBatch();
@@ -49,7 +49,7 @@ interface IAutoSwarmMarket {
     function stampIds(uint256) external view returns (bytes32);
     function batchIds(uint256) external view returns (bytes32);
     function currentBatchId() external view returns (bytes32);
-    function currentSwarmNode() external view returns (address);
+    function currentNodeOwner() external view returns (address);
     function currentBatchFilling() external view returns (uint256);
     function newBatchNeeded() external view returns (bool);
     function stampUnitPrice() external view returns (uint256);
@@ -72,7 +72,7 @@ interface IAutoSwarmMarket {
     function setStampsSize(bytes32[] memory, uint256) external;
 
     function sync() external returns (bytes32);
-    function setBatch(address, bytes32, uint256) external;
+    function setBatch(bytes32, uint256) external;
     function extendsBatch(bytes32, uint8) external;
     function attachStamps(bytes32[] memory, bytes32 batchId) external;
 }

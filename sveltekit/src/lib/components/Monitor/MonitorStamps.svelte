@@ -49,7 +49,8 @@
 				for await (const stampId of stampIdsToAttach) {
 					console.log(`attach stampId #${i++} = ${stampId}`);
 
-					const tbaAddress = (await callMarketGetStamp($bzzChainId, stampId)).owner;
+          const stamp = await callMarketGetStamp($bzzChainId, stampId);
+					const tbaAddress = stamp.owner;
 					const [nftChainId, nftCollection, nftTokenId] = await callTbaToken(
 						$bzzChainId,
 						tbaAddress

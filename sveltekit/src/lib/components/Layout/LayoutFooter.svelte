@@ -1,7 +1,8 @@
 <p>
 	<a href="/">home</a> -
 	<a href="/config">config</a> -
-	<a href="/monitor">monitor</a>
+	<a href="/monitor">monitor</a> |
+	<a href="#top" on:click={() => window.location.reload()}>refresh</a>
 </p>
 
 Visit

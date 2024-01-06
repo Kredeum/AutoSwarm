@@ -28,8 +28,10 @@
     "chainName": "anvil"
   },
   "11155111": {
-    "AutoSwarmAccount": "0xd91dd5C22b6f5777Ae7cfB59450a88A29DF94088",
-    "AutoSwarmMarket": "0x813a0178d921288ee78C7Ab1e87a239c9a7a5DEa",
+    "AutoSwarmAccount": "0x570ad742212eB47A89f0c95B3fA6ae7ea599A974",
+    "AutoSwarmAccount_last": "0x570ad742212eB47A89f0c95B3fA6ae7ea599A974",
+    "AutoSwarmMarket": "0xC0B8B01d3D317c1Ade4d21Fd7647fED3bBAe79a2",
+    "AutoSwarmMarket_last": "0x450076CEfa9Cd82dF46BDe4Ce35D5956f6E58dF3",
     "BzzToken": "0xd01265b48fAe010C49378fA9bA9D3a53C6389130",
     "ERC6551Registry": "0x000000006551c19487814612e58FE06813775758",
     "NFTCollection": "0x98F643c5a5171B7b05c8118E3246CDdEE4b9BC55",

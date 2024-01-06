@@ -14,13 +14,13 @@ const callMarketCurrentBatchId = async (bzzChainId: number): Promise<Hex> => {
 	});
 };
 
-const callMarketCurrentSwarmNode = async (bzzChainId: number): Promise<Hex> => {
+const callMarketCurrentNodeOwner = async (bzzChainId: number): Promise<Hex> => {
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
-		functionName: 'currentSwarmNode'
+		functionName: 'currentNodeOwner'
 	});
 };
 
@@ -57,7 +57,7 @@ const callMarketCurrentBatchFilling = async (bzzChainId: number): Promise<bigint
 
 export {
 	callMarketNewBatchNeeded,
-	callMarketCurrentSwarmNode,
+	callMarketCurrentNodeOwner,
 	callMarketCurrentBatchId,
 	callMarketStampToBatchId,
 	callMarketCurrentBatchFilling
