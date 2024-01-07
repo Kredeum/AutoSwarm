@@ -47,9 +47,9 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         postageStamp = postageStamp_;
         currentNodeOwner = swarmNodeOwner_;
 
-        bzzToken = IPostageStamp(postageStamp).bzzToken();
+        // bzzToken = IPostageStamp(postageStamp).bzzToken();
 
-        setStampUnitPrice(2e8);
+        // setStampUnitPrice(2e8);
     }
 
     function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {

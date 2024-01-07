@@ -3,21 +3,26 @@ pragma solidity 0.8.23;
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
+import {DeployBzzToken} from "./01_DeployBzzToken.s.sol";
 
 contract DeployPostageStamp is DeployLite {
-    function deployPostageStamp() public returns (address postageStampAddress) {
-        address bzzToken = deploy("BzzToken", false);
+    function deployPostageStamp() public returns (address) {
+        address bzzToken = readAddress("BzzToken");
 
-        vm.startBroadcast(deployer);
-        PostageStamp postageStamp = new PostageStamp(bzzToken, 16);
-        postageStamp.grantRole(postageStamp.PRICE_ORACLE_ROLE(), deployer);
-        postageStamp.setPrice(24000);
-        vm.stopBroadcast();
+        (address postageStamp, DeployedState state) = deploy("PostageStamp", abi.encode(bzzToken, 16), false);
 
-        postageStampAddress = address(postageStamp);
+        if (state == DeployedState.Newly) {
+            vm.startBroadcast();
+            bytes32 oracleRole = PostageStamp(postageStamp).PRICE_ORACLE_ROLE();
+            PostageStamp(postageStamp).grantRole(oracleRole, msg.sender);
+            PostageStamp(postageStamp).setPrice(24000);
+            vm.stopBroadcast();
+        }
+
+        return postageStamp;
     }
 
     function run() public virtual {
-        deploy("PostageStamp");
+        deployPostageStamp();
     }
 }

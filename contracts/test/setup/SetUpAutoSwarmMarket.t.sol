@@ -16,12 +16,12 @@ contract SetUpAutoSwarmMarket is SetUpSwarm {
     uint256 internal constant _DEFAULT_PRICE = 24_000;
 
     function setUpAutoSwarmMarket() public {
-        autoSwarmMarket = AutoSwarmMarket(deploy("AutoSwarmMarket"));
+        autoSwarmMarket = AutoSwarmMarket(deployAutoSwarmMarket());
 
         uint256 bzzAmount = (_INITIAL_TTL * _DEFAULT_PRICE) << _INITIAL_DEPTH;
         deal(address(bzzToken), address(autoSwarmMarket), bzzAmount);
 
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         currentBatchId = autoSwarmMarket.sync();
         console.log("setUpAutoSwarmMarket ~ currentBatchId:");
         console.logBytes32(currentBatchId);

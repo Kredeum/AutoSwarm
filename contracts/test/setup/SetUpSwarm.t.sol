@@ -22,9 +22,9 @@ contract SetUpSwarm is Test, DeployAll {
         log3(address(this), "This", "SetUpSwarm");
 
         admin = msg.sender;
-        oracle = getAddress("PriceOracle");
+        oracle = readAddress("PriceOracle");
 
-        postageStamp = PostageStamp(deploy("PostageStamp", false));
+        postageStamp = PostageStamp(deployPostageStamp());
 
         bytes32 oracleRole = postageStamp.PRICE_ORACLE_ROLE();
 

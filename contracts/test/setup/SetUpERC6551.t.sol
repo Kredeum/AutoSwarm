@@ -27,14 +27,14 @@ contract SetUpERC6551 is Test, DeployAll {
         chainId = block.chainid;
         tokenId = 0;
 
-        setDeployer(makeAddr("NFTOwner"));
-        collection = deploy("NFTCollection");
+        // setDeployer(makeAddr("NFTOwner"));
+        collection = deployNFTCollection();
         nftOwner = IERC721(collection).ownerOf(tokenId);
         require(nftOwner != address(0), "NFT not exists or burned");
 
-        setDeployer(makeAddr("Deployer"));
-        registry = ERC6551Registry(deploy("ERC6551Registry"));
+        // setDeployer(makeAddr("Deployer"));
+        registry = ERC6551Registry(deployERC6551Registry());
 
-        implementation = AutoSwarmAccount(payable(deploy("AutoSwarmAccount")));
+        implementation = AutoSwarmAccount(payable(deployAutoSwarmAccount()));
     }
 }

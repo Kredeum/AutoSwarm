@@ -6,12 +6,10 @@ import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 
 contract DeployERC6551Registry is DeployLite {
     function deployERC6551Registry() public returns (address erc6551Registry) {
-        vm.startBroadcast(deployer);
-        erc6551Registry = address(new ERC6551Registry());
-        vm.stopBroadcast();
+        (erc6551Registry,) = deploy("ERC6551Registry", "", false);
     }
 
     function run() public virtual {
-        deploy("ERC6551Registry");
+        deployERC6551Registry();
     }
 }
