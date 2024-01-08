@@ -8,23 +8,24 @@ import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 // import {console} from "forge-std/console.sol";
 
 contract DeployAutoSwarmMarket is DeployLite {
-    function deployAutoSwarmMarket() public returns (address) {
+    function deployAutoSwarmMarket() public returns (address autoSwarmMarket) {
         address postageStamp = readAddress("PostageStamp");
         address swarmNode = readAddress("SwarmNode");
         address autoSwarmAccount = readAddress("AutoSwarmAccount");
 
-        (address autoSwarmMarket, DeployedState state) = deploy("AutoSwarmMarket", abi.encode(postageStamp, swarmNode));
+        bytes memory args = abi.encode(postageStamp, swarmNode);
+        DeployState state = deployState("AutoSwarmMarket", args);
 
-        // if (state == DeployedState.Newly) {
-        //     vm.startBroadcast();
+        if (state == DeployState.None || state == DeployState.Older) {
+            vm.startBroadcast();
 
-        //     if (autoSwarmAccount.code.length > 0) {
-        //         AutoSwarmAccount(payable(autoSwarmAccount)).setAutoSwarmMarket(autoSwarmMarket);
-        //     }
-        //     vm.stopBroadcast();
-        // }
-
-        return autoSwarmMarket;
+            autoSwarmMarket = deploy("AutoSwarmMarket", args);
+            if (autoSwarmAccount.code.length > 0) {
+                AutoSwarmAccount(payable(autoSwarmAccount)).setAutoSwarmMarket(autoSwarmMarket);
+            }
+            
+            vm.stopBroadcast();
+        }
     }
 
     function run() public virtual {

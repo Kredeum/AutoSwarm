@@ -7,16 +7,17 @@ import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {NFTCollection} from "@autoswarm/src/mocks/NFTCollection.sol";
 
 contract DeployNFTCollection is DeployLite {
-    function deployNFTCollection() public returns(address) {
-        (address nftCollection, DeployedState state) = deploy("NFTCollection", "", false);
+    function deployNFTCollection() public returns (address nftCollection) {
+        DeployState state = deployState("NFTCollection");
 
-        if (state == DeployedState.Newly) {
+        if (state == DeployState.None || state == DeployState.Older) {
             vm.startBroadcast();
+
+            nftCollection = deploy("NFTCollection");
             NFTCollection(nftCollection).mint(msg.sender);
+
             vm.stopBroadcast();
         }
-
-        return nftCollection;
     }
 
     function run() public virtual {
