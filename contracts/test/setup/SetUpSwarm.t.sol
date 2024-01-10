@@ -10,6 +10,8 @@ import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract SetUpSwarm is Test, DeployAll {
     PostageStamp public postageStamp;
     IERC20 public bzzToken;
@@ -36,7 +38,6 @@ contract SetUpSwarm is Test, DeployAll {
 
         bzzToken = IERC20(postageStamp.bzzToken());
 
-        console.log(address(bzzToken), "setUpSwarm ~ bzzToken:");
         minDepth = postageStamp.minimumBucketDepth();
     }
 }

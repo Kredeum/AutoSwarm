@@ -28,9 +28,8 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         deal(address(bzzToken), address(tba), bzzAmount);
 
         if (address(tba).code.length == 0) {
-            vm.startPrank(nftOwner);
+            vm.prank(nftOwner);
             registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
-            vm.stopPrank();
         }
         assert(address(tba).code.length != 0);
     }
@@ -38,8 +37,8 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
     function setUp() public override {
         setRecording(false);
         setUpSwarm();
-        setUpAutoSwarmMarket();
         setUpERC6551();
+        setUpAutoSwarmMarket();
         setUpAutoSwarmAccount();
     }
 }

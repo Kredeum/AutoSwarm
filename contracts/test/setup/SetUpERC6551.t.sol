@@ -9,6 +9,8 @@ import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract SetUpERC6551 is Test, DeployAll {
     bytes32 public salt = keccak256("AutoSwarm Tests v0.0.3");
 

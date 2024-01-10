@@ -9,6 +9,7 @@ interface IAutoSwarmMarket {
         uint256 normalisedBalance;
     }
 
+    error BatchNull();
     error BatchExists();
     error StampExists();
     error StampNull();
@@ -16,7 +17,6 @@ interface IAutoSwarmMarket {
     error NotOwner();
     error NotMarketOwner();
     error NotCurrentBatch();
-    error CurrentBatchNull();
     error InvalidBatch();
 
     error AmountZero();

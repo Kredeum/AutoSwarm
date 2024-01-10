@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpSwarm} from "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
-import {console} from "forge-std/console.sol";
+// import {console} from "forge-std/console.sol";
 
 contract SetUpAutoSwarmMarket is SetUpSwarm {
     AutoSwarmMarket public autoSwarmMarket;
@@ -23,8 +23,6 @@ contract SetUpAutoSwarmMarket is SetUpSwarm {
 
         vm.prank(msg.sender);
         currentBatchId = autoSwarmMarket.sync();
-        console.log("setUpAutoSwarmMarket ~ currentBatchId:");
-        console.logBytes32(currentBatchId);
     }
 
     function setUp() public virtual {

@@ -5,9 +5,11 @@ import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 import {DeployBzzToken} from "./01_DeployBzzToken.s.sol";
 
-contract DeployPostageStamp is DeployLite {
-    function deployPostageStamp() public returns (address postageStamp) {
-        address bzzToken = readAddress("BzzToken");
+import {console} from "forge-std/console.sol";
+
+contract DeployPostageStamp is DeployLite, DeployBzzToken {
+    function deployPostageStamp() public returns (address) {
+        address bzzToken = deployBzzToken();
 
         bytes memory args = abi.encode(bzzToken, 16);
         DeployState state = deployState("PostageStamp", args);
@@ -15,16 +17,18 @@ contract DeployPostageStamp is DeployLite {
         if (state == DeployState.None) {
             vm.startBroadcast();
 
-            postageStamp = deploy("PostageStamp", args);
+            address postageStamp = deploy("PostageStamp", args);
             bytes32 oracleRole = PostageStamp(postageStamp).PRICE_ORACLE_ROLE();
             PostageStamp(postageStamp).grantRole(oracleRole, msg.sender);
             PostageStamp(postageStamp).setPrice(24000);
 
             vm.stopBroadcast();
         }
+
+        return readAddress("PostageStamp");
     }
 
-    function run() public virtual {
+    function run() public virtual override(DeployBzzToken) {
         deployPostageStamp();
     }
 }

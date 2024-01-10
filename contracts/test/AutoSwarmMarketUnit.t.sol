@@ -7,6 +7,8 @@ import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     function test_AutoSwarmMarketUnit_OK() public pure {
         assert(true);

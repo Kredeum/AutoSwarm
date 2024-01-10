@@ -2,33 +2,27 @@
 pragma solidity 0.8.23;
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
-import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
-import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
+import {DeployPostageStamp} from "./02_DeployPostageStamp.s.sol";
 
-// import {console} from "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 
-contract DeployAutoSwarmMarket is DeployLite {
-    function deployAutoSwarmMarket() public returns (address autoSwarmMarket) {
-        address postageStamp = readAddress("PostageStamp");
+contract DeployAutoSwarmMarket is DeployLite, DeployPostageStamp {
+    function deployAutoSwarmMarket() public returns (address) {
+        address postageStamp = deployPostageStamp();
         address swarmNode = readAddress("SwarmNode");
-        address autoSwarmAccount = readAddress("AutoSwarmAccount");
 
         bytes memory args = abi.encode(postageStamp, swarmNode);
         DeployState state = deployState("AutoSwarmMarket", args);
 
         if (state == DeployState.None || state == DeployState.Older) {
-            vm.startBroadcast();
-
-            autoSwarmMarket = deploy("AutoSwarmMarket", args);
-            if (autoSwarmAccount.code.length > 0) {
-                AutoSwarmAccount(payable(autoSwarmAccount)).setAutoSwarmMarket(autoSwarmMarket);
-            }
-            
-            vm.stopBroadcast();
+            vm.broadcast();
+            deploy("AutoSwarmMarket", args);
         }
+
+        return readAddress("AutoSwarmMarket");
     }
 
-    function run() public virtual {
+    function run() public virtual override(DeployPostageStamp) {
         deployAutoSwarmMarket();
     }
 }

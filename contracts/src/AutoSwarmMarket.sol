@@ -47,9 +47,9 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         postageStamp = postageStamp_;
         currentNodeOwner = swarmNodeOwner_;
 
-        // bzzToken = IPostageStamp(postageStamp).bzzToken();
+        bzzToken = IPostageStamp(postageStamp).bzzToken();
 
-        // setStampUnitPrice(2e8);
+        setStampUnitPrice(2e8);
     }
 
     function extendsBatch(bytes32 batchId, uint8 deltaDepth) external override(IAutoSwarmMarket) onlyOwner {
@@ -138,7 +138,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         override(IAutoSwarmMarket)
         onlyOwner
     {
-        if (currentBatchId == bytes32(0)) revert CurrentBatchNull();
+        if (currentBatchId == bytes32(0)) revert BatchNull();
         if (batchId != currentBatchId) revert NotCurrentBatch();
 
         uint256 len = stampIdsToAttach.length;
@@ -267,6 +267,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function _setBatch(bytes32 batchId, uint256 batchFilling) internal {
+        if (batchId == bytes32(0)) revert BatchNull();
         if (batchId == currentBatchId) revert BatchExists();
 
         address batchOwner = IPostageStamp(postageStamp).batchOwner(batchId);
