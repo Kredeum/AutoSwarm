@@ -1,8 +1,8 @@
 import type { Address, Hex } from 'viem';
 type StampType = {
+  owner: Address;
 	swarmHash: Hex;
 	swarmSize: bigint;
-	batchId: Hex;
 	normalisedBalance: bigint;
 };
 
@@ -27,7 +27,7 @@ type SwarmMetadata = {
 };
 
 type TbaMetadata = {
-	bzzChainId?: number;
+  bzzChainId?: number;
 	tbaSwarmHash?: Hex;
 	tbaImageName?: string;
 	tbaSwarmSize?: bigint;

@@ -42,6 +42,7 @@ const autoSwarmAccountAbi = parseAbi([
 	'error AutoSwarmMarketNull()',
 	'error NotEnoughBalance(uint256, uint256)',
 	'error AmountZero()',
+	'function token() external view returns (uint256, address, uint256)',
 	'function swarmHash() external view returns (bytes32)',
 	'function swarmSize() external view returns (uint256)',
 	'function stampId() external view returns (bytes32)',
@@ -52,7 +53,7 @@ const autoSwarmAccountAbi = parseAbi([
 ]);
 
 const autoSwarmMarketAbi = parseAbi([
-	'error SwarmNodeNull()',
+	'error NodeOwnerNull()',
 	'error InvalidBatch()',
 	'error BatchExists()',
 	'error StampExists()',
@@ -67,18 +68,19 @@ const autoSwarmMarketAbi = parseAbi([
 	'error NotEnoughBalance(uint256, uint256)',
 	'error TransferFailed()',
 	'error AmountZero()',
-	'function currentSwarmNode() external view returns (address)',
+	'function currentNodeOwner() external view returns (address)',
 	'function getStampsCount() external view returns (uint256)',
 	'function currentBatchFilling() external view returns (uint256)',
 	'function getStampRemainingBalance(bytes32) external view returns (uint256)',
-	'function getStampIds(uint256, uint256) external view returns (bytes32[] memory)',
+	'function getStampIds(uint256, uint256) external view returns (bytes32[] memory, bytes32[] memory)',
 	'function getStampIdsToAttach(uint256, uint256) external view returns (bytes32[] memory)',
 	'function currentBatchId() external view returns (bytes32)',
+	'function stampToBatchId(bytes32) external view returns (bytes32)',
 	'function lastPrice() external view returns(uint64)',
 	'function newBatchNeeded() external view returns (bool)',
 	'function sync() external',
 	'function stamps(bytes32) external view returns (bytes32, uint256, bytes32, uint256)',
-	'function attachStamps(bytes32[] memory) external',
+	'function attachStamps(bytes32[] memory, bytes32) external',
 	'function newBatch(uint256) external returns (bytes32)',
 	'function extendsBatch(bytes32,uint8) external'
 ]);

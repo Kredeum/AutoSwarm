@@ -4,7 +4,7 @@
 	import {
 		callMarketCurrentBatchFilling,
 		callMarketCurrentBatchId,
-		callMarketCurrentSwarmNode
+		callMarketCurrentNodeOwner
 	} from '$lib/ts/call/callMarket';
 	import {
 		callPostageBatches,
@@ -44,7 +44,7 @@
 
 	let chunckPrice: bigint | undefined;
 	let currentBatchId: Hex | undefined;
-	let currentSwarmNode: Address | undefined;
+	let currentNodeOwner: Address | undefined;
 	let currentBatchOwner: Address | undefined;
 	let currentBatchDepth: number | undefined;
 	let currentBatchBucketDepth: number | undefined;
@@ -57,16 +57,16 @@
 	let currentBatchRemainingBalance: bigint | undefined;
 	let currentBatchFilling: bigint | undefined;
 	let stampIdsToAttach: readonly Hex[] | undefined;
-	let stampIds: readonly Hex[] | undefined;
+	let stampAndBatchIds: readonly [Hex, Hex][] | undefined;
 
 	const refresh = async () => {
 		try {
 			lastBlockNumber = await callBlockNumber($bzzChainId);
 
 			stampsCount = await callMarketGetStampsCount($bzzChainId);
-			stampIds = await callMarketGetAllStampIds($bzzChainId);
-			if (stampsCount !== stampIds.length)
-				throw new Error(`Bad stamp count ${stampsCount} !== ${stampIds.length}`);
+			stampAndBatchIds = await callMarketGetAllStampIds($bzzChainId);
+			if (stampsCount !== stampAndBatchIds.length)
+				throw new Error(`Bad stamp count ${stampsCount} !== ${stampAndBatchIds.length}`);
 
 			stampIdsToAttach = await callMarketGetAllStampIdsToAttach($bzzChainId, 2);
 			stampsCountToAttach = stampIdsToAttach.length;
@@ -78,7 +78,7 @@
 
 			chunckPrice = (await callPostageLastPrice($bzzChainId)) || CHUNK_PRICE_DEFAULT;
 
-			currentSwarmNode = await callMarketCurrentSwarmNode($bzzChainId);
+			currentNodeOwner = await callMarketCurrentNodeOwner($bzzChainId);
 			currentBatchId = await callMarketCurrentBatchId($bzzChainId);
 			currentBatchFilling = await callMarketCurrentBatchFilling($bzzChainId);
 
@@ -126,11 +126,17 @@
 	</p>
 {/each}
 <hr />
-{#each stampIds || [] as stampId, index}
+{#each stampAndBatchIds || [] as [stampId, batchId], index}
 	<p>
 		Market | StampId #{index}
 		<span>
 			{stampId}
+		</span>
+	</p>
+	<p>
+		Market | StampId #{index} BatchId
+		<span>
+			{batchId}
 		</span>
 	</p>
 {/each}

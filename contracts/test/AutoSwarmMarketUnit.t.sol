@@ -7,6 +7,8 @@ import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     function test_AutoSwarmMarketUnit_OK() public pure {
         assert(true);
@@ -34,12 +36,11 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 1);
         assert(stampIds.length == 1);
-        (bytes32 swarmHash, uint256 swarmSize, bytes32 batchId, uint256 unitBalance) =
-            autoSwarmMarket.stamps(stampIds[0]);
+        (address owner, bytes32 swarmHash, uint256 swarmSize, uint256 unitBalance) = autoSwarmMarket.stamps(stampIds[0]);
 
+        assert(owner == address(this));
         assert(swarmHash == "1");
         assert(swarmSize == 1);
-        assert(batchId == "");
         assert(unitBalance == 4);
     }
 
@@ -68,7 +69,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         // upload / sync swarm hash to node on currentBatchid
 
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         autoSwarmMarket.attachStamps(stampIds, currentBatchId);
     }
 }

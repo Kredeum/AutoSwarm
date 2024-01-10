@@ -30,7 +30,11 @@ const sendMarketSync = async (bzzChainId: number) => {
 	await publicClient.waitForTransactionReceipt({ hash });
 };
 
-const sendMarketAttachStamps = async (bzzChainId: number, stampIds: readonly Hex[]) => {
+const sendMarketAttachStamps = async (
+	bzzChainId: number,
+	stampIds: readonly Hex[],
+	batchId: Hex
+) => {
 	if (stampIds.length === 0) return;
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -39,7 +43,7 @@ const sendMarketAttachStamps = async (bzzChainId: number, stampIds: readonly Hex
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
 		functionName: 'attachStamps',
-		args: [stampIds]
+		args: [stampIds, batchId]
 	});
 	const hash = await walletClient.writeContract(request);
 	await publicClient.waitForTransactionReceipt({ hash });

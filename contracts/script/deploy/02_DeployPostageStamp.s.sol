@@ -3,21 +3,32 @@ pragma solidity 0.8.23;
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
+import {DeployBzzToken} from "./01_DeployBzzToken.s.sol";
 
-contract DeployPostageStamp is DeployLite {
-    function deployPostageStamp() public returns (address postageStampAddress) {
-        address bzzToken = deploy("BzzToken", false);
+import {console} from "forge-std/console.sol";
 
-        vm.startBroadcast(deployer);
-        PostageStamp postageStamp = new PostageStamp(bzzToken, 16);
-        postageStamp.grantRole(postageStamp.PRICE_ORACLE_ROLE(), deployer);
-        postageStamp.setPrice(24000);
-        vm.stopBroadcast();
+contract DeployPostageStamp is DeployLite, DeployBzzToken {
+    function deployPostageStamp() public returns (address) {
+        address bzzToken = deployBzzToken();
 
-        postageStampAddress = address(postageStamp);
+        bytes memory args = abi.encode(bzzToken, 16);
+        DeployState state = deployState("PostageStamp", args);
+
+        if (state == DeployState.None) {
+            vm.startBroadcast();
+
+            address postageStamp = deploy("PostageStamp", args);
+            bytes32 oracleRole = PostageStamp(postageStamp).PRICE_ORACLE_ROLE();
+            PostageStamp(postageStamp).grantRole(oracleRole, msg.sender);
+            PostageStamp(postageStamp).setPrice(24000);
+
+            vm.stopBroadcast();
+        }
+
+        return readAddress("PostageStamp");
     }
 
-    function run() public virtual {
-        deploy("PostageStamp");
+    function run() public virtual override(DeployBzzToken) {
+        deployPostageStamp();
     }
 }

@@ -22,7 +22,7 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
 
         deal(address(bzzToken), address(autoSwarmMarket), initTtl << initDepth);
 
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         autoSwarmMarket.buyBatch(year);
 
         assert(autoSwarmMarket.getBatchTtl(year) == initTtl);
@@ -34,7 +34,7 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
 
         deal(address(bzzToken), address(autoSwarmMarket), ttl << initDepth);
 
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         autoSwarmMarket.topUpBatch(initYear, ttl);
 
         assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl + ttl);
@@ -44,7 +44,7 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
     function test_AutoSwarmMarket_diluteBatch() external {
         uint8 deltaDepth = 2;
 
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         autoSwarmMarket.diluteBatch(initYear, deltaDepth);
 
         assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl / (1 << deltaDepth));
@@ -56,7 +56,7 @@ contract AutoSwarmMarketTest is SetUpAutoSwarmMarket {
         uint256 mul = 1 << (newDepth - initDepth);
 
         deal(address(bzzToken), address(autoSwarmMarket), ((initTtl * (mul - 1)) / mul) << newDepth);
-        vm.prank(deployer);
+        vm.prank(msg.sender);
         autoSwarmMarket.extendsBatch(initYear, newDepth - initDepth);
 
         assert(autoSwarmMarket.getBatchTtl(initYear) == initTtl);

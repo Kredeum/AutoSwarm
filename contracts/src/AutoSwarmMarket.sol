@@ -13,11 +13,12 @@ import {IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
 contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     bytes32[] public batchIds;
     bytes32 public currentBatchId;
-    address public currentSwarmNode;
+    address public currentNodeOwner;
     uint256 public currentBatchFilling;
 
     bytes32[] public stampIds;
 
+    mapping(bytes32 => bytes32) public stampToBatchId;
     mapping(bytes32 => Stamp) public stamps;
 
     // stamp UNIT size is 1 Mb
@@ -39,12 +40,12 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     uint256 internal constant _SECONDS_PER_BLOCK = 5;
     uint256 internal constant _SECOND_PER_YEAR = 365 * 24 * 3600;
 
-    constructor(address postageStamp_, address swarmNode_) {
+    constructor(address postageStamp_, address swarmNodeOwner_) {
         if (postageStamp_ == address(0)) revert PostageStampNull();
-        if (swarmNode_ == address(0)) revert SwarmNodeNull();
+        if (swarmNodeOwner_ == address(0)) revert NodeOwnerNull();
 
         postageStamp = postageStamp_;
-        currentSwarmNode = swarmNode_;
+        currentNodeOwner = swarmNodeOwner_;
 
         bzzToken = IPostageStamp(postageStamp).bzzToken();
 
@@ -93,8 +94,12 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         if (swarmHash == bytes32(0)) revert SwarmHashNull();
         if (swarmSize == 0) revert SwarmSizeZero();
 
-        Stamp memory stamp =
-            Stamp({swarmHash: swarmHash, swarmSize: swarmSize, batchId: "", normalisedBalance: stampsTotalOutPayment()});
+        Stamp memory stamp = Stamp({
+            owner: msg.sender,
+            swarmHash: swarmHash,
+            swarmSize: swarmSize,
+            normalisedBalance: stampsTotalOutPayment()
+        });
         stampId = keccak256(abi.encode(msg.sender, swarmHash, block.number));
 
         stamps[stampId] = stamp;
@@ -133,14 +138,14 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         override(IAutoSwarmMarket)
         onlyOwner
     {
-        if (currentBatchId == bytes32(0)) revert CurrentBatchNull();
+        if (currentBatchId == bytes32(0)) revert BatchNull();
         if (batchId != currentBatchId) revert NotCurrentBatch();
 
         uint256 len = stampIdsToAttach.length;
 
         for (uint256 index; index < len; index++) {
             bytes32 stampId = stampIdsToAttach[index];
-            stamps[stampId].batchId = currentBatchId;
+            stampToBatchId[stampId] = currentBatchId;
 
             emit AttachStamp(stampId, currentBatchId);
         }
@@ -152,14 +157,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         return currentBatchId;
     }
 
-    function setBatch(address swarmNode, bytes32 batchId, uint256 batchFilling)
-        public
-        override(IAutoSwarmMarket)
-        onlyOwner
-    {
-        if (swarmNode == address(0)) revert SwarmNodeNull();
-
-        currentSwarmNode = swarmNode;
+    function setBatch(bytes32 batchId, uint256 batchFilling) public override(IAutoSwarmMarket) onlyOwner {
         _setBatch(batchId, batchFilling);
     }
 
@@ -204,14 +202,17 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
         public
         view
         override(IAutoSwarmMarket)
-        returns (bytes32[] memory stampIdsSubset)
+        returns (bytes32[] memory stampIdsSubset, bytes32[] memory batchIdsSubset)
     {
-        if ((skip >= stampIds.length) || (limit == 0)) return stampIdsSubset;
+        if ((skip >= stampIds.length) || (limit == 0)) return (stampIdsSubset, batchIdsSubset);
         if (skip + limit > stampIds.length) limit = stampIds.length - skip;
 
         stampIdsSubset = new bytes32[](limit);
+        batchIdsSubset = new bytes32[](limit);
         for (uint256 index = 0; index < limit; index++) {
-            stampIdsSubset[index] = stampIds[skip + index];
+            bytes32 stampId = stampIds[skip + index];
+            stampIdsSubset[index] = stampId;
+            batchIdsSubset[index] = stampToBatchId[stampId];
         }
     }
 
@@ -233,7 +234,7 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
 
             // test Stamp is active AND not already attached to current batch
             bool stampIsActive = stamp.normalisedBalance >= stampsTotalOutPayment();
-            bool stampIsNotAttachedToCurrentBatch = stamp.batchId != currentBatchId;
+            bool stampIsNotAttachedToCurrentBatch = stampToBatchId[stampId] != currentBatchId;
 
             if (stampIsActive && stampIsNotAttachedToCurrentBatch) {
                 stampIdsTmp[indexCount++] = stampId;
@@ -266,11 +267,14 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function _setBatch(bytes32 batchId, uint256 batchFilling) internal {
+        if (batchId == bytes32(0)) revert BatchNull();
         if (batchId == currentBatchId) revert BatchExists();
 
-        // slither-disable-next-line reentrancy-no-eth
+        address batchOwner = IPostageStamp(postageStamp).batchOwner(batchId);
+        if (batchOwner == address(0)) revert InvalidBatch();
+
         currentBatchId = batchId;
-        // slither-disable-next-line reentrancy-no-eth
+        currentNodeOwner = batchOwner;
         currentBatchFilling = batchFilling;
         batchIds.push(batchId);
 
@@ -299,13 +303,13 @@ contract AutoSwarmMarket is Ownable, IAutoSwarmMarket {
     }
 
     function _newBatch(uint256 bzzAmount) internal returns (bytes32 batchId) {
-        if (currentSwarmNode == address(0)) revert SwarmNodeNull();
+        if (currentNodeOwner == address(0)) revert NodeOwnerNull();
         if (bzzAmount == 0) revert AmountZero();
 
         // slither-disable-next-line reentrancy-no-eth
         SafeERC20.safeIncreaseAllowance(IERC20(bzzToken), address(postageStamp), bzzAmount);
         batchId = IPostageStamp(postageStamp).createBatch(
-            currentSwarmNode,
+            currentNodeOwner,
             bzzAmount >> _BATCH_DEPTH,
             _BATCH_DEPTH,
             _BUCKET_DEPTH,

@@ -9,7 +9,7 @@ contract SetUpAutoSwarmAccountV0Test is SetUpAutoSwarmAccountV0 {
     }
 
     function test_SetUpAutoSwarmAccountV0_AutoSwarmAccountV0() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccountV0");
-        require(isSameRunCode(address(implementation).code, codeToDeploy), "AutoSwarmAccountV0 code differs");
+        bytes memory codeToDeploy = _getCodeToDeploy("AutoSwarmAccountV0");
+        require(_isSameCode(address(implementation).code, codeToDeploy), "AutoSwarmAccountV0 code differs");
     }
 }

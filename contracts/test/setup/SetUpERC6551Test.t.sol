@@ -17,17 +17,17 @@ contract SetUpERC6551Test is SetUpERC6551 {
     }
 
     function test_SetUpERC6551_NFTCollection() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("NFTCollection");
-        require(isSameRunCode(codeToDeploy, collection.code), "NFTCollection code differs");
+        bytes memory codeToDeploy = _getCodeToDeploy("NFTCollection");
+        require(_isSameCode(codeToDeploy, collection.code), "NFTCollection code differs");
     }
 
     function test_SetUpERC6551_ERC6551Registry() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("ERC6551Registry");
-        require(isSameRunCode(codeToDeploy, address(registry).code), "ERC6551Registry code differs");
+        bytes memory codeToDeploy = _getCodeToDeploy("ERC6551Registry");
+        require(_isSameCode(codeToDeploy, address(registry).code), "ERC6551Registry code differs");
     }
 
     function test_SetUpERC6551_Implementation() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("AutoSwarmAccount");
+        bytes memory codeToDeploy = _getCodeToDeploy("AutoSwarmAccount");
         console.logBytes(codeToDeploy);
         console.log("test_SetUpERC6551_Implementation ~ codeToDeploy:", codeToDeploy.length);
         console.logBytes(address(implementation).code);
@@ -35,8 +35,7 @@ contract SetUpERC6551Test is SetUpERC6551 {
             "test_SetUpERC6551_Implementation ~ address(implementation).code:", address(implementation).code.length
         );
         require(
-            isSameRunCode(codeToDeploy, address(implementation).code),
-            "Implementation code differs from AutoSwarmAccount"
+            _isSameCode(codeToDeploy, address(implementation).code), "Implementation code differs from AutoSwarmAccount"
         );
     }
 

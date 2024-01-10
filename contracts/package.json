@@ -1,6 +1,6 @@
 {
   "name": "autoswarm-backend",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "",
   "scripts": {
     "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy-test",
@@ -11,8 +11,12 @@
     "test": "forge test",
     "deploy-test": "forge script script/DeployAll.s.sol",
     "deploy-anvil": "forge script script/DeployAll.s.sol --rpc-url anvil --broadcast --sender $ANVIL_ETH_FROM --private-key $ANVIL_PRIVATE_KEY",
+    "check-anvil": "forge script script/DeployAll.s.sol --rpc-url anvil",
+    "deploy-check-anvil": "pnpm deploy-anvil && pnpm check-anvil",
     "deploy-sepolia": "forge script script/DeployAll.s.sol --rpc-url sepolia --broadcast --sender $SEPOLIA_ETH_FROM --account $SEPOLIA_ETH_KEYSTORE_ACCOUNT --verify",
+    "check-sepolia": "forge script script/DeployAll.s.sol --rpc-url sepolia",
     "deploy-gnosis": "forge script script/DeployAll.s.sol --rpc-url gnosis --broadcast --sender $GNOSIS_ETH_FROM --account $GNOSIS_ETH_KEYSTORE_ACCOUNT --verify",
+    "check-gnosis": "forge script script/DeployAll.s.sol --rpc-url gnosis",
     "broadcast": "forge script script/DeployCounter.s.sol --private-key $PRIVATE_KEY --rpc-url $CHAIN_NAME --broadcast --verify"
   },
   "keywords": [

@@ -27,11 +27,11 @@ contract DeployAll is
             DeployAutoSwarmAccount
         )
     {
-        deploy("NFTCollection", false);
-        deploy("BzzToken", false);
-        deploy("PostageStamp", false);
-        deploy("ERC6551Registry", false);
-        deploy("AutoSwarmMarket");
-        deploy("AutoSwarmAccount");
+        deployNFTCollection();
+        deployBzzToken();
+        deployPostageStamp();
+        deployERC6551Registry();
+        deployAutoSwarmMarket();
+        deployAutoSwarmAccount();
     }
 }

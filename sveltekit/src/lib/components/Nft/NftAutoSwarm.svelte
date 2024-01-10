@@ -192,7 +192,7 @@
 					<div class="batch-topUp-infos">
 						<p>for</p>
 						<p>{displayDuration(tbaResavedDuration)}</p>
-						<p>tbaUntil</p>
+						<p>until</p>
 						<p>{displayDate(tbaUntil)}</p>
 					</div>
 				{:else}
