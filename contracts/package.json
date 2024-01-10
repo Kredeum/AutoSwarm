@@ -1,6 +1,6 @@
 {
   "name": "autoswarm-backend",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "main": "",
   "scripts": {
     "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy-test",
@@ -27,6 +27,6 @@
   "author": "Kredeum",
   "license": "MIT",
   "devDependencies": {
-    "solhint": "^4.0.0"
+    "solhint": "^4.1.1"
   }
 }

@@ -118,14 +118,14 @@ const callMarketGetStampRemainingBalance = async (
 const callMarketGetStamp = async (bzzChainId: number, stampId: Hex): Promise<StampType> => {
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const [swarmHash, swarmSize, batchId, normalisedBalance] = await publicClient.readContract({
+	const [ owner, swarmHash, swarmSize, normalisedBalance] = await publicClient.readContract({
 		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
 		functionName: 'stamps',
 		args: [stampId]
 	});
 
-	return { swarmHash, swarmSize, batchId, normalisedBalance };
+	return { owner, swarmHash, swarmSize, normalisedBalance };
 };
 
 export {

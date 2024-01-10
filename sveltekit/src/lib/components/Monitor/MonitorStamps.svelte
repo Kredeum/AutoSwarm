@@ -31,8 +31,8 @@
 		} catch (e) {
 			alertError('<Monitor Stamps Refresh', e);
 		}
-		console.log('refresh ~ monthlyCroning:', attaching);
 	};
+	console.log("refresh ~ refresh:", refresh);
 
 	const attachStamps = async () => {
 		if (!attachStampsNeeded) return;
