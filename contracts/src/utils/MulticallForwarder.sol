@@ -32,6 +32,7 @@ contract MulticallForwarder {
         for (uint256 i = 0; i < length;) {
             Result memory result = results[i];
             call = calls[i];
+            // slither-disable-next-line calls-loop
             (result.success, result.returnData) = call.target.call(abi.encodePacked(call.callData, msg.sender));
             unchecked {
                 ++i;

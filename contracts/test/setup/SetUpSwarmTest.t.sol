@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import "@autoswarm/test/setup/SetUpSwarm.t.sol";
 
@@ -14,15 +14,15 @@ contract SetUpSwarmTest is SetUpSwarm {
     }
 
     function test_SetUpSwarm_PostageStamps() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("PostageStamp");
+        bytes memory codeToDeploy = _getCodeToDeploy("PostageStamp");
         require(codeToDeploy.length == address(postageStamp).code.length, "postageStamp code length differs");
         // include immutable variables
-        // require(isSameRunCode(codeToDeploy, address(postageStamp).code), "postageStamp code differs");
+        // require(_isSameCode(codeToDeploy, address(postageStamp).code), "postageStamp code differs");
     }
 
     function test_SetUpSwarm_BzzToken() public view {
-        bytes memory codeToDeploy = getCodeToDeploy("BzzToken");
-        require(isSameRunCode(codeToDeploy, address(bzzToken).code), "BzzToken code differs");
+        bytes memory codeToDeploy = _getCodeToDeploy("BzzToken");
+        require(_isSameCode(codeToDeploy, address(bzzToken).code), "BzzToken code differs");
     }
 
     function test_SetUpSwarm_Swarm() public view {

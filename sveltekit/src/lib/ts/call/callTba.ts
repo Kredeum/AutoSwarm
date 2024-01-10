@@ -16,7 +16,7 @@ const callTbaBzzStampId = async (bzzChainId: number, tba: Address | undefined): 
 	});
 };
 
-const callTbaBzzHash = async (
+const callTbaSwarmHash = async (
 	bzzChainId: number,
 	tba: Address | undefined
 ): Promise<Hex | undefined> => {
@@ -27,11 +27,11 @@ const callTbaBzzHash = async (
 	return await publicClient.readContract({
 		address: tba,
 		abi: autoSwarmAccountAbi,
-		functionName: 'bzzHash'
+		functionName: 'swarmHash'
 	});
 };
 
-const callTbaBzzSize = async (bzzChainId: number, tba: Address | undefined): Promise<bigint> => {
+const callTbaSwarmSize = async (bzzChainId: number, tba: Address | undefined): Promise<bigint> => {
 	if (!(tba && (await callIsContract(bzzChainId, tba)))) return 0n;
 
 	const publicClient = await callPublicClient(bzzChainId);
@@ -39,8 +39,21 @@ const callTbaBzzSize = async (bzzChainId: number, tba: Address | undefined): Pro
 	return await publicClient.readContract({
 		address: tba,
 		abi: autoSwarmAccountAbi,
-		functionName: 'bzzSize'
+		functionName: 'swarmSize'
 	});
 };
 
-export { callTbaBzzHash, callTbaBzzSize, callTbaBzzStampId };
+const callTbaToken = async (
+	bzzChainId: number,
+	tba: Address
+): Promise<readonly [bigint, Address, bigint]> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: tba,
+		abi: autoSwarmAccountAbi,
+		functionName: 'token'
+	});
+};
+
+export { callTbaSwarmHash, callTbaSwarmSize, callTbaBzzStampId, callTbaToken };

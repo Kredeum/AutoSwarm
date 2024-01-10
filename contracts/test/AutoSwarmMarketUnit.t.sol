@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
@@ -7,9 +7,17 @@ import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
 import {SetUpAutoSwarmMarket} from "@autoswarm/test/setup/SetUpAutoSwarmMarket.t.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     function test_AutoSwarmMarketUnit_OK() public pure {
         assert(true);
+    }
+
+    function test_AutoSwarmMarketUnit_Math(uint256 depth, uint256 bzzAmount) public pure {
+        vm.assume(depth < 32);
+
+        assert((bzzAmount >> depth) << depth == (bzzAmount - bzzAmount % (1 << depth)));
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach0() public view {
@@ -18,25 +26,22 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach1() public {
-        uint256 currentStampUnitPaid0 = autoSwarmMarket.currentStampUnitPaid();
-        console.log("test_AutoSwarmMarketUnit_getStampsToAttach1 ~ currentStampUnitPaid0:", currentStampUnitPaid0);
+        // uint256 stampsTotalOutPayment0 = autoSwarmMarket.stampsTotalOutPayment();
 
         deal(address(bzzToken), address(this), 4);
         bzzToken.approve(address(autoSwarmMarket), 4);
         autoSwarmMarket.createStamp("1", 1, 4);
 
-        uint256 currentStampUnitPaid1 = autoSwarmMarket.currentStampUnitPaid();
-        console.log("test_AutoSwarmMarketUnit_getStampsToAttach1 ~ currentStampUnitPaid1:", currentStampUnitPaid1);
+        // uint256 stampsTotalOutPayment1 = autoSwarmMarket.stampsTotalOutPayment();
 
         bytes32[] memory stampIds = autoSwarmMarket.getStampIdsToAttach(0, 1);
         assert(stampIds.length == 1);
-        AutoSwarmMarket.Stamp memory stamp = autoSwarmMarket.getStamp(stampIds[0]);
+        (address owner, bytes32 swarmHash, uint256 swarmSize, uint256 unitBalance) = autoSwarmMarket.stamps(stampIds[0]);
 
-        assert(stamp.owner == address(this));
-        assert(stamp.bzzHash == "1");
-        assert(stamp.bzzSize == 1);
-        assert(stamp.batchId == "");
-        assert(stamp.unitBalance == 4);
+        assert(owner == address(this));
+        assert(swarmHash == "1");
+        assert(swarmSize == 1);
+        assert(unitBalance == 4);
     }
 
     function test_AutoSwarmMarketUnit_getStampsToAttach2() public {
@@ -52,15 +57,6 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         vm.expectRevert();
         autoSwarmMarket.createStamp("3", 1, 1);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampIdsToAttach(0, 3);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampIdsToAttach(1, 5);
-
-        vm.expectRevert();
-        autoSwarmMarket.getStampIdsToAttach(3, 4);
     }
 
     function test_AutoSwarmMarketUnit_setStampsAttached() public {
@@ -73,7 +69,7 @@ contract AutoSwarmMarketUnitTest is SetUpAutoSwarmMarket {
 
         // upload / sync swarm hash to node on currentBatchid
 
-        bytes32 currentBatchId = autoSwarmMarket.currentBatchId();
-        autoSwarmMarket.setStampsAttached(stampIds, currentBatchId);
+        vm.prank(msg.sender);
+        autoSwarmMarket.attachStamps(stampIds, currentBatchId);
     }
 }

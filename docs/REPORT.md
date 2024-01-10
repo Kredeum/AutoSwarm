@@ -24,7 +24,7 @@ _color: white
 
 - What ?  Ensure NFT availability over time for NFTs stored on Swarm (metadata and content)... as long as there is someone interested by this NFT
 - Why ? Paying once for eternal archival is both impratical and meaningless in a timeframe of 5, 10 or more years...
-- How ? Allow NFT to auto-pay to extend storage duration (TopUp). Either creator, owner, sponsor or even users, throw Bzz donations or some pourcentage little on transfers.
+- How ? Allow NFT to auto-pay to extend storage duration (TopUp). Either creator, owner, sponsor or even users, throw BZZ donations or some pourcentage little on transfers.
 
 ---
 
@@ -32,7 +32,7 @@ _color: white
 
 Thanks to ERC6561, any NFT can own tokens, via a unique SmartAccount linked to the NFT. After transfer of the NFT, these tokens are still linked to the NFT, at the disposal of the new NFT owner.
 
-So, anyone can send some Bzz tokens to the NFT SmartAccount they are interested in, and then the NFT can auto-pay for it's own storage when needed.
+So, anyone can send some BZZ tokens to the NFT SmartAccount they are interested in, and then the NFT can auto-pay for it's own storage when needed.
 
 ---
 
@@ -53,8 +53,8 @@ Run :
 # DEMO
 
 Not in the demo :
-- transfer of Bzz to the NFT smartAccount
-- Bzz in NFT SmartAccount unchanged after NFT transfer
+- transfer of BZZ to the NFT smartAccount
+- BZZ in NFT SmartAccount unchanged after NFT transfer
 - automatic TopUp (with cron job)
 
 ---
@@ -71,7 +71,7 @@ Batch Stamps are too large for a single NFT, so we would need either:
 
 
 
-- Should owner be allowed to withdraw Bzz tokens
+- Should owner be allowed to withdraw BZZ tokens
 - Should owner be the only one to TopUp NFT
 
 

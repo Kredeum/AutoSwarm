@@ -1,6 +1,6 @@
 import type { Address, Hex } from 'viem';
 import { callPublicClient } from './call';
-import { jsonGetField } from '../common/json';
+import { addressesGetField } from '../common/addresses';
 import { erc6551RegistryAbi } from '../constants/abis';
 import { SALT } from '../constants/constants';
 
@@ -14,8 +14,8 @@ const callRegistryAccount = async (
 
 	const publicClient = await callPublicClient(bzzChainId);
 
-	const erc6551Registry = (await jsonGetField(bzzChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await jsonGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry');
+	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount');
 
 	const tba = await publicClient.readContract({
 		address: erc6551Registry,

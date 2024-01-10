@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/console.sol";
@@ -9,8 +9,10 @@ import {ERC6551Registry} from "@erc6551/ERC6551Registry.sol";
 import {AutoSwarmAccount} from "@autoswarm/src/AutoSwarmAccount.sol";
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
 
+// import {console} from "forge-std/console.sol";
+
 contract SetUpERC6551 is Test, DeployAll {
-    bytes32 public salt = keccak256("AutoSwarm V0.2");
+    bytes32 public salt = keccak256("AutoSwarm Tests v0.0.3");
 
     uint256 chainId;
     address collection;
@@ -27,14 +29,14 @@ contract SetUpERC6551 is Test, DeployAll {
         chainId = block.chainid;
         tokenId = 0;
 
-        setDeployer(makeAddr("NFTOwner"));
-        collection = deploy("NFTCollection");
+        // setDeployer(makeAddr("NFTOwner"));
+        collection = deployNFTCollection();
         nftOwner = IERC721(collection).ownerOf(tokenId);
         require(nftOwner != address(0), "NFT not exists or burned");
 
-        setDeployer(makeAddr("Deployer"));
-        registry = ERC6551Registry(deploy("ERC6551Registry"));
+        // setDeployer(makeAddr("Deployer"));
+        registry = ERC6551Registry(deployERC6551Registry());
 
-        implementation = AutoSwarmAccount(payable(deploy("AutoSwarmAccount")));
+        implementation = AutoSwarmAccount(payable(deployAutoSwarmAccount()));
     }
 }

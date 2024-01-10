@@ -1,23 +1,29 @@
 <script lang="ts">
-	import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '$lib/ts/constants/constants';
-	import { localConfigGet, localConfigSet } from '$lib/ts/common/local';
+	import { localConfigSet } from '$lib/ts/common/local';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut, bounceOut } from 'svelte/easing';
-	import { bzz } from '$lib/ts/swarm/bzz';
+
+	import { beeApi, beeBatchId, beeGatewayBzz } from '$lib/ts/swarm/bee';
+	import { bzzChainsId, type BzzChainIdType } from '$lib/ts/common/chains';
+	import { bzzChainId } from '$lib/ts/swarm/bzz';
 
 	////////////////////// Swarm Config Component ///////////////////////////////
 	// <Config />
 	/////////////////////////////////////////////////////////////////////////////
 	// Config stored in localStorage
-	// - swarm.api     : Swarm node API URL, default http://127.0.0.1:1633/bzz
-	// - swarm.batchId : Swarm Batch Id, default 0x0
+	// - autoswarm.api     : Swarm Node API URL, default http://127.0.0.1:1633/bzz
+	// - autoswarm.gateway : Swarm Gateway URL, default autoswarm.api
+	// - autoswarm.batchId : Swarm Batch Id, default 0x0
+	// - autoswarm.chainId : Swarm Chain Id, default 100
 	/////////////////////////////////////////////////////////////////////////////
 
 	let errMessage = '';
 	let successMessage = '';
 
-	$: swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
-	$: batchId = localConfigGet('batchId') || undefined;
+	let swarmApi = beeApi();
+	let swarmGateway = beeGatewayBzz();
+	let batchId = beeBatchId() as string;
+	let chainId = $bzzChainId.toString();
 
 	const isUrlValid = (url: string): boolean => {
 		if (!url) return false;
@@ -32,6 +38,9 @@
 	const isBatchIdValid = (batchId: string | undefined): boolean =>
 		Boolean(batchId?.replace(/^0x/, '').length === 64);
 
+	const isChainIdValid = (chainId: string | undefined): boolean =>
+		bzzChainsId.includes(Number(chainId) as BzzChainIdType);
+
 	const resetMessages = () => {
 		errMessage = '';
 		successMessage = '';
@@ -40,23 +49,50 @@
 	const storeUserSettings = (): void => {
 		resetMessages();
 
-		swarmApi = swarmApi.trim().replace(/\/$/, '');
-		if (!isUrlValid(swarmApi)) {
-			errMessage = `Invalid node URL '${swarmApi}'`;
-			swarmApi = localConfigGet('api') || SWARM_DEFAULT_API;
-			return;
+		{
+			swarmApi = swarmApi.trim().replace(/\/$/, '');
+			if (!isUrlValid(swarmApi)) {
+				errMessage = `Invalid node URL '${swarmApi}'`;
+				swarmApi = beeApi();
+				return;
+			}
+			localConfigSet('api', swarmApi);
 		}
-		localConfigSet('api', swarmApi);
+		{
+			swarmGateway = swarmGateway.trim().replace(/\/$/, '');
+			if (!isUrlValid(swarmGateway)) {
+				errMessage = `Invalid node URL '${swarmGateway}'`;
+				swarmGateway = beeGatewayBzz();
+				return;
+			}
+			localConfigSet('gateway', swarmGateway);
+		}
 
-		batchId = batchId?.trim();
-		console.log('storeUserSettings ~ batchId:', batchId);
-		if (isBatchIdValid(batchId)) {
-			successMessage = 'Swarm config stored';
-			localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
-		} else {
-			errMessage = `Invalid batchId '${batchId}'`;
-			batchId = localConfigGet('batchId') || SWARM_DEFAULT_BATCHID;
-			return;
+		{
+			batchId = batchId?.trim();
+			console.log('storeUserSettings ~ batchId:', batchId);
+			if (isBatchIdValid(batchId)) {
+				successMessage = 'Swarm config stored';
+				localConfigSet('batchId', `0x${batchId!.replace(/^0x/, '')}`);
+			} else {
+				errMessage = `Invalid batchId '${batchId}'`;
+				batchId = beeBatchId();
+				return;
+			}
+		}
+
+		{
+			chainId = chainId?.trim();
+			console.log('storeUserSettings ~ chainId:', chainId);
+			if (isChainIdValid(chainId)) {
+				successMessage = 'Swarm config stored';
+				bzzChainId.set(Number(chainId));
+				localConfigSet('bzzChainId', chainId);
+			} else {
+				errMessage = `Invalid chainId '${chainId}'`;
+				chainId = $bzzChainId.toString();
+				return;
+			}
 		}
 
 		setTimeout(() => resetMessages(), 2000);
@@ -66,16 +102,6 @@
 <div id="config">
 	<h2>Config</h2>
 	<div id="config-content">
-		<label class="input-label" for="swarm-api">Bee node URL</label>
-		<input
-			type="text"
-			class="input-field"
-			placeholder="Enter your bee node URL"
-			bind:value={swarmApi}
-			id="swarm-api"
-			on:input={resetMessages}
-		/>
-
 		<label class="input-label" for="batch-id">Batch Id</label>
 		<input
 			type="text"
@@ -83,6 +109,36 @@
 			placeholder="Enter your batch ID"
 			bind:value={batchId}
 			id="batch-id"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="swarm-gateway">Bee node API URL</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter your Bee node API URL"
+			bind:value={swarmApi}
+			id="swarm-api"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="swarm-gateway">Swarm Gateway URL</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter your Swarm Gateway URL"
+			bind:value={swarmGateway}
+			id="swarm-gateway"
+			on:input={resetMessages}
+		/>
+
+		<label class="input-label" for="chain-id">BZZ Chain Id</label>
+		<input
+			type="text"
+			class="input-field"
+			placeholder="Enter Chain ID"
+			bind:value={chainId}
+			id="chain-id"
 			on:input={resetMessages}
 		/>
 
@@ -124,6 +180,7 @@
 
 	#config-content {
 		width: 650px;
+		max-width: 90vw;
 		display: flex;
 		align-items: center;
 		flex-direction: column;

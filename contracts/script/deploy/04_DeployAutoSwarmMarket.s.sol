@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
-import {AutoSwarmMarket} from "@autoswarm/src/AutoSwarmMarket.sol";
+import {DeployPostageStamp} from "./02_DeployPostageStamp.s.sol";
+
 import {console} from "forge-std/console.sol";
 
-contract DeployAutoSwarmMarket is DeployLite {
-    function deployAutoSwarmMarket() public returns (address autoSwarmMarketAddress) {
-        address postageStamp = deploy("PostageStamp", false);
+contract DeployAutoSwarmMarket is DeployLite, DeployPostageStamp {
+    function deployAutoSwarmMarket() public returns (address) {
+        address postageStamp = deployPostageStamp();
+        address swarmNode = readAddress("SwarmNode");
 
-        vm.startBroadcast(deployer);
-        AutoSwarmMarket autoSwarmMarket = new AutoSwarmMarket(postageStamp);
-        vm.stopBroadcast();
+        bytes memory args = abi.encode(postageStamp, swarmNode);
+        DeployState state = deployState("AutoSwarmMarket", args);
 
-        autoSwarmMarketAddress = address(autoSwarmMarket);
+        if (state == DeployState.None || state == DeployState.Older) {
+            vm.broadcast();
+            deploy("AutoSwarmMarket", args);
+        }
+
+        return readAddress("AutoSwarmMarket");
     }
 
-    function run() public virtual {
-        deploy("AutoSwarmMarket");
+    function run() public virtual override(DeployPostageStamp) {
+        deployAutoSwarmMarket();
     }
 }

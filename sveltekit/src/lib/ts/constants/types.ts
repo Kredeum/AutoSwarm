@@ -1,20 +1,42 @@
 import type { Address, Hex } from 'viem';
+type StampType = {
+  owner: Address;
+	swarmHash: Hex;
+	swarmSize: bigint;
+	normalisedBalance: bigint;
+};
 
-type NftMetadataAutoSwarm = {
+type NftMetadata = {
 	nftChainId: number;
 	nftCollection: Address;
 	nftTokenId: bigint;
-	nftTokenUri?: string;
-	nftTokenUriSize?: number;
-	nftTokenUriAlt?: string;
-	nftImage?: string;
+	nftMetadataUri?: string;
+	nftMetadataUriAlt?: string;
+	nftMetadataSize?: number;
+	nftImageUri?: string;
+	nftImageUriAlt?: string;
 	nftImageSize?: number;
-	nftImageAlt?: string;
-	bzzChainId?: number;
-	bzzHash?: Hex;
-	bzzSize?: bigint;
-	bzzPrice?: bigint;
-	bzzStampId?: Hex;
+	nftImageName?: string;
+	nftSize?: bigint;
+	nftPrice?: bigint;
+};
+
+type SwarmMetadata = {
+	swarmHash?: Hex;
+	swarmImageName?: string;
+};
+
+type TbaMetadata = {
+  bzzChainId?: number;
+	tbaSwarmHash?: Hex;
+	tbaImageName?: string;
+	tbaSwarmSize?: bigint;
+	tbaPrice?: bigint;
+	tbaStampId?: Hex;
+	tbaBatchId?: Hex;
+	tbaDuration?: bigint;
+	tbaBzzDuration?: bigint;
+	tbaStampDuration?: bigint;
 	tbaAddress?: Address;
 	tbaBalance?: bigint;
 	tbaDeployed?: boolean;
@@ -24,16 +46,13 @@ type NftMetadataAutoSwarm = {
 	tbaImageAlt?: string;
 };
 
-type NftMetadataErc721 = {
+type Metadata = {
 	name: string;
 	description: string;
 	image: string;
 	image_url?: string;
-};
-
-type NftMetadata = NftMetadataErc721 & {
-	autoSwarm?: NftMetadataAutoSwarm;
 	[key: string]: unknown;
 };
+type AddressesType = Record<string, string>;
 
-export type { NftMetadataErc721, NftMetadata, NftMetadataAutoSwarm };
+export type { Metadata, NftMetadata, SwarmMetadata, TbaMetadata, AddressesType, StampType };

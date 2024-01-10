@@ -35,22 +35,22 @@ const callNftTokenUri = async (
 
 	const nftIs1155 = await callNftIs1155(nftChainId, nftCollection);
 
-	const nftTokenUri = nftIs1155
+	const nftMetadataUri = nftIs1155
 		? await publicClient.readContract({
 				address: nftCollection,
 				abi: erc1155Abi,
 				functionName: 'uri',
 				args: [nftTokenId]
-		  })
+			})
 		: await publicClient.readContract({
 				address: nftCollection,
 				abi: erc721Abi,
 				functionName: 'tokenURI',
 				args: [nftTokenId]
-		  });
+			});
 
-	// console.info('callNftTokenUri', nftTokenUri.toString());
-	return nftTokenUri;
+	// console.info('callNftTokenUri', nftMetadataUri.toString());
+	return nftMetadataUri;
 };
 
 const callNftIs1155 = async (nftChainId: number, nftCollection: Address): Promise<boolean> => {

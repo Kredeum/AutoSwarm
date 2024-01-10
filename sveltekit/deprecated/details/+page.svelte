@@ -50,7 +50,7 @@
 	import { readNftOwner, readNftTBAccount } from '$lib/ts/onchain/readNft.js';
 	import { bzzChainId } from '$lib/ts/swarm/bzz.js';
 
-	export let data../../src/routes/[chainId]/[collection]/[tokenId]/details/$types.js;
+	export let data;
 	const { json, chain } = data;
 
 	// NFT reference
@@ -117,7 +117,9 @@
 
 		remainingBalance = await readPostageRemainingBalance($bzzChainId);
 		[owner, depth, normalisedBalance] =
-			chain.id == 100 ? await readPostageBatchesLegacy($bzzChainId) : await readPostageBatches($bzzChainId);
+			chain.id == 100
+				? await readPostageBatchesLegacy($bzzChainId)
+				: await readPostageBatches($bzzChainId);
 
 		oneDayNBal = (lastPrice * BigInt(ONE_DAY)) / BigInt(SECONDS_PER_BLOCK);
 

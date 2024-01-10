@@ -1,17 +1,64 @@
-import type { Address, Hex } from 'viem';
+import type { Hex } from 'viem';
 import { autoSwarmMarketAbi } from '../constants/abis';
 
-import { jsonGetField } from '../common/json';
+import { addressesGetField } from '../common/addresses';
 import { callPublicClient } from './call';
 
 const callMarketCurrentBatchId = async (bzzChainId: number): Promise<Hex> => {
 	const publicClient = await callPublicClient(bzzChainId);
 
 	return await publicClient.readContract({
-		address: (await jsonGetField(bzzChainId, 'AutoSwarmMarket')) as Address,
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
 		abi: autoSwarmMarketAbi,
 		functionName: 'currentBatchId'
 	});
 };
 
-export { callMarketCurrentBatchId };
+const callMarketCurrentNodeOwner = async (bzzChainId: number): Promise<Hex> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
+		abi: autoSwarmMarketAbi,
+		functionName: 'currentNodeOwner'
+	});
+};
+
+const callMarketStampToBatchId = async (bzzChainId: number, stampId: Hex): Promise<Hex> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
+		abi: autoSwarmMarketAbi,
+		functionName: 'stampToBatchId',
+		args: [stampId]
+	});
+};
+
+const callMarketNewBatchNeeded = async (bzzChainId: number): Promise<boolean> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
+		abi: autoSwarmMarketAbi,
+		functionName: 'newBatchNeeded'
+	});
+};
+
+const callMarketCurrentBatchFilling = async (bzzChainId: number): Promise<bigint> => {
+	const publicClient = await callPublicClient(bzzChainId);
+
+	return await publicClient.readContract({
+		address: addressesGetField(bzzChainId, 'AutoSwarmMarket'),
+		abi: autoSwarmMarketAbi,
+		functionName: 'currentBatchFilling'
+	});
+};
+
+export {
+	callMarketNewBatchNeeded,
+	callMarketCurrentNodeOwner,
+	callMarketCurrentBatchId,
+	callMarketStampToBatchId,
+	callMarketCurrentBatchFilling
+};

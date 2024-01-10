@@ -45,11 +45,11 @@ test('stampBzzToTtl should convert BZZ to TTL', () => {
 	expect(utilsNBalToTtl(409_600n, 24_000n)).toBe(85n);
 	expect(stampBzzToTtl(1_000n, 10, 24_000n)).toBe(85n);
 
-	expect(stampBzzToTtl(1_000n, 10, 1_000n)).toBe(2048n);
-	expect(stampBzzToTtl(2_000_000n, 20, 24_000n)).toBe(85_333n);
+	expect(stampBzzToTtl(1_000_000n, 10, 1_000n)).toBe(2_048_000n);
+	expect(stampBzzToTtl(2_000_000n, 20, 24_000n)).toBe(85_330n);
 
 	// 1 Bzz ttl for 100Ko at price 24 000 Plur/block
 	expect(stampBzzToNBal(10n ** 16n, 100_000)).toBe(409_600_000_000_000n);
-	expect(utilsNBalToTtl(409_600_000_000_000n, 24_000n)).toBe(85_333_333_333n);
-	expect(stampBzzToTtl(10n ** 16n, 100_000, 24_000n)).toBe(85_333_333_333n);
+	expect(utilsNBalToTtl(409_600_000_000_000n, 24_000n)).toBe(85_333_333_330n);
+	expect(stampBzzToTtl(10n ** 16n, 100_000, 24_000n)).toBe(85_333_333_330n);
 });

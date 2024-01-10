@@ -21,7 +21,7 @@
       "group": "Default"
     },
     {
-      "filePath": "sveltekit/src/lib/components/Nft/NftAutoSwarm.svelte",
+      "filePath": "sveltekit/src/lib/components/Nft/NftMetadata.svelte",
       "group": "Default"
     },
     {
@@ -39,8 +39,20 @@
     {
       "filePath": "contracts/lib/storage-incentives/src/PostageStamp.sol",
       "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/routes",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components/Nft/NftAutoSwarm.svelte",
+      "group": "Default"
+    },
+    {
+      "filePath": "sveltekit/src/lib/components/Cron/CronMonitor.svelte",
+      "group": "Default"
     }
   ],
-  "workbench.colorTheme": "Night Owl Light (No Italics)",
-  "local-history.browser.descending": false
+  "slither.solcPath": "",
+  "slither.hiddenDetectors": ["assembly"]
 }

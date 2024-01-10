@@ -1,15 +1,21 @@
 import { get, writable } from 'svelte/store';
 
-import { jsonGet } from '../common/json';
-import { chainGet, type BzzChainIdType } from '../common/chains';
-import type { Hex } from 'viem';
-import { IMAGE_JPEG, METADATA_JSON, ZERO_BYTES32 } from '../constants/constants';
+import { addressesGet } from '../common/addresses';
+import { chainGet } from '../common/chains';
+import type { Chain, Hex } from 'viem';
+import { LIST_JSON, ZERO_BYTES32 } from '../constants/constants';
+import { utilsIsNullBytes32 } from '../common/utils';
+import { fetchJson } from '../fetch/fetchJson';
+import type { AddressesType } from '../constants/types';
+import { beeApiBzz } from './bee';
+
+type ListJsonType = { metadata: string; image: string };
 
 const bzzChainId = writable<number>();
 
-const bzzChain = () => chainGet(get(bzzChainId));
+const bzzChain = (): Chain | undefined => chainGet(get(bzzChainId));
 
-const bzzJson = () => jsonGet(get(bzzChainId) as BzzChainIdType);
+const bzzJson = (): AddressesType => addressesGet(get(bzzChainId));
 
 const bzzTrim = (hash: Hex | string | undefined): string =>
 	hash
@@ -24,8 +30,16 @@ const bzz = (hash: Hex | string | undefined): string => (hash ? `bzz://${bzzTrim
 
 const bzz0 = (hash: Hex | string): Hex | undefined => (hash ? `0x${bzzTrim(hash)}` : ZERO_BYTES32);
 
-const bzzTokenUri = (hash: Hex | string | undefined): string => `${bzz(hash)}/${METADATA_JSON}`;
+const bzzImageName = async (hash: Hex | undefined): Promise<string | undefined> => {
+	if (utilsIsNullBytes32(hash)) return;
 
-const bzzImage = (hash: Hex | string | undefined): string => `${bzz(hash)}/${IMAGE_JPEG}`;
+	const url = `${beeApiBzz()}/${bzzTrim(hash)}/${LIST_JSON}`;
+	// console.info('bzzImageName', url);
 
-export { bzz, bzz0, bzzTrim, bzzChain, bzzChainId, bzzJson, bzzTokenUri, bzzImage };
+	const json = (await fetchJson(url)) as ListJsonType;
+	// console.info('bzzImageName ~ json', json);
+
+	return json['image'];
+};
+
+export { bzz, bzz0, bzzTrim, bzzChain, bzzChainId, bzzJson, bzzImageName };

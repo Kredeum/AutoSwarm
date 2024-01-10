@@ -1,0 +1,40 @@
+###
+POST http://127.0.0.1:1633/bzz
+Content-Type: multipart/form-data; boundary=YTJHJHG465HFG001
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+
+--YTJHJHG465HFG001
+Content-Disposition: form-data; name="swarm";
+Content-Type: text/plain
+Content-Length: 3
+
+BZZ
+--YTJHJHG465HFG001--
+
+
+###
+POST http://127.0.0.1:1633/bzz
+Content-Type: multipart/form-data; boundary=YTJHJHG465HFG002
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+
+--YTJHJHG465HFG002
+Content-Disposition: form-data; name="swarm";
+Content-Type: text/plain
+Content-Length: 0
+
+BZZ
+--YTJHJHG465HFG002--
+
+
+###
+POST http://127.0.0.1:1633/bzz
+Content-Type: multipart/form-data; boundary=YTJHJHG465HFG003
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+
+--YTJHJHG465HFG003
+Content-Disposition: form-data; name="swarm";
+Content-Type: text/plain
+
+BZZ
+--YTJHJHG465HFG003--
+

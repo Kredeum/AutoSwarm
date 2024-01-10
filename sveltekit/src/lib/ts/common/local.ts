@@ -1,13 +1,27 @@
-import { SWARM_DEFAULT_API, SWARM_DEFAULT_BATCHID } from '../constants/constants';
+import {
+	BEE_API_DEFAULT,
+	BEE_GATEWAY_DEFAULT,
+	BZZ_CHAIN_ID_DEFAULT,
+	BEE_BATCHID_DEFAULT
+} from '../constants/constants';
 
-const localConfigGet = (field: string): string | null => localStorage.getItem(`swarm.${field}`);
+const localConfigGet = (field: string): string | null => {
+	try {
+		return localStorage.getItem(`autoswarm.${field}`);
+	} catch (e) {
+		return null;
+	}
+};
 
 const localConfigSet = (field: string, value: string): void =>
-	localStorage.setItem(`swarm.${field}`, value);
+	localStorage?.setItem(`autoswarm.${field}`, value);
 
 const localConfigInit = (): void => {
-	if (localConfigGet('api') === null) localConfigSet('api', SWARM_DEFAULT_API);
-	if (localConfigGet('batchId') === null) localConfigSet('batchId', SWARM_DEFAULT_BATCHID);
+	console.log('localConfigInit');
+	if (!localConfigGet('api')) localConfigSet('api', BEE_API_DEFAULT);
+	if (!localConfigGet('gateway')) localConfigSet('gateway', BEE_GATEWAY_DEFAULT);
+	if (!localConfigGet('batchId')) localConfigSet('batchId', BEE_BATCHID_DEFAULT);
+	if (!localConfigGet('bzzChainId')) localConfigSet('bzzChainId', BZZ_CHAIN_ID_DEFAULT);
 };
 
 export { localConfigInit, localConfigGet, localConfigSet };

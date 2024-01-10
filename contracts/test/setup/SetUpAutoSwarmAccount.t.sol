@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import {console} from "forge-std/Test.sol";
@@ -28,10 +28,8 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
         deal(address(bzzToken), address(tba), bzzAmount);
 
         if (address(tba).code.length == 0) {
-            vm.startPrank(nftOwner);
+            vm.prank(nftOwner);
             registry.createAccount(address(implementation), salt, chainId, collection, tokenId);
-            tba.initialize(address(autoSwarmMarket), bytes32("1"), 1);
-            vm.stopPrank();
         }
         assert(address(tba).code.length != 0);
     }
@@ -39,8 +37,8 @@ contract SetUpAutoSwarmAccount is SetUpAutoSwarmMarket, SetUpERC6551 {
     function setUp() public override {
         setRecording(false);
         setUpSwarm();
-        setUpAutoSwarmMarket();
         setUpERC6551();
+        setUpAutoSwarmMarket();
         setUpAutoSwarmAccount();
     }
 }

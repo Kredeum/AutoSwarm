@@ -1,10 +1,8 @@
-import 'viem/window';
 import type { Address } from 'viem';
 import { erc6551RegistryAbi } from '$lib/ts/constants/abis';
 import { callIsContract } from '$lib/ts/call/call';
 import { SALT } from '../constants/constants';
-import { utilsError } from '../common/utils';
-import { jsonGetField } from '../common/json';
+import { addressesGetField } from '../common/addresses';
 import { sendWallet } from './send';
 import { callRegistryAccount } from '../call/callRegistry';
 
@@ -18,8 +16,8 @@ const sendRegistryCreateAccount = async (
 
 	if (await callIsContract(bzzChainId, tba)) return tba;
 
-	const erc6551Registry = (await jsonGetField(bzzChainId, 'ERC6551Registry')) as Address;
-	const autoSwarmAccount = (await jsonGetField(bzzChainId, 'AutoSwarmAccount')) as Address;
+	const erc6551Registry = addressesGetField(bzzChainId, 'ERC6551Registry');
+	const autoSwarmAccount = addressesGetField(bzzChainId, 'AutoSwarmAccount');
 
 	const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
 
@@ -34,18 +32,18 @@ const sendRegistryCreateAccount = async (
 	await publicClient.waitForTransactionReceipt({ hash: hash });
 
 	if (!(await callIsContract(bzzChainId, tba)))
-		utilsError('sendRegistryCreateAccount: Create failed');
+		throw new Error('sendRegistryCreateAccount: Create failed');
 
 	return tba;
 };
 
-// const bzzHash = ZERO_BYTES32;
-// const bzzSize = 0n;
+// const swarmHash = ZERO_BYTES32;
+// const nftSize = 0n;
 // const bzzAmount = 0n;
 // const data = encodeFunctionData({
 //   abi: autoSwarmAccountAbi,
 //   functionName: 'initialize',
-//   args: [json.PostageStamp as Address, bzzHash as Hex, bzzSize, bzzAmount]
+//   args: [json.PostageStamp , swarmHash as Hex, nftSize, bzzAmount]
 // });
 
 export { sendRegistryCreateAccount };

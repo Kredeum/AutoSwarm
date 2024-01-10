@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {Test, console} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
@@ -9,6 +9,8 @@ import {DeployLiteRWJson} from "@forge-deploy-lite/DeployLiteRWJson.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 
 import {DeployAll} from "@autoswarm/script/DeployAll.s.sol";
+
+// import {console} from "forge-std/console.sol";
 
 contract SetUpSwarm is Test, DeployAll {
     PostageStamp public postageStamp;
@@ -22,9 +24,9 @@ contract SetUpSwarm is Test, DeployAll {
         log3(address(this), "This", "SetUpSwarm");
 
         admin = msg.sender;
-        oracle = getAddress("PriceOracle");
+        oracle = readAddress("PriceOracle");
 
-        postageStamp = PostageStamp(deploy("PostageStamp", false));
+        postageStamp = PostageStamp(deployPostageStamp());
 
         bytes32 oracleRole = postageStamp.PRICE_ORACLE_ROLE();
 
@@ -36,7 +38,6 @@ contract SetUpSwarm is Test, DeployAll {
 
         bzzToken = IERC20(postageStamp.bzzToken());
 
-        console.log(address(bzzToken), "setUpSwarm ~ bzzToken:");
         minDepth = postageStamp.minimumBucketDepth();
     }
 }

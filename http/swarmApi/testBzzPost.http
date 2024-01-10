@@ -1,0 +1,43 @@
+###
+POST http://127.0.0.1:1633/bzz
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+Content-Type: text/plain
+Swarm-Encrypt: true
+Swarm-Pin: true
+
+BZZ
+
+###
+GET http://127.0.0.1:1633/bzz/b2cb6fd6e5a1be34e656bfb2d1582fdc36473ec764306f2e27cbf8dffd55d1382be791a33c262309de50f1335d4e89818e5d73cb7f233999b6c2fe6947be456d
+
+
+
+###
+POST http://127.0.0.1:1633/bzz
+Swarm-Postage-Batch-Id: e583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b
+Content-Type: text/plain
+
+BZZ
+
+###
+POST http://127.0.0.1:1633/bzz
+Swarm-Postage-Batch-Id: 0000000000000000000000000000000000000000000000000000000000000000
+Content-Type: text/plain
+
+BZZ
+
+
+###
+
+POST https://api.gateway.ethswarm.org/bzz
+Content-Type: text/plain
+
+BZZ
+
+
+###
+POST https://api.gateway.ethswarm.org/bzz
+Swarm-Postage-Batch-Id: 0000000000000000000000000000000000000000000000000000000000000000
+Content-Type: text/plain
+
+BZZ

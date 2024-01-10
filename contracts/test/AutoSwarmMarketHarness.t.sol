@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MITs
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
 import {console} from "forge-std/console.sol";
 import {IERC721} from "forge-std/interfaces/IERC721.sol";
@@ -14,7 +14,7 @@ contract PostageStampMock {
 }
 
 contract AutoSwarmMarketHarness is AutoSwarmMarket {
-    constructor(address _postageStamp) AutoSwarmMarket(_postageStamp) {
+    constructor(address _postageStamp, address _swarmNode) AutoSwarmMarket(_postageStamp, _swarmNode) {
         console.log("AutoSwarmMarketUnitTest ~ constructor");
     }
 
@@ -33,7 +33,7 @@ contract AutoSwarmMarketHarnessTest {
 
     function setUp() public {
         postageStampMock = new PostageStampMock();
-        autoSwarmMarketHarness = new AutoSwarmMarketHarness(address(postageStampMock));
+        autoSwarmMarketHarness = new AutoSwarmMarketHarness(address(postageStampMock), address(1));
     }
 
     function test_AutoSwarmMarketHarness_OK() public pure {

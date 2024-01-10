@@ -1,0 +1,32 @@
+### BZZ 1
+GET http://localhost:1633/bzz/6d40125b4c2b587a8b527938185379ea4703bbadaed0a5598dd891bb9d6bc2a3
+
+### BZZ 2
+GET http://bee.swarm.public.dappnode:1633/bzz/6d40125b4c2b587a8b527938185379ea4703bbadaed0a5598dd891bb9d6bc2a3
+
+### BZZ 3
+GET https://api.gateway.ethswarm.org/bzz/6d40125b4c2b587a8b527938185379ea4703bbadaed0a5598dd891bb9d6bc2a3
+
+
+### ARBRE 1
+GET http://localhost:1633/bzz/daa882683c3712146488ebe7282e208720b065257678687434fe37a6ed3ae741
+
+### ARBRE 2
+GET http://bee.swarm.public.dappnode:1633/bzz/daa882683c3712146488ebe7282e208720b065257678687434fe37a6ed3ae741/
+
+### ARBRE 3
+GET https://api.gateway.ethswarm.org/bzz/daa882683c3712146488ebe7282e208720b065257678687434fe37a6ed3ae741/.swarmgatewaypreview.jpeg
+
+
+### PANDA 1
+GET http://localhost:1633/bzz/ac8445cf1fd7999eec135ef087b9cfeebfd2297734eee64092381da1ddc3e2d8
+
+### PANDA 2
+GET http://bee.swarm.public.dappnode:1633/bzz/ac8445cf1fd7999eec135ef087b9cfeebfd2297734eee64092381da1ddc3e2d8
+
+### PANDA 3
+GET https://api.gateway.ethswarm.org/bzz/ac8445cf1fd7999eec135ef087b9cfeebfd2297734eee64092381da1ddc3e2d8
+
+
+###
+GET  http://bee.swarm.public.dappnode:1633/bzz/486edfac2bbad3e5f324305cddf417edb1dbaf9c4c50c1256cef5f98b5f72a94

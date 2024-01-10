@@ -9,15 +9,13 @@ import {
 	ONE_MONTH,
 	ONE_YEAR,
 	BZZ_DECIMALS,
-	BUCKET_DEPTH,
-	SWARM_GATEWAY
+	BUCKET_DEPTH
 } from '$lib/ts/constants/constants';
 import { utilsNBalToBzz, utilsNBalToTtl } from '../swarm/utils';
 import { batchSizeBatch } from '../swarm/batch';
-import { chainGetExplorer } from '../common/chains';
-import { jsonGetField } from '../common/json';
-import { utilsIsBytes32Null, utilsTruncate } from '../common/utils';
+import { utilsIsNullBytes32, utilsTruncate } from '../common/utils';
 import { bzz, bzz0, bzzTrim } from '../swarm/bzz';
+import { beeApiBzz, beeGatewayBzz } from '../swarm/bee';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY : offline functions returns [html] string to display
@@ -82,68 +80,23 @@ const displayDuration = (seconds: bigint | number | undefined): string => {
 	if (seconds === undefined) return `${UNDEFINED_DATA} days`;
 
 	const hours = Number(seconds) / ONE_HOUR;
-	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours > 1 ? 's' : ''}`;
+	if (hours < 24) return `${Number(hours).toFixed(2)} hour${hours >= 1.01 ? 's' : ''}`;
 
 	const days = Number(seconds) / ONE_DAY;
-	if (days < 60) return `${Number(days).toFixed(2)} day${days > 1 ? 's' : ''}`;
+	if (days < 60) return `${Number(days).toFixed(2)} day${days >= 1.01 ? 's' : ''}`;
 
 	const weeks = Number(seconds) / ONE_WEEK;
-	if (weeks < 12) return `${Number(weeks).toFixed(2)} ZZweek${weeks > 1 ? 's' : ''}`;
+	if (weeks < 12) return `${Number(weeks).toFixed(2)} week${weeks >= 1.01 ? 's' : ''}`;
 
 	const months = Number(seconds) / ONE_MONTH;
-	if (days < 365) return `${Number(months).toFixed(2)} month${months > 1 ? 's' : ''}`;
+	if (days < 365) return `${Number(months).toFixed(2)} month${months >= 1.01 ? 's' : ''}`;
 
 	const years = Number(seconds) / ONE_YEAR;
 
-	const ret = `${Number(years).toFixed(2)} year${years > 1 ? 's' : ''}`;
-	console.log('ret:', ret);
-	return ret;
+	const duration = `${Number(years).toFixed(2)} year${years >= 1.01 ? 's' : ''}`;
+	// console.log('duration:', duration);
+	return duration;
 };
-
-const displayExplorer = (chainId: number | undefined): string => {
-	if (!chainId) return '';
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return `#${chainId}`;
-
-	return `<a href="${explorer}" target="_blank">#${chainId}</a>`;
-};
-
-const displayExplorerNft = (
-	chainId: number | undefined,
-	collection: string | undefined,
-	tokenId: bigint | undefined
-): string => {
-	if (!(chainId && collection && tokenId && tokenId >= 0)) return '';
-	const explorer = chainGetExplorer(chainId);
-	if (!explorer) return `#${chainId}`;
-
-	return `<a href="${explorer}/nft/${collection}/${tokenId}" target="_blank">#${utilsTruncate(
-		tokenId.toString()
-	)}</a>`;
-};
-
-const _displayExplorerAddress = (
-	chainId: number | undefined,
-	addr: Address | undefined
-): string => {
-	if (!chainId) return '';
-
-	const explorer = chainGetExplorer(chainId);
-	console.log('explorer:', explorer);
-	if (!explorer) return `${addr}`;
-
-	return `<a href="${explorer}/address/${addr}" target="_blank">${addr}</a>`;
-};
-
-const displayExplorerAddress = (chainId: number | undefined, addr: Address | undefined): string => {
-	console.log('displayExplorerAddress ~  addr && isAddress(addr):', addr && isAddress(addr));
-
-	return chainId && addr && isAddress(addr)
-		? _displayExplorerAddress(chainId, addr)
-		: UNDEFINED_ADDRESS;
-};
-const displayExplorerField = (chainId: number, field: string): string =>
-	displayExplorerAddress(chainId, jsonGetField(chainId, field) as Address);
 
 const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefined): string => {
 	if (balance === undefined || depth === undefined) return UNDEFINED_DATA;
@@ -152,24 +105,23 @@ const displayBzzFromNBal = (balance: bigint | undefined, depth: number | undefin
 };
 
 const displayBzzURI = (str: Hex | string | undefined, path?: string): string => {
+	// console.log('displayBzzURI', str, bzzTrim(str));
 	const hash = bzzTrim(str);
-	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
+	if (utilsIsNullBytes32(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 
 	const hashPath = path ? `${hash}/${path}` : hash;
-	const url = `${SWARM_GATEWAY}/${hashPath}`;
+	const url = `${beeApiBzz()}/${hashPath}`;
 
-	return path
-		? `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`
-		: bzz(hashPath);
+	return `<a href="${url}" target="_blank">${utilsTruncate(bzz(hashPath))}</a>`;
 };
 
 const displayBzzURL = (str: Hex | string | undefined, path?: string): string => {
 	const hash = bzzTrim(str);
-	if (utilsIsBytes32Null(bzz0(hash) as Hex)) return UNDEFINED_DATA;
+	if (utilsIsNullBytes32(bzz0(hash) as Hex)) return UNDEFINED_DATA;
 	// console.log('displayBzzURL ', hash, path);
 
 	const hashPath = path ? `${hash}/${path}` : hash;
-	const url = `${SWARM_GATEWAY}/${hashPath}`;
+	const url = `${beeGatewayBzz()}/${hashPath}`;
 
 	return `<a href="${url}" target="_blank">${utilsTruncate(url)}</a>`;
 };
@@ -204,11 +156,19 @@ const displayNftLink = (
 const displaySizeBytes = (size: bigint | number | undefined): string =>
 	`${size?.toString() || UNDEFINED_DATA} bytes`;
 
+const displayPerCent = (a: bigint | number | undefined, b: bigint | number | undefined) => {
+	if (a === undefined || b === undefined) return UNDEFINED_DATA;
+	if (b === 0n) return DIVISION_BY_ZERO;
+
+	return `${((Number(a) / Number(b)) * 100).toFixed(2)} %`;
+};
+
 export {
 	displayTxt,
 	displayTtl,
 	displayLink,
 	displayNftLink,
+	displayPerCent,
 	displayBalance,
 	displayAddress,
 	displayDuration,
@@ -220,9 +180,5 @@ export {
 	displayDate,
 	displayBatchSize,
 	displayBatchDepthWithSize,
-	displayExplorer,
-	displayExplorerNft,
-	displayExplorerAddress,
-	displayExplorerField,
 	displayBzzFromNBal
 };

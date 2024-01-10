@@ -10,14 +10,10 @@
 	import { page } from '$app/stores';
 
 	////////////////////// AutoSwarm Layout ///////////////////////////////////////
-	// Layout for all AutoSwamr pages
+	// Layout for all AutoSwarm pages
 	/////////////////////////////////////////////////////////////////////////////
 
-	const chainId = localStorage.getItem('swarm.chainId') || '11155111'; //  "31337" // "100";
-	localStorage.setItem('swarm.chainId', chainId);
-	bzzChainId.set(Number(chainId));
-
-	$: document.body.style.backgroundColor = ['/monitor'].includes($page.route.id || '')
+	$: document.body.style.backgroundColor = ($page.route.id || '').includes('/monitor')
 		? '#444'
 		: '#000';
 </script>
@@ -34,7 +30,7 @@
 	</main>
 
 	<footer>
-		{chainId}
+		{$bzzChainId}
 		<Footer />
 	</footer>
 </div>

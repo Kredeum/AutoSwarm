@@ -1,92 +1,155 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity 0.8.23;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ERC6551Account} from "@erc6551/examples/simple/ERC6551Account.sol";
-import {IAutoSwarmAccount, IAutoSwarmMarket, IERC20} from "./interfaces/IAutoSwarmAccount.sol";
+
+import {IERC173} from "./interfaces/IERC173.sol";
+import {IAutoSwarmMarket} from "./interfaces/IAutoSwarmMarket.sol";
+import {IAutoSwarmAccount} from "./interfaces/IAutoSwarmAccount.sol";
 
 // import {console} from "forge-std/console.sol";
 
-contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account {
-    bytes32 public bzzHash;
-    uint256 public bzzSize;
+contract AutoSwarmAccount is IAutoSwarmAccount, ERC6551Account, ReentrancyGuard {
+    bytes32 public swarmHash;
+    uint256 public swarmSize;
     bytes32 public stampId;
-    address public initializer;
 
-    IAutoSwarmMarket internal _autoSwarmMarket;
-    IERC20 internal _bzzToken;
+    uint256 private constant _ERC6551_TBA_SIZE = 173;
+    address private _autoSwarmMarket; // only implementation can set this
 
     modifier onlyOwner() {
-        require(msg.sender == owner() || msg.sender == initializer, "Not owner");
+        if (msg.sender == owner()) revert NotOwner();
         _;
     }
 
-    modifier onlyWhenInitialized() {
-        require(address(_autoSwarmMarket) != address(0), "Not initialized");
+    modifier onlyMarketOwner() {
+        if (msg.sender != getMarketOwner()) revert NotMarketOwner();
         _;
     }
 
-    function initialize(address autoSwarmMarket_, bytes32 bzzHash_, uint256 bzzSize_)
+    modifier onlyTba() {
+        if (!isTba()) revert NotTba();
+        _;
+    }
+
+    modifier onlyImplementation() {
+        if (!isImplementation()) revert NotImplementation();
+        _;
+    }
+
+    constructor(address autoSwarmMarket_) {
+        _setAutoSwarmMarket(autoSwarmMarket_);
+    }
+
+    function setAutoSwarmMarket(address autoSwarmMarket_) external override(IAutoSwarmAccount) 
+    // onlyMarketOwner
+    // onlyImplementation
+    {
+        _setAutoSwarmMarket(autoSwarmMarket_);
+    }
+
+    function createStamp(bytes32 swarmHash_, uint256 swarmSize_, uint256 bzzAmount_)
         external
         override(IAutoSwarmAccount)
+        nonReentrant
+        returns (bytes32)
     {
-        require(address(_autoSwarmMarket) == address(0), "Already initialized");
+        if (stampId != bytes32(0)) revert StampExists();
+        if (swarmHash_ == bytes32(0)) revert SwarmHashNull();
+        if (swarmSize_ == 0) revert SwarmSizeZero();
 
-        require(autoSwarmMarket_ != address(0), "Bad AutoSwarm Market");
-        require(bzzHash_ != bytes32(0), "Bad Swarm Hash");
-        require(bzzSize_ != 0, "Bad Swarm Size");
+        address autoSwarmMarket = getAutoSwarmMarket();
 
-        initializer = msg.sender;
+        swarmHash = swarmHash_;
+        swarmSize = swarmSize_;
 
-        bzzHash = bzzHash_;
-        bzzSize = bzzSize_;
+        SafeERC20.safeIncreaseAllowance(IERC20(getBzzToken()), autoSwarmMarket, bzzAmount_);
 
-        _autoSwarmMarket = IAutoSwarmMarket(payable(autoSwarmMarket_));
-        _bzzToken = IERC20(_autoSwarmMarket.bzzToken());
+        // slither-disable-next-line reentrancy-no-eth
+        stampId = IAutoSwarmMarket(autoSwarmMarket).createStamp(swarmHash_, swarmSize_, bzzAmount_);
 
-        require(address(_bzzToken) != address(0), "Bad BzzToken!");
-
-        stampId = _autoSwarmMarket.createStamp(bzzHash, bzzSize, 0);
+        emit CreateStamp(stampId, swarmHash_, swarmSize_, bzzAmount_);
+        return stampId;
     }
 
-    function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) onlyWhenInitialized {
-        _bzzApproveMore(bzzAmount);
-        _autoSwarmMarket.topUpStamp(stampId, bzzAmount);
+    function updateStamp(bytes32 swarmHash_, uint256 swarmSize_) external override(IAutoSwarmAccount) onlyMarketOwner {
+        if (swarmHash_ == bytes32(0)) revert SwarmHashNull();
+        if (swarmSize_ == 0) revert SwarmSizeZero();
+
+        swarmHash = swarmHash_;
+        swarmSize = swarmSize_;
+
+        emit UpdateStamp(stampId, swarmHash, swarmSize_);
+        IAutoSwarmMarket(getAutoSwarmMarket()).updateStamp(stampId, swarmHash_, swarmSize_);
     }
 
-    function withdraw(address token) external {
+    function topUp(uint256 bzzAmount) external override(IAutoSwarmAccount) {
+        if (bzzAmount == 0) revert AmountZero();
+
+        address autoSwarmMarket = getAutoSwarmMarket();
+
+        SafeERC20.safeIncreaseAllowance(IERC20(getBzzToken()), autoSwarmMarket, bzzAmount);
+        IAutoSwarmMarket(autoSwarmMarket).topUpStamp(stampId, bzzAmount);
+
+        emit TopUp(stampId, bzzAmount);
+    }
+
+    function withdraw(address token) external override(IAutoSwarmAccount) onlyOwner returns (uint256 amount) {
         if (token == address(0)) {
-            (bool success,) = owner().call{value: address(this).balance}("");
-            require(success, "Withdraw failed!");
+            amount = address(this).balance;
+            Address.sendValue(payable(owner()), amount);
         } else {
-            IERC20(token).transfer(owner(), IERC20(token).balanceOf(address(this)));
+            amount = IERC20(token).balanceOf(address(this));
+            SafeERC20.safeTransfer(IERC20(token), owner(), amount);
         }
+
+        emit Withdraw(token, amount);
     }
 
-    function getTopUpYearPrice() external view override(IAutoSwarmAccount) onlyWhenInitialized returns (uint256) {
-        return _autoSwarmMarket.getStampPriceOneYear(bzzSize);
+    function getOneYearPrice() external view override(IAutoSwarmAccount) returns (uint256) {
+        return IAutoSwarmMarket(getAutoSwarmMarket()).getStampPriceOneYear(swarmSize);
     }
 
-    function owner() public view override returns (address) {
+    function owner() public view override(ERC6551Account) returns (address) {
         address superOwner = super.owner();
-        if (superOwner == address(0)) {
-            return initializer;
-        } else {
-            return superOwner;
-        }
+
+        return (superOwner == address(0)) ? getMarketOwner() : superOwner;
     }
 
-    function _bzzApproveMore(uint256 bzzAmount) internal onlyWhenInitialized {
-        uint256 bzzAmountToApprove = _getBzzAllowance() + bzzAmount;
-        require(bzzAmountToApprove <= _getBzzBalance(), "Not enough Bzz balance");
-
-        _bzzToken.approve(address(_autoSwarmMarket), bzzAmountToApprove);
+    function getBzzToken() public view override(IAutoSwarmAccount) returns (address) {
+        return IAutoSwarmMarket(getAutoSwarmMarket()).bzzToken();
     }
 
-    function _getBzzBalance() internal view returns (uint256) {
-        return _bzzToken.balanceOf(address(this));
+    function getMarketOwner() public view override(IAutoSwarmAccount) returns (address) {
+        return IERC173(getAutoSwarmMarket()).owner();
     }
 
-    function _getBzzAllowance() internal view returns (uint256) {
-        return _bzzToken.allowance(address(this), address(_autoSwarmMarket));
+    function isTba() public view override(IAutoSwarmAccount) returns (bool) {
+        return address(this).code.length == _ERC6551_TBA_SIZE;
+    }
+
+    function isImplementation() public view override(IAutoSwarmAccount) returns (bool) {
+        return !isTba();
+    }
+
+    function getImplementation() public view override(IAutoSwarmAccount) onlyTba returns (address addr) {
+        addr = address(uint160(uint256(bytes32(address(this).code)) >> 16));
+    }
+
+    function getAutoSwarmMarket() public view override(IAutoSwarmAccount) returns (address) {
+        return isTba() ? IAutoSwarmAccount(getImplementation()).getAutoSwarmMarket() : _autoSwarmMarket;
+    }
+
+    function _setAutoSwarmMarket(address autoSwarmMarket) private {
+        if (autoSwarmMarket == address(0)) revert AutoSwarmMarketNull();
+
+        _autoSwarmMarket = autoSwarmMarket;
+
+        emit SetAutoSwarmMarket(autoSwarmMarket);
     }
 }

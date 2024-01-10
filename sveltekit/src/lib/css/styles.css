@@ -112,9 +112,10 @@ header h2 {
 	width: fit-content;
 	max-width: 1024px;
 	display: flex;
+	align-items: center;
 	grid-gap: 20px;
 	flex-wrap: wrap;
-	justify-content: flex-start;
+	justify-content: center;
 }
 
 article {

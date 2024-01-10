@@ -34,7 +34,7 @@ const utilsNBalToTtl = (
 	if (nBal === undefined || lastPrice === undefined) return;
 	if (lastPrice == 0n) return 0n;
 
-	return (nBal * BigInt(SECONDS_PER_BLOCK)) / lastPrice;
+	return (nBal / lastPrice) * BigInt(SECONDS_PER_BLOCK);
 };
 
 const utilsTtlToNBal = (
@@ -43,7 +43,7 @@ const utilsTtlToNBal = (
 ): bigint | undefined => {
 	if (ttl === undefined || lastPrice === undefined) return;
 
-	return (BigInt(ttl) * lastPrice) / BigInt(SECONDS_PER_BLOCK);
+	return lastPrice * BigInt(Math.floor(ttl / SECONDS_PER_BLOCK));
 };
 
 export { utilsBzzToTtl, utilsNBalToTtl, utilsTtlToNBal, utilsNBalToBzz, utilsBzzToNBal };

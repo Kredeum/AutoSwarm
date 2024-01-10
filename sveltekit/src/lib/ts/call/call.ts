@@ -1,25 +1,24 @@
 import { type Chain, type Address, type Block, type PublicClient, createPublicClient } from 'viem';
+
 import { chainGetWithTransport } from '../common/chains';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ : onchain view functions reading the chain via rpc, i.e. functions with publicClient as parameter
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// publicClients Map used as cache
+// publicClients Map used as cache // not used with updated viem2, type pb
 const _publicClients: Map<number, PublicClient> = new Map();
 
-const _publicClient = (chainId: number): PublicClient => {
+const _publicClient = (chainId: number) => {
 	const chainWithTransport = chainGetWithTransport(chainId);
-	if (!chainWithTransport) throw Error(`No chain with transport for ${chainId}`);
-
 	const publicClient = createPublicClient(chainWithTransport);
+
 	_publicClients.set(chainId, publicClient);
 
 	return publicClient;
 };
 
-const callPublicClient = (chainId: number): PublicClient =>
-	_publicClients.get(chainId) || _publicClient(chainId);
+const callPublicClient = (chainId: number) => _publicClients.get(chainId) || _publicClient(chainId);
 
 const callBlockNumber = async (chainId: number): Promise<bigint> => {
 	const publicClient = await callPublicClient(chainId);
@@ -28,7 +27,8 @@ const callBlockNumber = async (chainId: number): Promise<bigint> => {
 };
 
 const callBlock = async (chainId: number, blockNumber?: bigint): Promise<Block> => {
-	const publicClient = await callPublicClient(chainId);
+	// const publicClient = callPublicClient(chainId); // type pb with updated viem2
+	const publicClient = _publicClient(chainId);
 
 	const param = blockNumber ? { blockNumber } : {};
 
@@ -57,4 +57,4 @@ const callChainId = async (chain: Chain) => {
 	return await publicClient.getChainId();
 };
 
-export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock, callBlockNumber};
+export { callPublicClient, callChainId, callEnsName, callIsContract, callBlock, callBlockNumber };

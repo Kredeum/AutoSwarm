@@ -12,7 +12,6 @@ import {
 } from 'viem';
 
 import { callPublicClient } from '$lib/ts/call/call';
-import { utilsError } from '../common/utils';
 import { chainGet } from '../common/chains';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@ import { chainGet } from '../common/chains';
 
 const _windowEthereum = (): EIP1193Provider => {
 	if (!window?.ethereum)
-		utilsError('_windowEthereum: Install Web3 extension like Rabby or Metamask');
+		throw new Error('windowEthereum: Install Web3 extension like Rabby or Metamask');
 
 	return window.ethereum!;
 };
