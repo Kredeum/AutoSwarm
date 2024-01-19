@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "all": "pnpm -r all",
-    "update-all": "pnpm -r update",
+    "update:all": "pnpm -r update",
     "clean": "pnpm -r clean",
     "format": "pnpm -r format",
     "check": "pnpm -r check",
