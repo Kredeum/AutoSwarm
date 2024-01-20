@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {console} from "forge-std/console.sol";
 import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
-
 import {NFTCollection} from "@autoswarm/src/mocks/NFTCollection.sol";
+
+// import {console} from "forge-std/console.sol";
 
 contract DeployNFTCollection is DeployLite {
     function deployNFTCollection() public returns (address) {

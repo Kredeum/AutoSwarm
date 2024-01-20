@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MonitorBatchs from '$lib/components/Monitor/MonitorBatchs.svelte';
+	import MonitorBatchs from '@autoswarm/components/src/Monitor/MonitorBatchs.svelte';
 </script>
 
 <MonitorBatchs />

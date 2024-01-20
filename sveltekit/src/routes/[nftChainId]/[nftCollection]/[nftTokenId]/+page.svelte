@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Address } from 'viem';
 	import { page } from '$app/stores';
-	import { callNftMetadata } from '$lib/ts/call/callNftMetadata';
-	import NftAutoSwarm from '$lib/components/Nft/NftAutoSwarm.svelte';
+	import { callNftMetadata } from '@autoswarm/common/src/call/callNftMetadata';
+	import NftAutoSwarm from '@autoswarm/components/src/Nft/NftAutoSwarm.svelte';
 
 	////////////////////// AutoSwarm NFT Page ///////////////////////////////////
 	// Get NFT identification from URL

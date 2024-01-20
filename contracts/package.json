@@ -1,7 +1,7 @@
 {
-  "name": "autoswarm-backend",
+  "name": "@autoswarm/contracts",
   "version": "0.0.9",
-  "main": "",
+  "main": "index.ts",
   "scripts": {
     "all": "pnpm clean && pnpm format  && pnpm check && pnpm build && pnpm test && pnpm run deploy-test",
     "clean": "forge clean",

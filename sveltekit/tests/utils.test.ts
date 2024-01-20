@@ -6,8 +6,8 @@ import {
 	utilsBzzToTtl,
 	utilsNBalToTtl,
 	utilsTtlToNBal
-} from '$lib/ts/swarm/utils';
-import { BUCKET_DEPTH, CHUNK_SIZE } from '$lib/ts/constants/constants';
+} from '@autoswarm/common/src/swarm/utils';
+import { BUCKET_DEPTH, CHUNK_SIZE } from '@autoswarm/common/src/constants/constants';
 
 test('BUCKET_DEPTH and CHUNK_SIZE', () => {
 	expect(BUCKET_DEPTH).toBe(16);

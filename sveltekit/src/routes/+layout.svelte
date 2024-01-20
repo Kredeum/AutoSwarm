@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 
-	import AlertModal from '$lib/components/AlertModal/AlertModal.svelte';
-	import Header from '$lib/components/Layout/LayoutHeader.svelte';
-	import Footer from '$lib/components/Layout/LayoutFooter.svelte';
+	import AlertModal from '@autoswarm/components/src/AlertModal/AlertModal.svelte';
+	import Header from '@autoswarm/components/src/Layout/LayoutHeader.svelte';
+	import Footer from '@autoswarm/components/src/Layout/LayoutFooter.svelte';
 	import '$lib/css/styles.css';
 
-	import { bzzChainId } from '$lib/ts/swarm/bzz';
+	import { bzzChainId } from '@autoswarm/common/src/swarm/bzz';
 	import { page } from '$app/stores';
 
 	////////////////////// AutoSwarm Layout ///////////////////////////////////////

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MonitorStamps from '$lib/components/Monitor/MonitorStamps.svelte';
+	import MonitorStamps from '@autoswarm/components/src/Monitor/MonitorStamps.svelte';
 </script>
 
 <MonitorStamps />

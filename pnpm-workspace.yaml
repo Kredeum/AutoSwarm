@@ -1,4 +1,5 @@
 packages:
-  - 'contracts'
-  - 'sveltekit'
-
+  - "contracts"
+  - "sveltekit"
+  - "common"
+  - "components"

@@ -3,8 +3,8 @@ import {
 	batchSizeBucket,
 	batchBzzToNBal,
 	batchNBalToBzz
-} from '$lib/ts/swarm/batch';
-import { BUCKET_DEPTH, CHUNK_SIZE } from '$lib/ts/constants/constants';
+} from '@autoswarm/common/src/swarm/batch';
+import { BUCKET_DEPTH, CHUNK_SIZE } from '@autoswarm/common/src/constants/constants';
 import { expect, test } from 'vitest';
 
 test('BUCKET_DEPTH and CHUNK_SIZE', () => {

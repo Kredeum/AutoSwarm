@@ -17,10 +17,7 @@ const config = {
 			fallback: '200.html',
 			precompress: false,
 			strict: true
-		}),
-		alias: {
-			$addresses: '../contracts/addresses.json'
-		}
+		})
 	}
 };
 

@@ -1,17 +1,17 @@
 import { expect, test } from 'vitest';
 
 import { makeChunkedFile } from '@fairdatasociety/bmt-js';
-import { utilsUint8ArrayToHex } from '$lib/ts/common/utils';
+import { utilsUint8ArrayToHex } from '@autoswarm/common/src/common/utils';
 import {
 	swarmHash,
 	swarmHashFromFile,
 	swarmHashFromString,
 	swarmHashFromUrl
-} from '$lib/ts/swarm/hash';
+} from '@autoswarm/common/src/swarm/hash';
 
-import { fetchBeePost, fetchBeePostFromUrl } from '$lib/ts/fetchBee/fetchBee';
-import { bzzTrim } from '$lib/ts/swarm/bzz';
-import { beeApiBzz } from '$lib/ts/swarm/bee';
+import { fetchBeePost, fetchBeePostFromUrl } from '@autoswarm/common/src/fetchBee/fetchBee';
+import { bzzTrim } from '@autoswarm/common/src/swarm/bzz';
+import { beeApiBzz } from '@autoswarm/common/src/swarm/bee';
 
 const batchId = '0xe583912358f3d0842db20bc79799df53d5a6db843560d1a1148bc422b42cd59b';
 

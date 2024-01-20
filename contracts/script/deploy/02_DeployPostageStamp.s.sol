@@ -5,7 +5,7 @@ import {DeployLite} from "@forge-deploy-lite/DeployLite.s.sol";
 import {PostageStamp} from "storage-incentives/PostageStamp.sol";
 import {DeployBzzToken} from "./01_DeployBzzToken.s.sol";
 
-import {console} from "forge-std/console.sol";
+// import {console} from "forge-std/console.sol";
 
 contract DeployPostageStamp is DeployLite, DeployBzzToken {
     function deployPostageStamp() public returns (address) {

@@ -1,5 +1,5 @@
 <script>
-	import Config from '$lib/components/Pages/PageConfig.svelte';
+	import Config from '@autoswarm/components/src/Pages/PageConfig.svelte';
 </script>
 
 <Config />
