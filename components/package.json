@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@autoswarm/common": "workspace:^"
+  },
+  "devDependencies": {
+    "viem": "^2.5.0"
   }
 }

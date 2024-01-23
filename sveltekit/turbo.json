@@ -3,6 +3,10 @@
 	"pipeline": {
 		"build": {
 			"outputs": [".svelte-kit/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
 		}
 	}
 }

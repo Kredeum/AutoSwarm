@@ -7,12 +7,12 @@
       "outputMode": "new-only"
     },
     "build": {
-      "dependsOn": ["format"],
+      "dependsOn": ["check"],
       "outputMode": "new-only"
     },
     "test": {
       "dependsOn": ["build"],
-      "cache" : false
+      "cache": false
     }
   }
 }

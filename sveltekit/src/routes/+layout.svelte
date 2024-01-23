@@ -2,8 +2,8 @@
 	import { invalidateAll } from '$app/navigation';
 
 	import AlertModal from '@autoswarm/components/src/AlertModal/AlertModal.svelte';
-	import Header from '@autoswarm/components/src/Layout/LayoutHeader.svelte';
-	import Footer from '@autoswarm/components/src/Layout/LayoutFooter.svelte';
+	import Header from './Header.svelte';
+	import Footer from './Footer.svelte';
 	import '$lib/css/styles.css';
 
 	import { bzzChainId } from '@autoswarm/common/src/swarm/bzz';
