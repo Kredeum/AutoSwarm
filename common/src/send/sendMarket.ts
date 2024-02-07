@@ -1,7 +1,7 @@
-import { autoSwarmMarketAbi } from "../constants/abis";
+import type { Hex } from "viem";
 import { sendWallet } from "./send";
 import { addressesGetField } from "../common/addresses";
-import type { Hex } from "viem";
+import autoSwarmMarket from "@autoswarm/contracts/out/AutoSwarmMarket.sol/AutoSwarmMarket.json";
 
 const sendMarketNewBatch = async (bzzChainId: number, bzzAmount: bigint) => {
   const [publicClient, walletClient, walletAddress] = await sendWallet(bzzChainId);
@@ -9,7 +9,7 @@ const sendMarketNewBatch = async (bzzChainId: number, bzzAmount: bigint) => {
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: addressesGetField(bzzChainId, "AutoSwarmMarket"),
-    abi: autoSwarmMarketAbi,
+    abi: autoSwarmMarket.abi,
     functionName: "newBatch",
     args: [bzzAmount],
   });
@@ -23,7 +23,7 @@ const sendMarketSync = async (bzzChainId: number) => {
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: addressesGetField(bzzChainId, "AutoSwarmMarket"),
-    abi: autoSwarmMarketAbi,
+    abi: autoSwarmMarket.abi,
     functionName: "sync",
   });
   const hash = await walletClient.writeContract(request);
@@ -37,7 +37,7 @@ const sendMarketAttachStamps = async (bzzChainId: number, stampIds: readonly Hex
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: addressesGetField(bzzChainId, "AutoSwarmMarket"),
-    abi: autoSwarmMarketAbi,
+    abi: autoSwarmMarket.abi,
     functionName: "attachStamps",
     args: [stampIds, batchId],
   });

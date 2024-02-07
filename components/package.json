@@ -11,6 +11,6 @@
     "@autoswarm/common": "workspace:^"
   },
   "devDependencies": {
-    "viem": "^2.5.0"
+    "viem": "^2.7.6"
   }
 }

@@ -54,7 +54,7 @@ const sendWallet = async (bzzChainId: number): Promise<[PublicClient, WalletClie
   const walletClient = await sendWalletClient(bzzChainId);
   const walletAddress = await sendWalletAddress(true);
 
-  return [publicClient, walletClient, walletAddress];
+  return [publicClient, walletClient, walletAddress] as [PublicClient, WalletClient, Address];
 };
 
 const sendWalletAddress = async (force = false, n = 0): Promise<Address> => {

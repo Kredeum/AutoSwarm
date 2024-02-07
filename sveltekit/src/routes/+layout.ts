@@ -6,9 +6,12 @@ import { localConfigGet, localConfigInit } from '@autoswarm/common/src/common/lo
 const prerender = false;
 const ssr = false;
 
+
 const load: Load = async () => {
 	localConfigInit();
 	bzzChainId.set(Number(localConfigGet('bzzChainId')));
+  console.log("typeof window:", typeof window);
+  console.log("typeof localStorage:", typeof localStorage);
 
 	return {
 		chain: bzzChain(),

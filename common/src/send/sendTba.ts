@@ -1,7 +1,7 @@
 import { type Address, zeroAddress, type Hex } from "viem";
-import { autoSwarmAccountAbi } from "../constants/abis";
 import { sendWallet } from "./send";
 import { ZERO_BYTES32 } from "../constants/constants";
+import autoSwarmAccount from "@autoswarm/contracts/out/AutoSwarmAccount.sol/AutoSwarmAccount.json";
 
 const sendTbaCreateStamp = async (bzzChainId: number, tba: Address, swarmHash = ZERO_BYTES32 as Hex, nftSize: bigint, bzzAmount: bigint) => {
   console.info("sendTbaCreateStamp:", bzzChainId, tba, swarmHash, nftSize);
@@ -16,7 +16,7 @@ const sendTbaCreateStamp = async (bzzChainId: number, tba: Address, swarmHash = 
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: tba,
-    abi: autoSwarmAccountAbi,
+    abi: autoSwarmAccount.abi,
     functionName: "createStamp",
     args: [swarmHash, nftSize, bzzAmount],
   });
@@ -34,7 +34,7 @@ const sendTbaTopUp = async (bzzChainId: number, tba: Address | undefined, bzzAmo
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: tba,
-    abi: autoSwarmAccountAbi,
+    abi: autoSwarmAccount.abi,
     functionName: "topUp",
     args: [bzzAmount],
   });
@@ -50,7 +50,7 @@ const sendTbaWithdraw = async (bzzChainId: number, tba: Address, token = zeroAdd
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: tba,
-    abi: autoSwarmAccountAbi,
+    abi: autoSwarmAccount.abi,
     functionName: "withdraw",
     args: [token],
   });

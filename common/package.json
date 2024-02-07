@@ -11,7 +11,7 @@
     "@fairdatasociety/bmt-js": "^2.1.0",
     "@types/tar-js": "^0.3.5",
     "tar-js": "^0.3.0",
-    "viem": "^2.5.0"
+    "viem": "^2.7.6"
   },
   "dependencies": {
     "@autoswarm/contracts": "workspace:^"

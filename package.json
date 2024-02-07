@@ -1,6 +1,6 @@
 {
   "name": "autoswarm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "index.js",
   "scripts": {
     "all": "pnpm -r all",
@@ -15,6 +15,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "turbo": "^1.11.3"
+    "turbo": "^1.12.3"
   }
 }

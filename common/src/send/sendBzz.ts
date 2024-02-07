@@ -1,7 +1,7 @@
 import { zeroAddress, type Address } from "viem";
-import { erc20Abi } from "../constants/abis";
 import { addressesGet } from "../common/addresses";
 import { sendWallet } from "./send";
+import erc20 from "@autoswarm/contracts/out/IERC20.sol/IERC20.json";
 
 const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint | undefined) => {
   if (!bzzAmount) throw new Error("Bzz amount undefined");
@@ -14,7 +14,7 @@ const sendBzzApprove = async (bzzChainId: number, bzzAmount: bigint | undefined)
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: json.BzzToken as Address,
-    abi: erc20Abi,
+    abi: erc20.abi,
     functionName: "approve",
     args: [json.PostageStamp as Address, bzzAmount],
   });
@@ -35,7 +35,7 @@ const sendBzzTransfer = async (bzzChainId: number, to: Address, bzzAmount: bigin
   const { request } = await publicClient.simulateContract({
     account: walletAddress,
     address: json.BzzToken as Address,
-    abi: erc20Abi,
+    abi: erc20.abi,
     functionName: "transfer",
     args: [to as Address, bzzAmount],
   });
